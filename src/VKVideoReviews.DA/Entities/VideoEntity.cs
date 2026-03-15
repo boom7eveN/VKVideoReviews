@@ -9,8 +9,8 @@ public class VideoEntity
     public long VkVideoId { get; set; }
     public string Title { get; set; }
     public string ImageUrl { get; set; }
-    public double AverageRate { get; set; }
-    public int TotalReviews { get; set; }
+    public double AverageRate { get; set; } = 0.0;
+    public int TotalReviews { get; set; } = 0;
     
     public Guid VideoTypeId { get; set; }
     public VideoTypeEntity VideoType { get; set; }
