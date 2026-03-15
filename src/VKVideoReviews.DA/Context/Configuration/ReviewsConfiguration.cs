@@ -14,7 +14,7 @@ public static class ReviewsConfiguration
             entity.Property(r => r.Rate)
                 .IsRequired();
 
-            entity.ToTable(t => t.HasCheckConstraint("CK_Review_Rate", "Rate >= 1 AND Rate <= 10"));
+            entity.ToTable(t => t.HasCheckConstraint("CK_Review_Rate", "\"Rate\" >= 1 AND \"Rate\" <= 10"));
 
 
             entity.Property(r => r.CreateDate)

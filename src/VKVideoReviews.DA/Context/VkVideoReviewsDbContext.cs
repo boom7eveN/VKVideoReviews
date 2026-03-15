@@ -4,7 +4,7 @@ using VKVideoReviews.DA.Entities;
 
 namespace VKVideoReviews.DA.Context;
 
-public class VkVideoReviewsContext(DbContextOptions options) : DbContext(options)
+public class VkVideoReviewsDbContext(DbContextOptions options) : DbContext(options)
 {
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<VideoEntity> Videos { get; set; }
@@ -25,5 +25,6 @@ public class VkVideoReviewsContext(DbContextOptions options) : DbContext(options
         modelBuilder.ConfigureGenres();
         modelBuilder.ConfigureReviews();
         modelBuilder.ConfigureGenresVideos();
+        modelBuilder.ConfigureUserTokens();
     }
 }

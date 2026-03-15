@@ -2,7 +2,7 @@
 
 namespace VKVideoReviews.DA.Entities;
 
-[Table("Genre")]
+[Table("Genres")]
 public class GenreEntity
 {
     public Guid GenreId { get; set; }

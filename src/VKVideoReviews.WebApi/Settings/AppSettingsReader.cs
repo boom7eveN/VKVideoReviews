@@ -1,8 +1,8 @@
 ﻿namespace VKVideoReviews.WebApi.Settings;
 
-public class AppSettingsReader
+public static class AppSettingsReader
 {
-    public AppSettings Read(IConfiguration configuration)
+    public static AppSettings Read(IConfiguration configuration)
     {
         return new AppSettings()
         {
