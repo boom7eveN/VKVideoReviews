@@ -1,6 +1,3 @@
-@VKVideoReviews.WebApi_HostAddress = http://localhost:5281
-
-GET {{VKVideoReviews.WebApi_HostAddress}}/weatherforecast/
-Accept: application/json
+@VKVideoReviews.WebApi_HostAddress = http://localhost:80
 
 ###
