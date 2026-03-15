@@ -6,6 +6,7 @@ public class AppSettingsReader
     {
         return new AppSettings()
         {
+            VkVideoReviewsDbConnectionString = configuration.GetSection("ConnectionStrings:VKVideoReviews").Value,
             ProtectedKey = configuration.GetSection("VKKeys:ProtectedKey").Value,
             ServiceKey = configuration.GetSection("VKKeys:ServiceKey").Value,
         };
