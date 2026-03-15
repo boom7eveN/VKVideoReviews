@@ -8,8 +8,6 @@ public class AppSettingsReader
         {
             ProtectedKey = configuration.GetSection("VKKeys:ProtectedKey").Value,
             ServiceKey = configuration.GetSection("VKKeys:ServiceKey").Value,
-
-
         };
     }
 }

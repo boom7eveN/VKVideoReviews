@@ -12,7 +12,7 @@ public static class SwaggerConfigurator
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "VKVideoReviews API", Version = "v1" });
         });
     }
-    
+
     public static void ConfigureApplication(IApplicationBuilder app)
     {
         app.UseSwagger();

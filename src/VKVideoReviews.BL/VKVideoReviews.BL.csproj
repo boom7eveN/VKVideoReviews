@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\VKVideoReviews.DA\VKVideoReviews.DA.csproj" />
+        <ProjectReference Include="..\VKVideoReviews.DA\VKVideoReviews.DA.csproj"/>
     </ItemGroup>
 
 </Project>

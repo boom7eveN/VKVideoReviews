@@ -10,11 +10,11 @@ public static class VideoTypesConfiguration
         modelBuilder.Entity<VideoTypeEntity>(entity =>
         {
             entity.HasKey(vt => vt.VideoTypeId);
-            
+
             entity.Property(vt => vt.Title)
                 .IsRequired()
                 .HasMaxLength(20);
-            
+
             entity.HasIndex(vt => vt.Title)
                 .IsUnique();
         });

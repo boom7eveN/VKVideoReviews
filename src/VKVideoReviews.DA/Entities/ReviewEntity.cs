@@ -13,7 +13,7 @@ public class ReviewEntity
 
     public Guid VideoId { get; set; }
     public VideoEntity Video { get; set; }
-    
+
     public DateTime CreateDate { get; set; }
     public DateTime UpdateDate { get; set; }
 }

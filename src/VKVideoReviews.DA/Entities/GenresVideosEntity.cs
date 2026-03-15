@@ -7,7 +7,7 @@ public class GenresVideosEntity
 {
     public Guid GenreId { get; set; }
     public GenreEntity Genre { get; set; }
-    
+
     public Guid VideoId { get; set; }
     public VideoEntity Video { get; set; }
 }

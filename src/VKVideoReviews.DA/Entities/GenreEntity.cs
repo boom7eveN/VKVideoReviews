@@ -7,6 +7,6 @@ public class GenreEntity
 {
     public Guid GenreId { get; set; }
     public string Title { get; set; }
-    
+
     public ICollection<GenresVideosEntity> GenresVideos { get; set; }
 }

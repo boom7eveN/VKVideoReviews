@@ -7,6 +7,6 @@ public class VideoTypeEntity
 {
     public Guid VideoTypeId { get; set; }
     public string Title { get; set; }
-    
-    public ICollection<VideoEntity> Videos { get; set; } 
+
+    public ICollection<VideoEntity> Videos { get; set; }
 }

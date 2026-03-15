@@ -11,7 +11,7 @@ public class UserEntity
     public long VkUserId { get; set; }
     public bool IsAdmin { get; set; } = false;
     public string AvatarUrl { get; set; }
-    
+
     public virtual ICollection<ReviewEntity> Reviews { get; set; }
     public virtual ICollection<FavoriteEntity> Favorites { get; set; }
 }
