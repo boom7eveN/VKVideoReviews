@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{823DB117-693E-48DF-B4C8-67CC2208573B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VKVideoReviews.WebApi", "src\VKVideoReviews.WebApi\VKVideoReviews.WebApi.csproj", "{6D1CC6CB-DADA-45C6-B38D-4859141B97C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VKVideoReviews.BL", "src\VKVideoReviews.BL\VKVideoReviews.BL.csproj", "{08B03C9A-C05C-458B-B59D-02896C1DE597}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VKVideoReviews.DA", "src\VKVideoReviews.DA\VKVideoReviews.DA.csproj", "{9940C652-C67E-4E85-8B82-7A630A3AB920}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6D1CC6CB-DADA-45C6-B38D-4859141B97C4} = {823DB117-693E-48DF-B4C8-67CC2208573B}
+		{08B03C9A-C05C-458B-B59D-02896C1DE597} = {823DB117-693E-48DF-B4C8-67CC2208573B}
+		{9940C652-C67E-4E85-8B82-7A630A3AB920} = {823DB117-693E-48DF-B4C8-67CC2208573B}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6D1CC6CB-DADA-45C6-B38D-4859141B97C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D1CC6CB-DADA-45C6-B38D-4859141B97C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D1CC6CB-DADA-45C6-B38D-4859141B97C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D1CC6CB-DADA-45C6-B38D-4859141B97C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08B03C9A-C05C-458B-B59D-02896C1DE597}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08B03C9A-C05C-458B-B59D-02896C1DE597}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08B03C9A-C05C-458B-B59D-02896C1DE597}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08B03C9A-C05C-458B-B59D-02896C1DE597}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9940C652-C67E-4E85-8B82-7A630A3AB920}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9940C652-C67E-4E85-8B82-7A630A3AB920}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9940C652-C67E-4E85-8B82-7A630A3AB920}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9940C652-C67E-4E85-8B82-7A630A3AB920}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
