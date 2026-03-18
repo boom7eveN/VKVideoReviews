@@ -5,7 +5,7 @@ using VKVideoReviews.DA.Repositories.Interfaces;
 
 namespace VKVideoReviews.DA.Repositories;
 
-public class GenreRepository(VkVideoReviewsDbContext context) : IGenresRepository
+public class GenresRepository(VkVideoReviewsDbContext context) : IGenresRepository
 {
     public async Task<GenreEntity?> CreateAsync(GenreEntity entity)
     {
@@ -30,17 +30,22 @@ public class GenreRepository(VkVideoReviewsDbContext context) : IGenresRepositor
         return await context.Genres.AsNoTracking().FirstOrDefaultAsync(x => x.GenreId == id);
     }
 
-    public async Task Delete(GenreEntity entity)
+    public async Task DeleteAsync(GenreEntity entity)
     {
         context.Genres.Remove(entity);
         await context.SaveChangesAsync();
     }
 
-    public async Task<GenreEntity> Update(GenreEntity entity)
+    public async Task<GenreEntity> UpdateAsync(GenreEntity entity)
     {
         var result = context.Genres.Attach(entity);
         result.State = EntityState.Modified;
         await context.SaveChangesAsync();
         return result.Entity;
+    }
+    
+    public async Task<GenreEntity?> GetByTitleAsync(string title)
+    {
+        return await context.Genres.AsNoTracking().FirstOrDefaultAsync(x => x.Title == title);
     }
 }
