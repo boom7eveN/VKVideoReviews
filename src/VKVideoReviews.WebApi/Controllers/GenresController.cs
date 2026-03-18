@@ -31,8 +31,8 @@ public class GenresController(ILogger<GenresController> logger, IGenresService g
     [HttpGet("{id}")]
     public async Task<ActionResult<GenresListResponse>> GetGenreById(Guid id)
     {
-            var genre = await genresService.GetGenreByIdAsync(id);
-            return Ok(new GenresListResponse([genre]));
+        var genre = await genresService.GetGenreByIdAsync(id);
+        return Ok(new GenresListResponse([genre]));
     }
 
     [HttpPut("{id}")]

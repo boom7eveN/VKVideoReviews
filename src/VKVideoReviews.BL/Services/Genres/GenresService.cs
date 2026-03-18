@@ -21,28 +21,28 @@ public class GenresService(IGenresRepository repository, IMapper mapper) : IGenr
             throw new AlreadyExistsException("Genre");
         return mapper.Map<GenreModel>(genreEntity);
     }
-    
+
     public async Task<IEnumerable<GenreModel>> GetAllGenresAsync()
     {
         var genres = await repository.GetAllAsync();
         return mapper.Map<IEnumerable<GenreModel>>(genres);
     }
-    
+
     public async Task<GenreModel> GetGenreByIdAsync(Guid id)
     {
         var genre = await repository.GetByIdAsync(id);
         if (genre is null)
-            throw new  NotFoundException("Genre");
-        
+            throw new NotFoundException("Genre");
+
         return mapper.Map<GenreModel>(genre);
     }
-    
+
     public async Task<GenreModel> UpdateGenreAsync(Guid id, UpdateGenreModel model)
     {
         var existingGenre = await repository.GetByIdAsync(id);
         if (existingGenre is null)
             throw new NotFoundException("Genre", id);
-        
+
         if (!string.Equals(existingGenre.Title, model.Title, StringComparison.OrdinalIgnoreCase))
         {
             var genreWithSameTitle = await repository.GetByTitleAsync(model.Title);
@@ -52,7 +52,7 @@ public class GenresService(IGenresRepository repository, IMapper mapper) : IGenr
 
         mapper.Map(model, existingGenre);
         var updatedGenre = await repository.UpdateAsync(existingGenre);
-        
+
         return mapper.Map<GenreModel>(updatedGenre);
     }
 

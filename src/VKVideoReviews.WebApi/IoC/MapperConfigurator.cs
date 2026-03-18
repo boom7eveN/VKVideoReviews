@@ -11,7 +11,6 @@ public static class MapperConfigurator
         {
             config.AddProfile<GenresWebApiProfile>();
             config.AddProfile<GenresBLProfile>();
-
         });
     }
 }

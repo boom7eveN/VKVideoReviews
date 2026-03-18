@@ -13,7 +13,7 @@ public class GenresBLProfile : Profile
                 => opt.Ignore())
             .ForMember(dest => dest.Title, opt
                 => opt.MapFrom(src => src.Title));
-        
+
         CreateMap<UpdateGenreModel, GenreEntity>()
             .ForMember(dest => dest.GenreId, opt
                 => opt.Ignore())

@@ -9,15 +9,14 @@ public class GenresRepository(VkVideoReviewsDbContext context) : IGenresReposito
 {
     public async Task<GenreEntity?> CreateAsync(GenreEntity entity)
     {
-        var maybeGenre = await context.Genres.FirstOrDefaultAsync(x=> x.GenreId ==  entity.GenreId);
+        var maybeGenre = await context.Genres.FirstOrDefaultAsync(x => x.GenreId == entity.GenreId);
 
         if (maybeGenre is not null)
             return null;
-        
+
         await context.Genres.AddAsync(entity);
         await context.SaveChangesAsync();
         return entity;
-
     }
 
     public async Task<IEnumerable<GenreEntity>> GetAllAsync()
@@ -43,7 +42,7 @@ public class GenresRepository(VkVideoReviewsDbContext context) : IGenresReposito
         await context.SaveChangesAsync();
         return result.Entity;
     }
-    
+
     public async Task<GenreEntity?> GetByTitleAsync(string title)
     {
         return await context.Genres.AsNoTracking().FirstOrDefaultAsync(x => x.Title == title);
