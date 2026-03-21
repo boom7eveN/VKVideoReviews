@@ -13,12 +13,14 @@ var settings = AppSettingsReader.Read(configuration);
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
 builder.Configuration.AddConfiguration(configuration);
+
 
 SerilogConfigurator.ConfigureServices(builder);
 SwaggerConfigurator.ConfigureServices(builder.Services);
 MapperConfigurator.ConfigureServices(builder.Services);
-ServicesConfigurator.ConfigureServices(builder.Services);
+ServicesConfigurator.ConfigureServices(builder.Services, settings);
 DbContextConfigurator.ConfigureService(builder.Services, settings);
 
 var app = builder.Build();

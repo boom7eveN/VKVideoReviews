@@ -1,13 +1,15 @@
 ﻿using VKVideoReviews.BL.Services.Genres;
 using VKVideoReviews.BL.Services.VideoTypes;
+using VKVideoReviews.BL.Services.VkAuth;
 using VKVideoReviews.DA.Repositories;
 using VKVideoReviews.DA.Repositories.Interfaces;
+using VKVideoReviews.WebApi.Settings;
 
 namespace VKVideoReviews.WebApi.IoC;
 
 public static class ServicesConfigurator
 {
-    public static void ConfigureServices(IServiceCollection services)
+    public static void ConfigureServices(IServiceCollection services, AppSettings appSettings)
     {
         services.AddScoped<IGenresService, GenresService>();
         services.AddScoped<IVideoTypesService, VideoTypesService>();
@@ -15,5 +17,9 @@ public static class ServicesConfigurator
 
         services.AddScoped<IGenresRepository, GenresRepository>();
         services.AddScoped<IVideoTypesRepository, VideoTypesRepository>();
+        
+        services.AddScoped<IVkAuthService>(sp => new VkAuthService(
+            appSettings.ClientId, 
+            appSettings.RedirectUri));
     }
 }
