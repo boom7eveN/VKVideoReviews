@@ -5,7 +5,7 @@ using VKVideoReviews.DA.Repositories.Interfaces;
 
 namespace VKVideoReviews.WebApi.IoC;
 
-public class ServicesConfigurator
+public static class ServicesConfigurator
 {
     public static void ConfigureServices(IServiceCollection services)
     {
