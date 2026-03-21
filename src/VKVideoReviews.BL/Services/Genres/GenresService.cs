@@ -30,38 +30,38 @@ public class GenresService(IGenresRepository repository, IMapper mapper) : IGenr
 
     public async Task<GenreModel> GetGenreByIdAsync(Guid id)
     {
-        var genre = await repository.GetByIdAsync(id);
-        if (genre is null)
+        var maybeGenre = await repository.GetByIdAsync(id);
+        if (maybeGenre is null)
             throw new NotFoundException("Genre");
 
-        return mapper.Map<GenreModel>(genre);
+        return mapper.Map<GenreModel>(maybeGenre);
     }
 
     public async Task<GenreModel> UpdateGenreAsync(Guid id, UpdateGenreModel model)
     {
-        var existingGenre = await repository.GetByIdAsync(id);
-        if (existingGenre is null)
+        var maybeGenre = await repository.GetByIdAsync(id);
+        if (maybeGenre is null)
             throw new NotFoundException("Genre", id);
 
-        if (!string.Equals(existingGenre.Title, model.Title, StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(maybeGenre.Title, model.Title, StringComparison.OrdinalIgnoreCase))
         {
             var genreWithSameTitle = await repository.GetByTitleAsync(model.Title);
             if (genreWithSameTitle is not null)
                 throw new AlreadyExistsException("Genre with this title");
         }
 
-        mapper.Map(model, existingGenre);
-        var updatedGenre = await repository.UpdateAsync(existingGenre);
+        mapper.Map(model, maybeGenre);
+        var updatedGenre = await repository.UpdateAsync(maybeGenre);
 
         return mapper.Map<GenreModel>(updatedGenre);
     }
 
     public async Task DeleteGenreAsync(Guid id)
     {
-        var genre = await repository.GetByIdAsync(id);
-        if (genre is null)
+        var maybeGenre = await repository.GetByIdAsync(id);
+        if (maybeGenre is null)
             throw new NotFoundException("Genre", id);
 
-        await repository.DeleteAsync(genre);
+        await repository.DeleteAsync(maybeGenre);
     }
 }
