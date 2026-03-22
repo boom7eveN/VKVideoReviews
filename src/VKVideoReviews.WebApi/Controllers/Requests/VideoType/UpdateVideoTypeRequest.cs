@@ -2,5 +2,5 @@
 
 public class UpdateVideoTypeRequest
 {
-    public string Title {get; set;}
+    public string Title { get; set; }
 }

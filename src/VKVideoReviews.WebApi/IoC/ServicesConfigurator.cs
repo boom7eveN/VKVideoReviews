@@ -17,9 +17,17 @@ public static class ServicesConfigurator
 
         services.AddScoped<IGenresRepository, GenresRepository>();
         services.AddScoped<IVideoTypesRepository, VideoTypesRepository>();
-        
-        services.AddScoped<IVkAuthService>(sp => new VkAuthService(
-            appSettings.ClientId, 
-            appSettings.RedirectUri));
+
+        services.AddHttpClient();
+        services.AddScoped<IVkAuthService>(sp =>
+        {
+            var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+            var httpClient = httpClientFactory.CreateClient();
+
+            return new VkAuthService(
+                appSettings.ClientId,
+                appSettings.RedirectUri,
+                httpClient);
+        });
     }
 }

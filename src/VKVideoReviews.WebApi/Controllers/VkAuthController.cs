@@ -48,7 +48,7 @@ public class VkAuthController(
         {
             return BadRequest(new { error = "invalid_state", error_description = "State not found" });
         }
-        
+
         cache.Remove(cacheKey);
 
         return Ok($"{code}:{state}:{device_id} - ЗАГЛУУУУУУУУУУУУУУУУУУУУУУШКА");

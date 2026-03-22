@@ -11,7 +11,7 @@ public static class MapperConfigurator
         {
             config.AddProfile<GenresWebApiProfile>();
             config.AddProfile<GenresBLProfile>();
-            
+
             config.AddProfile<VideoTypesBLProfile>();
             config.AddProfile<VideoTypesWebApiProfile>();
         });
