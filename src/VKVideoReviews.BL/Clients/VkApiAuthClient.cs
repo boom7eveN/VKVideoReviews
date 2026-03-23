@@ -5,11 +5,8 @@ using VKVideoReviews.BL.Services.VkAuth.Models;
 
 namespace VKVideoReviews.BL.Clients;
 
-public class VkIdClient(HttpClient httpClient) : IVkIdClient
+public class VkApiAuthClient(HttpClient httpClient) : IVkApiAuthClient
 {
-    private readonly HttpClient _httpClient = httpClient;
-
-
     public async Task<VkTokensApiResponse> GetUserTokensAsync(FormUrlEncodedContent content)
     {
         var response = await httpClient.PostAsync(

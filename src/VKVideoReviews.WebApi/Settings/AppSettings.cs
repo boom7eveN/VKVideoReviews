@@ -10,4 +10,5 @@ public class AppSettings
     public string ClientId { get; set; }
 
     public string VkIdUri { get; set; }
+    public string VkMethodsUri { get; set; }
 }

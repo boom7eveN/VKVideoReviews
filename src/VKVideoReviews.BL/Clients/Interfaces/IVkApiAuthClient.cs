@@ -2,7 +2,7 @@
 
 namespace VKVideoReviews.BL.Clients.Interfaces;
 
-public interface IVkIdClient
+public interface IVkApiAuthClient
 {
     Task<VkTokensApiResponse> GetUserTokensAsync(FormUrlEncodedContent content);
 }

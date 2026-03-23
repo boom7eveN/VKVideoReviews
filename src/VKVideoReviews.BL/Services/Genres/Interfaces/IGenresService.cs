@@ -1,6 +1,6 @@
 ﻿using VKVideoReviews.BL.Services.Genres.Models;
 
-namespace VKVideoReviews.BL.Services.Genres;
+namespace VKVideoReviews.BL.Services.Genres.Interfaces;
 
 public interface IGenresService
 {

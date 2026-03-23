@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using VKVideoReviews.BL.Services.VideoTypes;
+using VKVideoReviews.BL.Services.VideoTypes.Interfaces;
 using VKVideoReviews.BL.Services.VideoTypes.Models;
 using VKVideoReviews.WebApi.Controllers.Requests.VideoType;
 using VKVideoReviews.WebApi.Controllers.Responses.VideoType;

@@ -3,11 +3,12 @@ using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 using VKVideoReviews.BL.Clients.Interfaces;
 using VKVideoReviews.BL.Exceptions.VkAuthExceptions;
+using VKVideoReviews.BL.Services.VkAuth.Interfaces;
 using VKVideoReviews.BL.Services.VkAuth.Models;
 
 namespace VKVideoReviews.BL.Services.VkAuth;
 
-public class VkAuthService(string clientId, string redirectUri, IVkIdClient vkIdClient, IMemoryCache cache)
+public class VkAuthService(string clientId, string redirectUri, IVkApiAuthClient vkApiAuthClient, IMemoryCache cache)
     : IVkAuthService
 {
     private const string PkcePrefix = "vk_pkce_";
@@ -24,7 +25,7 @@ public class VkAuthService(string clientId, string redirectUri, IVkIdClient vkId
         return GetVkAuthorizationUrl(pkceData, state);
     }
 
-    public async Task<string> ProcessCallback(VkAuthCallbackModel vkAuthCallbackModel)
+    public async Task<VkTokensApiResponse> ExchangeCodeForTokenAsync(VkAuthCallbackModel vkAuthCallbackModel)
     {
         var stateCacheKey = $"{StatePrefix}{vkAuthCallbackModel.State}";
         if (!cache.TryGetValue(stateCacheKey, out string? savedState) || savedState == null)
@@ -43,7 +44,7 @@ public class VkAuthService(string clientId, string redirectUri, IVkIdClient vkId
         cache.Remove(pkceCacheKey);
 
         VkTokensApiResponse tokens = await ExchangeCodeForTokenAsync(vkAuthCallbackModel, codeVerifier);
-        return tokens.AccessToken;
+        return tokens;
     }
 
     private async Task<VkTokensApiResponse> ExchangeCodeForTokenAsync(VkAuthCallbackModel vkAuthCallbackModel,
@@ -54,7 +55,7 @@ public class VkAuthService(string clientId, string redirectUri, IVkIdClient vkId
 
         var parameters =
             GetParametersForCodeExchange(vkAuthCallbackModel, codeVerifier, state);
-        var vkTokens = await vkIdClient.GetUserTokensAsync(parameters);
+        var vkTokens = await vkApiAuthClient.GetUserTokensAsync(parameters);
         var stateCacheKey = $"{StatePrefix}{vkTokens.State}";
         if (!cache.TryGetValue(stateCacheKey, out string? savedState) || savedState == null)
         {

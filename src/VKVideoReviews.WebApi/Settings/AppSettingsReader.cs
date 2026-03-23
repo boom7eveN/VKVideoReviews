@@ -12,6 +12,7 @@ public static class AppSettingsReader
             ClientId = configuration.GetSection("VkKeys:ClientId").Value,
             RedirectUri = configuration.GetSection("RedirectUri").Value,
             VkIdUri = configuration.GetSection("VkApiUris:VkId").Value,
+            VkMethodsUri = configuration.GetSection("VkApiUris:VkMethods").Value,
         };
     }
 }
