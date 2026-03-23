@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
-using VKVideoReviews.BL.Exceptions;
-using VKVideoReviews.BL.Services.Genres.Models;
+using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.VideoTypes.Models;
 using VKVideoReviews.DA.Entities;
 using VKVideoReviews.DA.Repositories.Interfaces;

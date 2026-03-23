@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
-using VKVideoReviews.BL.Exceptions.Common;
+using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
+using VKVideoReviews.BL.Exceptions.VkAuthExceptions;
 
 namespace VKVideoReviews.WebApi.IoC;
 
@@ -22,17 +23,23 @@ public static class ExceptionHandlerConfigurator
                     context.Request.Method);
 
                 string errorCode, message;
-                if (exception is BusinessLogicException ex)
+                switch (exception)
                 {
-                    context.Response.StatusCode = ex.StatusCode;
-                    errorCode = ex.ErrorCode;
-                    message = ex.Message;
-                }
-                else
-                {
-                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                    errorCode = "INTERNAL_ERROR";
-                    message = "Internal Server Error";
+                    case BusinessLogicException businessLogicException:
+                        context.Response.StatusCode = businessLogicException.StatusCode;
+                        errorCode = businessLogicException.ErrorCode;
+                        message = businessLogicException.Message;
+                        break;
+                    case VkAuthException authException:
+                        context.Response.StatusCode = authException.StatusCode;
+                        errorCode = authException.ErrorCode;
+                        message = authException.Message;
+                        break;
+                    default:
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                        errorCode = "INTERNAL_ERROR";
+                        message = "Internal Server Error";
+                        break;
                 }
 
                 var environment = context.RequestServices.GetRequiredService<IHostEnvironment>();

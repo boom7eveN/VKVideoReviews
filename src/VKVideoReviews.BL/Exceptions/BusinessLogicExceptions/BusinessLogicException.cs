@@ -1,4 +1,4 @@
-﻿namespace VKVideoReviews.BL.Exceptions.Common;
+﻿namespace VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 
 public class BusinessLogicException(
     string message,

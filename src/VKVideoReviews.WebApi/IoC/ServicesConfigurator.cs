@@ -1,4 +1,5 @@
-﻿using VKVideoReviews.BL.Services.Genres;
+﻿using Microsoft.Extensions.Caching.Memory;
+using VKVideoReviews.BL.Services.Genres;
 using VKVideoReviews.BL.Services.VideoTypes;
 using VKVideoReviews.BL.Services.VkAuth;
 using VKVideoReviews.DA.Repositories;
@@ -23,11 +24,14 @@ public static class ServicesConfigurator
         {
             var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
             var httpClient = httpClientFactory.CreateClient();
+            var cache = sp.GetRequiredService<IMemoryCache>();
 
             return new VkAuthService(
                 appSettings.ClientId,
                 appSettings.RedirectUri,
-                httpClient);
+                httpClient,
+                cache
+                );
         });
     }
 }

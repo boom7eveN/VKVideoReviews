@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace VKVideoReviews.WebApi.Controllers.Responses.VkAuth;
+namespace VKVideoReviews.BL.Services.VkAuth.Models;
 
-public class VkTokenResponse
+public class VkTokensApiResponse
 {
     [JsonPropertyName("refresh_token")] public string RefreshToken { get; set; }
 

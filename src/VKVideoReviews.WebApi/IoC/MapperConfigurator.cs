@@ -14,6 +14,7 @@ public static class MapperConfigurator
 
             config.AddProfile<VideoTypesBLProfile>();
             config.AddProfile<VideoTypesWebApiProfile>();
+            config.AddProfile<VkAuthWebApiProfile>();
         });
     }
 }
