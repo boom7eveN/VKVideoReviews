@@ -2,7 +2,7 @@
 
 namespace VKVideoReviews.BL.Exceptions.VkAuthExceptions;
 
-public class PkceValidationException() 
-    : VkAuthException("INVALID_PKCE", 
+public class PkceValidationException()
+    : VkAuthException("INVALID_PKCE",
         "PKCE data not found or expired",
         500);

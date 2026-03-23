@@ -3,7 +3,7 @@
 public class VkAuthException(
     string errorCode,
     string message,
-    int statusCode = 500) 
+    int statusCode = 500)
     : Exception(message)
 {
     public string ErrorCode { get; } = errorCode;

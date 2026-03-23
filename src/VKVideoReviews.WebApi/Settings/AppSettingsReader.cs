@@ -6,11 +6,12 @@ public static class AppSettingsReader
     {
         return new AppSettings()
         {
-            VkVideoReviewsDbConnectionString = configuration.GetSection("ConnectionStrings:VKVideoReviews").Value,
-            ProtectedKey = configuration.GetSection("VKKeys:ProtectedKey").Value,
-            ServiceKey = configuration.GetSection("VKKeys:ServiceKey").Value,
-            ClientId = configuration.GetSection("VKKeys:ClientId").Value,
-            RedirectUri = configuration.GetSection("VkAuth:RedirectUri").Value,
+            VkVideoReviewsDbConnectionString = configuration.GetSection("ConnectionStrings:VkVideoReviews").Value,
+            ProtectedKey = configuration.GetSection("VkKeys:ProtectedKey").Value,
+            ServiceKey = configuration.GetSection("VkKeys:ServiceKey").Value,
+            ClientId = configuration.GetSection("VkKeys:ClientId").Value,
+            RedirectUri = configuration.GetSection("RedirectUri").Value,
+            VkIdUri = configuration.GetSection("VkApiUris:VkId").Value,
         };
     }
 }

@@ -24,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\Responses\VkAuth\" />
+        <Folder Include="Controllers\Responses\VkAuth\"/>
     </ItemGroup>
 
 </Project>

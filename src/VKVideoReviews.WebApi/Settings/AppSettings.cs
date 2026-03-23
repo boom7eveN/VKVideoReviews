@@ -8,4 +8,6 @@ public class AppSettings
 
     public string RedirectUri { get; set; }
     public string ClientId { get; set; }
+
+    public string VkIdUri { get; set; }
 }

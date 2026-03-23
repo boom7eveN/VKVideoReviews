@@ -1,13 +1,13 @@
-﻿using System.Net.Http.Json;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
+using VKVideoReviews.BL.Clients.Interfaces;
 using VKVideoReviews.BL.Exceptions.VkAuthExceptions;
 using VKVideoReviews.BL.Services.VkAuth.Models;
 
 namespace VKVideoReviews.BL.Services.VkAuth;
 
-public class VkAuthService(string clientId, string redirectUri, HttpClient httpClient, IMemoryCache cache)
+public class VkAuthService(string clientId, string redirectUri, IVkIdClient vkIdClient, IMemoryCache cache)
     : IVkAuthService
 {
     private const string PkcePrefix = "vk_pkce_";
@@ -52,32 +52,16 @@ public class VkAuthService(string clientId, string redirectUri, HttpClient httpC
         var state = GenerateState();
         cache.Set($"{StatePrefix}{state}", state, StateLifeTime);
 
-        var content = GetExchangeCodeForTokenParameters(vkAuthCallbackModel, codeVerifier, state);
-        var response = await httpClient.PostAsync(
-            "https://id.vk.ru/oauth2/auth",
-            content
-        );
-
-        if (!response.IsSuccessStatusCode)
+        var parameters =
+            GetParametersForCodeExchange(vkAuthCallbackModel, codeVerifier, state);
+        var vkTokens = await vkIdClient.GetUserTokensAsync(parameters);
+        var stateCacheKey = $"{StatePrefix}{vkTokens.State}";
+        if (!cache.TryGetValue(stateCacheKey, out string? savedState) || savedState == null)
         {
-            var errorResponse = await response.Content.ReadFromJsonAsync<VkTokensApiErrorResponse>();
-            throw new VkAuthException(
-                errorResponse?.Error ?? "Unknown VK API error",
-                errorResponse?.ErrorDescription ?? "Unknown VK API error",
-                (int)response.StatusCode
-            );
+            throw new StateValidationException();
         }
-        else
-        {
-            var vkTokens = await response.Content.ReadFromJsonAsync<VkTokensApiResponse>();
-            var stateCacheKey = $"{StatePrefix}{vkTokens?.State}";
-            if (!cache.TryGetValue(stateCacheKey, out string? savedState) || savedState == null)
-            {
-                throw new StateValidationException();
-            }
 
-            return vkTokens!;
-        }
+        return vkTokens;
     }
 
 
@@ -118,7 +102,7 @@ public class VkAuthService(string clientId, string redirectUri, HttpClient httpC
         return $"https://id.vk.ru/authorize?{queryString}";
     }
 
-    private FormUrlEncodedContent GetExchangeCodeForTokenParameters(VkAuthCallbackModel vkAuthCallbackModel,
+    private FormUrlEncodedContent GetParametersForCodeExchange(VkAuthCallbackModel vkAuthCallbackModel,
         string codeVerifier, string state)
     {
         var requestParams = new Dictionary<string, string>()
