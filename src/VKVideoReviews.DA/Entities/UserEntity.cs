@@ -15,4 +15,5 @@ public class UserEntity
     public virtual ICollection<ReviewEntity> Reviews { get; set; }
     public virtual ICollection<FavoriteEntity> Favorites { get; set; }
     public virtual ICollection<UserTokenEntity> Tokens { get; set; }
+    public virtual ICollection<UserAppSessionEntity> AppSessions { get; set; }
 }

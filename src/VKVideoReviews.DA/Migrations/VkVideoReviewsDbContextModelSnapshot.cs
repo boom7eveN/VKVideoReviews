@@ -108,6 +108,38 @@ namespace VKVideoReviews.DA.Migrations
                         });
                 });
 
+            modelBuilder.Entity("VKVideoReviews.DA.Entities.UserAppSessionEntity", b =>
+                {
+                    b.Property<Guid>("SessionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RefreshTokenHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("SessionId");
+
+                    b.HasIndex("RefreshTokenHash")
+                        .HasDatabaseName("IX_UserAppSessions_RefreshTokenHash");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_UserAppSessions_UserId");
+
+                    b.ToTable("UserAppSessions");
+                });
+
             modelBuilder.Entity("VKVideoReviews.DA.Entities.UserEntity", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -160,11 +192,6 @@ namespace VKVideoReviews.DA.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
                     b.Property<string>("RefreshToken")
                         .HasColumnType("text");
 
@@ -185,11 +212,10 @@ namespace VKVideoReviews.DA.Migrations
                     b.HasIndex("RefreshToken")
                         .HasDatabaseName("IX_UserTokens_RefreshToken");
 
+                    b.HasIndex("UserId");
+
                     b.HasIndex("VkUserId")
                         .HasDatabaseName("IX_UserTokens_VkUserId");
-
-                    b.HasIndex("UserId", "IsActive")
-                        .HasDatabaseName("IX_UserTokens_UserId_IsActive");
 
                     b.ToTable("UserTokens");
                 });
@@ -309,6 +335,17 @@ namespace VKVideoReviews.DA.Migrations
                     b.Navigation("Video");
                 });
 
+            modelBuilder.Entity("VKVideoReviews.DA.Entities.UserAppSessionEntity", b =>
+                {
+                    b.HasOne("VKVideoReviews.DA.Entities.UserEntity", "User")
+                        .WithMany("AppSessions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("VKVideoReviews.DA.Entities.UserTokenEntity", b =>
                 {
                     b.HasOne("VKVideoReviews.DA.Entities.UserEntity", "User")
@@ -338,6 +375,8 @@ namespace VKVideoReviews.DA.Migrations
 
             modelBuilder.Entity("VKVideoReviews.DA.Entities.UserEntity", b =>
                 {
+                    b.Navigation("AppSessions");
+
                     b.Navigation("Favorites");
 
                     b.Navigation("Reviews");

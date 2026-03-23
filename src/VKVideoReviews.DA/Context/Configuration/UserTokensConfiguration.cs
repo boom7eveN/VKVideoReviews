@@ -15,13 +15,6 @@ public static class UserTokensConfiguration
                 .IsRequired()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-            entity.Property(t => t.IsActive)
-                .IsRequired()
-                .HasDefaultValue(true);
-
-            entity.HasIndex(t => new { t.UserId, t.IsActive })
-                .HasDatabaseName("IX_UserTokens_UserId_IsActive");
-
             entity.HasIndex(t => t.VkUserId)
                 .HasDatabaseName("IX_UserTokens_VkUserId");
 

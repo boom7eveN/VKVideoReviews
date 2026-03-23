@@ -13,6 +13,8 @@ public class VkVideoReviewsDbContext(DbContextOptions options) : DbContext(optio
     public DbSet<ReviewEntity> Reviews { get; set; }
     public DbSet<GenresVideosEntity> GenresVideosEntities { get; set; }
     public DbSet<FavoriteEntity> Favourite { get; set; }
+    public DbSet<UserTokenEntity> UserTokens { get; set; }
+    public DbSet<UserAppSessionEntity> UserAppSessions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,5 +28,6 @@ public class VkVideoReviewsDbContext(DbContextOptions options) : DbContext(optio
         modelBuilder.ConfigureReviews();
         modelBuilder.ConfigureGenresVideos();
         modelBuilder.ConfigureUserTokens();
+        modelBuilder.ConfigureUserAppSessions();
     }
 }

@@ -23,7 +23,5 @@ public class UserTokenEntity
 
 
     public DateTime CreatedAt { get; set; }
-
-
-    public bool IsActive { get; set; } = true;
+    
 }
