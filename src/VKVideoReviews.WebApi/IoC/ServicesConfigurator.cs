@@ -4,6 +4,7 @@ using VKVideoReviews.BL.Clients;
 using VKVideoReviews.BL.Clients.Interfaces;
 using VKVideoReviews.BL.Services.AppAuth;
 using VKVideoReviews.BL.Services.AppAuth.Interfaces;
+using VKVideoReviews.BL.Services.AppAuth.Models;
 using VKVideoReviews.BL.Services.Genres;
 using VKVideoReviews.BL.Services.Genres.Interfaces;
 using VKVideoReviews.BL.Services.VideoTypes;
@@ -26,11 +27,15 @@ public static class ServicesConfigurator
 
         services.AddScoped<IGenresRepository, GenresRepository>();
         services.AddScoped<IVideoTypesRepository, VideoTypesRepository>();
-        
+
         services.AddScoped<IUserTokensRepository, UserTokensRepository>();
         services.AddScoped<IUsersRepository, UserRepository>();
         services.AddScoped<IUserAppSessionsRepository, UserAppSessionsRepository>();
         
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+        services.AddSingleton(appSettings.JwtAuthSettings);
+
         services.AddHttpClient<IVkApiAuthClient, VkApiAuthClient>(client =>
         {
             client.BaseAddress = new Uri(appSettings.VkIdUri);
@@ -56,8 +61,19 @@ public static class ServicesConfigurator
         {
             var vkMethodsClient = sp.GetRequiredService<IVkApiMethodsClient>();
             var mapper = sp.GetRequiredService<IMapper>();
-
-            return new AppAuthService(vkMethodsClient, mapper);
+            var userRepository = sp.GetRequiredService<IUsersRepository>();
+            var userTokensRepository = sp.GetRequiredService<IUserTokensRepository>();
+            var userAppSessionsRepository = sp.GetRequiredService<IUserAppSessionsRepository>();
+            var jwtAuthSettings = sp.GetRequiredService<JwtAuthSettings>(); 
+            var jwtTokenService = sp.GetRequiredService<IJwtTokenService>();
+            return new AppAuthService(
+                vkMethodsClient,
+                mapper,
+                userRepository,
+                userTokensRepository,
+                userAppSessionsRepository, 
+                jwtAuthSettings,
+                jwtTokenService);
         });
     }
 }

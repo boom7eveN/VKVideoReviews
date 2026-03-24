@@ -1,4 +1,6 @@
-﻿namespace VKVideoReviews.WebApi.Settings;
+﻿using VKVideoReviews.BL.Services.AppAuth.Models;
+
+namespace VKVideoReviews.WebApi.Settings;
 
 public static class AppSettingsReader
 {
@@ -13,6 +15,18 @@ public static class AppSettingsReader
             RedirectUri = configuration.GetSection("RedirectUri").Value,
             VkIdUri = configuration.GetSection("VkApiUris:VkId").Value,
             VkMethodsUri = configuration.GetSection("VkApiUris:VkMethods").Value,
+            JwtAuthSettings = new JwtAuthSettings
+            {
+                Secret = configuration["Jwt:Secret"] ?? string.Empty,
+                Issuer = configuration["Jwt:Issuer"] ?? "VKVideoReviews",
+                Audience = configuration["Jwt:Audience"] ?? "VKVideoReviews",
+                AccessTokenLifeTimeMinutes = int.TryParse(configuration["Jwt:AccessTokenLifetimeMinutes"], out var m)
+                    ? m
+                    : 60,
+                RefreshTokenLifeTimeDays = int.TryParse(configuration["Jwt:RefreshTokenLifetimeDays"], out var d)
+                    ? d
+                    : 180,
+            },
         };
     }
 }

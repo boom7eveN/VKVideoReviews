@@ -1,4 +1,6 @@
-﻿namespace VKVideoReviews.WebApi.Settings;
+﻿using VKVideoReviews.BL.Services.AppAuth.Models;
+
+namespace VKVideoReviews.WebApi.Settings;
 
 public class AppSettings
 {
@@ -11,4 +13,6 @@ public class AppSettings
 
     public string VkIdUri { get; set; }
     public string VkMethodsUri { get; set; }
+    
+    public JwtAuthSettings JwtAuthSettings { get; set; } = new JwtAuthSettings();
 }

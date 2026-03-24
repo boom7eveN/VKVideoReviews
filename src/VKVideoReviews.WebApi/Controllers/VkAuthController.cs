@@ -6,6 +6,7 @@ using VKVideoReviews.BL.Services.VkAuth;
 using VKVideoReviews.BL.Services.VkAuth.Interfaces;
 using VKVideoReviews.BL.Services.VkAuth.Models;
 using VKVideoReviews.WebApi.Controllers.Requests.VkAuth;
+using VKVideoReviews.WebApi.Controllers.Responses.AppAuth;
 
 namespace VKVideoReviews.WebApi.Controllers;
 
@@ -28,6 +29,6 @@ public class VkAuthController(
         var vkAuthCallbackModel = mapper.Map<VkAuthCallbackModel>(request);
         var vkTokens = await vkAuthService.ExchangeCodeForTokenAsync(vkAuthCallbackModel);
         var authTokensResult = await appAuthService.SignInWithVkTokensAsync(vkTokens);
-        return Ok(mapper.Map<AuthTokensResult>(authTokensResult));
+        return Ok(mapper.Map<AuthTokensResponse>(authTokensResult));
     }
 }
