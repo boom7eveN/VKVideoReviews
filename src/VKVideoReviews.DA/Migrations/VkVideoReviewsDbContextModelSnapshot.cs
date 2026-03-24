@@ -212,7 +212,8 @@ namespace VKVideoReviews.DA.Migrations
                     b.HasIndex("RefreshToken")
                         .HasDatabaseName("IX_UserTokens_RefreshToken");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.HasIndex("VkUserId")
                         .HasDatabaseName("IX_UserTokens_VkUserId");

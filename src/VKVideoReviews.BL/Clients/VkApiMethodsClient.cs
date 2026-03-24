@@ -9,19 +9,20 @@ public class VkApiMethodsClient(HttpClient httpClient) : IVkApiMethodsClient
 {
     public async Task<VkApiUserResponse> GetUserAsync(string requestParams)
     {
-        var response = await httpClient.GetAsync($"users.get?{requestParams}");
+        var url = $"users.get?{requestParams}";
+        var response = await httpClient.GetAsync(url);
         if (!response.IsSuccessStatusCode)
         {
             throw new VkApiException("VK API returned an unexpected status code", "VK_API_ERROR");
         }
         else
         {
-            var vkUser = await response.Content.ReadFromJsonAsync<VkApiUserResponse>();
-            if (vkUser is null)
+            var vkUser = await response.Content.ReadFromJsonAsync<VkApiResponse<VkApiUserResponse>>();
+            if (vkUser?.Response is null)
             {
                 throw new InvalidOperationException("Failed to deserialize VK API response");
             }
-            return vkUser;
+            return vkUser.Response[0];
         }
     }
 }

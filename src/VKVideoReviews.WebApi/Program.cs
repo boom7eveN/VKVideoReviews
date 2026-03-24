@@ -21,6 +21,7 @@ SerilogConfigurator.ConfigureServices(builder);
 SwaggerConfigurator.ConfigureServices(builder.Services);
 MapperConfigurator.ConfigureServices(builder.Services);
 ServicesConfigurator.ConfigureServices(builder.Services, settings);
+JwtAuthenticationConfigurator.ConfigureServices(builder.Services, settings);
 DbContextConfigurator.ConfigureService(builder.Services, settings);
 
 var app = builder.Build();
@@ -29,8 +30,11 @@ ExceptionHandlerConfigurator.ConfigureApplication(app);
 SwaggerConfigurator.ConfigureApplication(app);
 DbContextConfigurator.ConfigureApplication(app);
 
-app.MapControllers();
+
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
 
 
 app.Run();

@@ -98,8 +98,10 @@ public class AppAuthService(
     {
         var requestParams = new Dictionary<string, string>()
         {
-            { "access_token", $"{vkTokens.AccessToken}" },
+            { "user_id", vkTokens.UserId.ToString() }, 
+            { "access_token", vkTokens.AccessToken },
             { "fields", "photo_200" },
+            { "v", "5.131" }
         };
         var queryString = string.Join("&", requestParams
             .Select(x => $"{x.Key}={Uri.EscapeDataString(x.Value)}"));
