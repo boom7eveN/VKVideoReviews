@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VKVideoReviews.BL.Services.VideoTypes;
 using VKVideoReviews.BL.Services.VideoTypes.Interfaces;
 using VKVideoReviews.BL.Services.VideoTypes.Models;
 using VKVideoReviews.WebApi.Controllers.Requests.VideoType;
@@ -18,6 +18,7 @@ public class VideoTypesController(
 {
     [HttpPost]
     [Route("create")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<VideoTypesListResponse>> CreateVideoType([FromBody] CreateVideoTypeRequest request)
     {
         var createVideoTypeModel = mapper.Map<CreateVideoTypeModel>(request);
@@ -26,6 +27,7 @@ public class VideoTypesController(
     }
 
     [HttpGet("")]
+    [AllowAnonymous]
     public async Task<ActionResult<VideoTypesListResponse>> GetAllVideoTypes()
     {
         var videoTypes = await videoTypesService.GetAllVideoTypesAsync();
@@ -33,6 +35,7 @@ public class VideoTypesController(
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<ActionResult<VideoTypesListResponse>> GetVideoTypeById(Guid id)
     {
         var videoType = await videoTypesService.GetVideoTypeByIdAsync(id);
@@ -40,6 +43,7 @@ public class VideoTypesController(
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<VideoTypesListResponse>> UpdateVideoType(Guid id,
         [FromBody] UpdateVideoTypeRequest request)
     {
@@ -49,6 +53,7 @@ public class VideoTypesController(
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteVideoType(Guid id)
     {
         await videoTypesService.DeleteVideoTypeAsync(id);

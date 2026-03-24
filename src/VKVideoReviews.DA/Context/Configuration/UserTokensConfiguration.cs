@@ -10,7 +10,7 @@ public static class UserTokensConfiguration
         modelBuilder.Entity<UserTokenEntity>(entity =>
         {
             entity.HasKey(t => t.TokenRecordId);
-            
+
             entity.HasIndex(e => e.UserId)
                 .IsUnique();
 

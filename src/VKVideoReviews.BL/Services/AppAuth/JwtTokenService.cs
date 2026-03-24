@@ -19,7 +19,7 @@ public class JwtTokenService(JwtAuthSettings settings) : IJwtTokenService
         {
             new(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(ClaimTypes.Role, role),
+            new("role", role),
             new("vk_user_id", user.VkUserId.ToString()),
         };
 

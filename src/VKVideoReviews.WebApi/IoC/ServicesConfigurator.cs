@@ -31,7 +31,7 @@ public static class ServicesConfigurator
         services.AddScoped<IUserTokensRepository, UserTokensRepository>();
         services.AddScoped<IUsersRepository, UserRepository>();
         services.AddScoped<IUserAppSessionsRepository, UserAppSessionsRepository>();
-        
+
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         services.AddSingleton(appSettings.JwtAuthSettings);
@@ -64,16 +64,17 @@ public static class ServicesConfigurator
             var userRepository = sp.GetRequiredService<IUsersRepository>();
             var userTokensRepository = sp.GetRequiredService<IUserTokensRepository>();
             var userAppSessionsRepository = sp.GetRequiredService<IUserAppSessionsRepository>();
-            var jwtAuthSettings = sp.GetRequiredService<JwtAuthSettings>(); 
+            var jwtAuthSettings = sp.GetRequiredService<JwtAuthSettings>();
             var jwtTokenService = sp.GetRequiredService<IJwtTokenService>();
             return new AppAuthService(
                 vkMethodsClient,
                 mapper,
                 userRepository,
                 userTokensRepository,
-                userAppSessionsRepository, 
+                userAppSessionsRepository,
                 jwtAuthSettings,
-                jwtTokenService);
+                jwtTokenService,
+                appSettings.AdminVkUserIds);
         });
     }
 }

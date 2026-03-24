@@ -22,6 +22,7 @@ public class VkApiMethodsClient(HttpClient httpClient) : IVkApiMethodsClient
             {
                 throw new InvalidOperationException("Failed to deserialize VK API response");
             }
+
             return vkUser.Response[0];
         }
     }

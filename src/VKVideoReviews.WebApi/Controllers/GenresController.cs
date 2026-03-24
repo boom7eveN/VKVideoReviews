@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VKVideoReviews.BL.Services.Genres;
 using VKVideoReviews.BL.Services.Genres.Interfaces;
 using VKVideoReviews.BL.Services.Genres.Models;
 using VKVideoReviews.WebApi.Controllers.Requests.Genre;
@@ -15,6 +15,7 @@ public class GenresController(ILogger<GenresController> logger, IGenresService g
 {
     [HttpPost]
     [Route("create")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<GenresListResponse>> CreateGenre([FromBody] CreateGenreRequest request)
     {
         var createGenreModel = mapper.Map<CreateGenreModel>(request);
@@ -23,6 +24,7 @@ public class GenresController(ILogger<GenresController> logger, IGenresService g
     }
 
     [HttpGet("")]
+    [AllowAnonymous]
     public async Task<ActionResult<GenresListResponse>> GetAllGenres()
     {
         var genres = await genresService.GetAllGenresAsync();
@@ -30,6 +32,7 @@ public class GenresController(ILogger<GenresController> logger, IGenresService g
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<ActionResult<GenresListResponse>> GetGenreById(Guid id)
     {
         var genre = await genresService.GetGenreByIdAsync(id);
@@ -37,6 +40,7 @@ public class GenresController(ILogger<GenresController> logger, IGenresService g
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<GenresListResponse>> UpdateGenre(Guid id, [FromBody] UpdateGenreRequest request)
     {
         var updateGenreModel = mapper.Map<UpdateGenreModel>(request);
@@ -45,6 +49,7 @@ public class GenresController(ILogger<GenresController> logger, IGenresService g
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteGenre(Guid id)
     {
         await genresService.DeleteGenreAsync(id);

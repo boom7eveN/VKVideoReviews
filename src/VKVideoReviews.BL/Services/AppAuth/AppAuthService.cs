@@ -11,13 +11,14 @@ using VKVideoReviews.DA.Repositories.Interfaces;
 namespace VKVideoReviews.BL.Services.AppAuth;
 
 public class AppAuthService(
-    IVkApiMethodsClient httpClient, 
-    IMapper mapper, 
+    IVkApiMethodsClient httpClient,
+    IMapper mapper,
     IUsersRepository usersRepository,
-    IUserTokensRepository userTokensRepository, 
-    IUserAppSessionsRepository appSessionsRepository, 
+    IUserTokensRepository userTokensRepository,
+    IUserAppSessionsRepository appSessionsRepository,
     JwtAuthSettings settings,
-    IJwtTokenService jwtTokenService)
+    IJwtTokenService jwtTokenService,
+    long[] adminVkUserIds)
     : IAppAuthService
 {
     private static readonly TimeSpan VkRefreshTokenLifeTime = TimeSpan.FromDays(180);
@@ -41,6 +42,14 @@ public class AppAuthService(
             await usersRepository.UpdateAsync(user);
         }
 
+        if (adminVkUserIds.Length > 0
+            && adminVkUserIds.Contains(user!.VkUserId)
+            && !user.IsAdmin)
+        {
+            user.IsAdmin = true;
+            await usersRepository.UpdateAsync(user);
+        }
+
         var accessExpiresAt = DateTime.UtcNow.AddSeconds(vkTokens.ExpiresIn);
         var refreshExpiresAt = DateTime.UtcNow.AddDays(VkRefreshTokenLifeTime.Days);
 
@@ -54,8 +63,8 @@ public class AppAuthService(
             AccessTokenExpiresAt = accessExpiresAt,
             RefreshTokenExpiresAt = refreshExpiresAt,
             CreatedAt = DateTime.UtcNow,
-
         };
+
         await userTokensRepository.UpsertForUserAsync(userToken);
         await appSessionsRepository.RemoveAllForUserAsync(user.UserId);
 
@@ -76,7 +85,40 @@ public class AppAuthService(
             ExpiresInSeconds = jwtTokenService.GetAccessTokenLifetimeSeconds(),
             TokenType = "Bearer"
         };
+    }
 
+    public async Task<AuthTokensResult?> RefreshAsync(string refreshToken)
+    {
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return null;
+
+        var refreshTokenHash = Hash(refreshToken);
+        var session = await appSessionsRepository.GetByRefreshTokenHashAsync(refreshTokenHash);
+        if (session == null || session.ExpiresAt <= DateTime.UtcNow)
+            return null;
+
+        var user = session.User;
+
+        await appSessionsRepository.RemoveAsync(session);
+
+        var newRefreshToken = CreateRefreshToken();
+        var newSession = new UserAppSessionEntity
+        {
+            SessionId = Guid.NewGuid(),
+            UserId = user.UserId,
+            RefreshTokenHash = Hash(newRefreshToken),
+            ExpiresAt = DateTime.UtcNow.AddDays(settings.RefreshTokenLifeTimeDays),
+            CreatedAt = DateTime.UtcNow,
+        };
+        await appSessionsRepository.AddAsync(newSession);
+
+        return new AuthTokensResult
+        {
+            AccessToken = jwtTokenService.CreateAccessToken(user),
+            RefreshToken = newRefreshToken,
+            ExpiresInSeconds = jwtTokenService.GetAccessTokenLifetimeSeconds(),
+            TokenType = "Bearer"
+        };
     }
 
     private static string CreateRefreshToken()
@@ -98,7 +140,7 @@ public class AppAuthService(
     {
         var requestParams = new Dictionary<string, string>()
         {
-            { "user_id", vkTokens.UserId.ToString() }, 
+            { "user_id", vkTokens.UserId.ToString() },
             { "access_token", vkTokens.AccessToken },
             { "fields", "photo_200" },
             { "v", "5.131" }

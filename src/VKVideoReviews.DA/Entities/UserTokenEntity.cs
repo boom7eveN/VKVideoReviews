@@ -23,5 +23,4 @@ public class UserTokenEntity
 
 
     public DateTime CreatedAt { get; set; }
-    
 }

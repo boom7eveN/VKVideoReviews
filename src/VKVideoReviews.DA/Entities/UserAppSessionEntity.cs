@@ -11,7 +11,7 @@ public class UserAppSessionEntity
 
     /// <summary>SHA256 Base64</summary>
     public string RefreshTokenHash { get; set; }
-    
+
     public DateTime ExpiresAt { get; set; }
     public DateTime CreatedAt { get; set; }
 }

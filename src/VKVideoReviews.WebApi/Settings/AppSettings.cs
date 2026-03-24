@@ -13,6 +13,7 @@ public class AppSettings
 
     public string VkIdUri { get; set; }
     public string VkMethodsUri { get; set; }
-    
+
     public JwtAuthSettings JwtAuthSettings { get; set; } = new JwtAuthSettings();
+    public long[] AdminVkUserIds { get; set; } = [];
 }
