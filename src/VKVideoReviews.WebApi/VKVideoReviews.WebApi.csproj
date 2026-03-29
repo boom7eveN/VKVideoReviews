@@ -24,8 +24,4 @@
         <ProjectReference Include="..\VKVideoReviews.BL\VKVideoReviews.BL.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Folder Include="Controllers\Responses\VkAuth\"/>
-    </ItemGroup>
-
 </Project>

@@ -23,7 +23,7 @@ public class VideoTypesController(
     {
         var createVideoTypeModel = mapper.Map<CreateVideoTypeModel>(request);
         VideoTypeModel videoTypeModel = await videoTypesService.CreateVideoTypeAsync(createVideoTypeModel);
-        return Ok(new VideoTypesListResponse([videoTypeModel]));
+        return Ok(new VideoTypesListResponse([mapper.Map<VideoTypeResponse>(videoTypeModel)]));
     }
 
     [HttpGet("")]
@@ -31,7 +31,7 @@ public class VideoTypesController(
     public async Task<ActionResult<VideoTypesListResponse>> GetAllVideoTypes()
     {
         var videoTypes = await videoTypesService.GetAllVideoTypesAsync();
-        return Ok(new VideoTypesListResponse(videoTypes as List<VideoTypeModel>));
+        return Ok(new VideoTypesListResponse(mapper.Map<List<VideoTypeResponse>>(videoTypes)));
     }
 
     [HttpGet("{id}")]
@@ -39,7 +39,7 @@ public class VideoTypesController(
     public async Task<ActionResult<VideoTypesListResponse>> GetVideoTypeById(Guid id)
     {
         var videoType = await videoTypesService.GetVideoTypeByIdAsync(id);
-        return Ok(new VideoTypesListResponse([videoType]));
+        return Ok(new VideoTypesListResponse([mapper.Map<VideoTypeResponse>(videoType)]));
     }
 
     [HttpPut("{id}")]
@@ -49,7 +49,7 @@ public class VideoTypesController(
     {
         var updateVideoTypeModel = mapper.Map<UpdateVideoTypeModel>(request);
         var updatedVideoType = await videoTypesService.UpdateVideoTypeAsync(id, updateVideoTypeModel);
-        return Ok(new VideoTypesListResponse([updatedVideoType]));
+        return Ok(new VideoTypesListResponse([mapper.Map<VideoTypeResponse>(updatedVideoType)]));
     }
 
     [HttpDelete("{id}")]

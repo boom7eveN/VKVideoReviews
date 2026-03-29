@@ -2,9 +2,10 @@
 using System.Text;
 using AutoMapper;
 using VKVideoReviews.BL.Clients.Interfaces;
+using VKVideoReviews.BL.Integrations.Vk.Contracts.Requests;
+using VKVideoReviews.BL.Integrations.Vk.Contracts.Responses;
 using VKVideoReviews.BL.Services.AppAuth.Interfaces;
 using VKVideoReviews.BL.Services.AppAuth.Models;
-using VKVideoReviews.BL.Services.VkAuth.Models;
 using VKVideoReviews.DA.Entities;
 using VKVideoReviews.DA.Repositories.Interfaces;
 
@@ -25,8 +26,11 @@ public class AppAuthService(
 
     public async Task<AuthTokensResult> SignInWithVkTokensAsync(VkTokensApiResponse vkTokens)
     {
-        var userGetParams = GetParametersForUserGet(vkTokens);
-        var userResponse = await httpClient.GetUserAsync(userGetParams);
+        var userResponse = await httpClient.GetUserAsync(new VkUserGetRequest
+        {
+            UserId = vkTokens.UserId,
+            AccessToken = vkTokens.AccessToken,
+        });
 
         var user = await usersRepository.GetByVkUserIdAsync(userResponse.VkUserId);
 

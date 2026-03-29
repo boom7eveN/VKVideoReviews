@@ -3,6 +3,8 @@ using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 using VKVideoReviews.BL.Clients.Interfaces;
 using VKVideoReviews.BL.Exceptions.VkAuthExceptions;
+using VKVideoReviews.BL.Integrations.Vk.Contracts.Requests;
+using VKVideoReviews.BL.Integrations.Vk.Contracts.Responses;
 using VKVideoReviews.BL.Services.VkAuth.Interfaces;
 using VKVideoReviews.BL.Services.VkAuth.Models;
 
@@ -53,9 +55,15 @@ public class VkAuthService(string clientId, string redirectUri, IVkApiAuthClient
         var state = GenerateState();
         cache.Set($"{StatePrefix}{state}", state, StateLifeTime);
 
-        var parameters =
-            GetParametersForCodeExchange(vkAuthCallbackModel, codeVerifier, state);
-        var vkTokens = await vkApiAuthClient.GetUserTokensAsync(parameters);
+        var vkTokens = await vkApiAuthClient.ExchangeCodeAsync(new VkTokenExchangeRequest
+        {
+            Code = vkAuthCallbackModel.Code,
+            DeviceId = vkAuthCallbackModel.DeviceId,
+            State = state,
+            CodeVerifier = codeVerifier,
+            RedirectUri = redirectUri,
+            ClientId = clientId,
+        });
         var stateCacheKey = $"{StatePrefix}{vkTokens.State}";
         if (!cache.TryGetValue(stateCacheKey, out string? savedState) || savedState == null)
         {
@@ -101,23 +109,6 @@ public class VkAuthService(string clientId, string redirectUri, IVkApiAuthClient
         var queryString = string.Join("&", queryParams
             .Select(x => $"{x.Key}={Uri.EscapeDataString(x.Value)}"));
         return $"https://id.vk.ru/authorize?{queryString}";
-    }
-
-    private FormUrlEncodedContent GetParametersForCodeExchange(VkAuthCallbackModel vkAuthCallbackModel,
-        string codeVerifier, string state)
-    {
-        var requestParams = new Dictionary<string, string>()
-        {
-            { "grant_type", "authorization_code" },
-            { "code_verifier", codeVerifier },
-            { "redirect_uri", redirectUri },
-            { "code", vkAuthCallbackModel.Code },
-            { "client_id", clientId },
-            { "device_id", vkAuthCallbackModel.DeviceId },
-            { "state", state },
-        };
-        var content = new FormUrlEncodedContent(requestParams);
-        return content;
     }
 
 

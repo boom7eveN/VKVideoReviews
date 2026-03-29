@@ -20,7 +20,7 @@ public class GenresController(ILogger<GenresController> logger, IGenresService g
     {
         var createGenreModel = mapper.Map<CreateGenreModel>(request);
         GenreModel genreModel = await genresService.CreateGenreAsync(createGenreModel);
-        return Ok(new GenresListResponse([genreModel]));
+        return Ok(new GenresListResponse([mapper.Map<GenreResponse>(genreModel)]));
     }
 
     [HttpGet("")]
@@ -28,7 +28,7 @@ public class GenresController(ILogger<GenresController> logger, IGenresService g
     public async Task<ActionResult<GenresListResponse>> GetAllGenres()
     {
         var genres = await genresService.GetAllGenresAsync();
-        return Ok(new GenresListResponse(genres as List<GenreModel>));
+        return Ok(new GenresListResponse(mapper.Map<List<GenreResponse>>(genres)));
     }
 
     [HttpGet("{id}")]
@@ -36,7 +36,7 @@ public class GenresController(ILogger<GenresController> logger, IGenresService g
     public async Task<ActionResult<GenresListResponse>> GetGenreById(Guid id)
     {
         var genre = await genresService.GetGenreByIdAsync(id);
-        return Ok(new GenresListResponse([genre]));
+        return Ok(new GenresListResponse([mapper.Map<GenreResponse>(genre)]));
     }
 
     [HttpPut("{id}")]
@@ -45,7 +45,7 @@ public class GenresController(ILogger<GenresController> logger, IGenresService g
     {
         var updateGenreModel = mapper.Map<UpdateGenreModel>(request);
         var updatedGenre = await genresService.UpdateGenreAsync(id, updateGenreModel);
-        return Ok(new GenresListResponse([updatedGenre]));
+        return Ok(new GenresListResponse([mapper.Map<GenreResponse>(updatedGenre)]));
     }
 
     [HttpDelete("{id}")]

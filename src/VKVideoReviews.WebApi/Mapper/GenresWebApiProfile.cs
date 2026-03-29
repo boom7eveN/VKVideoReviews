@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using VKVideoReviews.BL.Services.Genres.Models;
 using VKVideoReviews.WebApi.Controllers.Requests.Genre;
+using VKVideoReviews.WebApi.Controllers.Responses.Genre;
 
 namespace VKVideoReviews.WebApi.Mapper;
 
@@ -10,5 +11,6 @@ public class GenresWebApiProfile : Profile
     {
         CreateMap<CreateGenreRequest, CreateGenreModel>();
         CreateMap<UpdateGenreRequest, UpdateGenreModel>();
+        CreateMap<GenreModel, GenreResponse>();
     }
 }

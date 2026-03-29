@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using VKVideoReviews.BL.Integrations.Vk.Contracts.Responses;
 using VKVideoReviews.BL.Services.AppAuth.Models;
 using VKVideoReviews.DA.Entities;
 

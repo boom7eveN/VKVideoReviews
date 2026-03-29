@@ -1,5 +1,5 @@
-﻿using VKVideoReviews.BL.Services.AppAuth.Models;
-using VKVideoReviews.BL.Services.VkAuth.Models;
+﻿using VKVideoReviews.BL.Integrations.Vk.Contracts.Responses;
+using VKVideoReviews.BL.Services.AppAuth.Models;
 
 namespace VKVideoReviews.BL.Services.AppAuth.Interfaces;
 

@@ -1,8 +1,9 @@
-﻿using VKVideoReviews.BL.Services.VkAuth.Models;
+﻿using VKVideoReviews.BL.Integrations.Vk.Contracts.Requests;
+using VKVideoReviews.BL.Integrations.Vk.Contracts.Responses;
 
 namespace VKVideoReviews.BL.Clients.Interfaces;
 
 public interface IVkApiAuthClient
 {
-    Task<VkTokensApiResponse> GetUserTokensAsync(FormUrlEncodedContent content);
+    Task<VkTokensApiResponse> ExchangeCodeAsync(VkTokenExchangeRequest request);
 }
