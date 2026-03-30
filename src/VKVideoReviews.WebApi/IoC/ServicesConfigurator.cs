@@ -23,24 +23,23 @@ public static class ServicesConfigurator
 {
     public static void ConfigureServices(IServiceCollection services, AppSettings appSettings)
     {
-        services.AddScoped<IGenresService, GenresService>();
-        services.AddScoped<IVideoTypesService, VideoTypesService>();
-
-
         services.AddScoped<IGenresRepository, GenresRepository>();
         services.AddScoped<IVideoTypesRepository, VideoTypesRepository>();
-
         services.AddScoped<IUserTokensRepository, UserTokensRepository>();
         services.AddScoped<IUsersRepository, UserRepository>();
         services.AddScoped<IUserAppSessionsRepository, UserAppSessionsRepository>();
-
-        services.AddScoped<IJwtTokenService, JwtTokenService>();
-        
         services.AddScoped<IVideosRepository, VideosRepository>();
-        
-        services.AddSingleton(appSettings.JwtAuthSettings);
+
         services.AddScoped<IAuthUnitOfWork, AuthUnitOfWork>();
-        services.AddScoped<UnitOfWork, UnitOfWork>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddScoped<IGenresService, GenresService>();
+        services.AddScoped<IVideoTypesService, VideoTypesService>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+
+        services.AddSingleton(appSettings.JwtAuthSettings);
+
         services.AddHttpClient<IVkApiAuthClient, VkApiAuthClient>(client =>
         {
             client.BaseAddress = new Uri(appSettings.VkIdUri);

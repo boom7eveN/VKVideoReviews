@@ -15,7 +15,7 @@ public class UnitOfWork : IUnitOfWork
     public IGenresRepository Genres { get; }
     public IVideoTypesRepository VideoTypes { get; }
     public IVideosRepository Videos { get; }
-    
+
     public UnitOfWork(VkVideoReviewsDbContext context)
     {
         Genres = new GenresRepository(context);
@@ -25,7 +25,7 @@ public class UnitOfWork : IUnitOfWork
     }
 
     public async Task<IDbContextTransaction> BeginTransactionAsync(
-        IsolationLevel isolationLevel )
+        IsolationLevel isolationLevel)
     {
         _transaction = await _context.Database.BeginTransactionAsync(isolationLevel);
         return _transaction;
@@ -45,11 +45,11 @@ public class UnitOfWork : IUnitOfWork
             await _transaction.RollbackAsync();
             await _transaction.DisposeAsync();
         }
-        
+
         _transaction = null;
         DetachAllEntities();
     }
-    
+
     public async Task<int> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync();
@@ -62,8 +62,9 @@ public class UnitOfWork : IUnitOfWork
             entry.State = EntityState.Detached;
         }
     }
+
     private bool _disposed;
- 
+
     protected virtual void Dispose(bool disposing)
     {
         if (_disposed) return;
@@ -72,9 +73,10 @@ public class UnitOfWork : IUnitOfWork
             _transaction?.Dispose();
             _context.Dispose();
         }
+
         _disposed = true;
     }
- 
+
     public void Dispose()
     {
         Dispose(true);

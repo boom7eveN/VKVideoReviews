@@ -5,7 +5,7 @@ using VKVideoReviews.DA.Repositories.Interfaces;
 
 namespace VKVideoReviews.DA.Repositories;
 
-public class VideosRepository(VkVideoReviewsDbContext context)  : IVideosRepository
+public class VideosRepository(VkVideoReviewsDbContext context) : IVideosRepository
 {
     public async Task<VideoEntity?> CreateAsync(VideoEntity entity)
     {

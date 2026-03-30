@@ -9,7 +9,7 @@ public class VideoTypesRepository(VkVideoReviewsDbContext context) : IVideoTypes
 {
     public async Task<VideoTypeEntity?> CreateAsync(VideoTypeEntity entity)
     {
-        var maybeType = await context.VideoTypes.FirstOrDefaultAsync(x => x.VideoTypeId == entity.VideoTypeId);
+        var maybeType = await context.VideoTypes.FirstOrDefaultAsync(x => x.Title == entity.Title);
         if (maybeType is not null)
             return null;
 

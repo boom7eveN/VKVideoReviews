@@ -15,7 +15,7 @@ public class AuthUnitOfWork : IAuthUnitOfWork
     public IUsersRepository Users { get; }
     public IUserTokensRepository UserTokens { get; }
     public IUserAppSessionsRepository UserAppSessions { get; }
-    
+
     public AuthUnitOfWork(VkVideoReviewsDbContext context)
     {
         Users = new UserRepository(context);
@@ -25,7 +25,7 @@ public class AuthUnitOfWork : IAuthUnitOfWork
     }
 
     public async Task<IDbContextTransaction> BeginTransactionAsync(
-        IsolationLevel isolationLevel )
+        IsolationLevel isolationLevel)
     {
         _transaction = await _context.Database.BeginTransactionAsync(isolationLevel);
         return _transaction;
@@ -45,11 +45,11 @@ public class AuthUnitOfWork : IAuthUnitOfWork
             await _transaction.RollbackAsync();
             await _transaction.DisposeAsync();
         }
-        
+
         _transaction = null;
         DetachAllEntities();
     }
-    
+
     public async Task<int> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync();
@@ -62,8 +62,9 @@ public class AuthUnitOfWork : IAuthUnitOfWork
             entry.State = EntityState.Detached;
         }
     }
+
     private bool _disposed;
- 
+
     protected virtual void Dispose(bool disposing)
     {
         if (_disposed) return;
@@ -72,9 +73,10 @@ public class AuthUnitOfWork : IAuthUnitOfWork
             _transaction?.Dispose();
             _context.Dispose();
         }
+
         _disposed = true;
     }
- 
+
     public void Dispose()
     {
         Dispose(true);

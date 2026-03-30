@@ -17,7 +17,7 @@ public class VideoTypesController(
     : ControllerBase
 {
     [HttpPost]
-    [Route("create")]
+    [Route("")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<VideoTypesListResponse>> CreateVideoType([FromBody] CreateVideoTypeRequest request)
     {

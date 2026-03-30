@@ -29,7 +29,7 @@ public class AppAuthService(
             UserId = vkTokens.UserId,
             AccessToken = vkTokens.AccessToken,
         });
-        
+
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
@@ -91,7 +91,6 @@ public class AppAuthService(
                 ExpiresInSeconds = jwtTokenService.GetAccessTokenLifetimeSeconds(),
                 TokenType = "Bearer"
             };
-            
         }
         catch
         {

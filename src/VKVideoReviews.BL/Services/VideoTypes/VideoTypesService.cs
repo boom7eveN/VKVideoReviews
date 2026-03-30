@@ -1,68 +1,117 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.VideoTypes.Interfaces;
 using VKVideoReviews.BL.Services.VideoTypes.Models;
 using VKVideoReviews.DA.Entities;
-using VKVideoReviews.DA.Repositories.Interfaces;
+using VKVideoReviews.DA.UnitOfWork.Interfaces;
 
 namespace VKVideoReviews.BL.Services.VideoTypes;
 
-public class VideoTypesService(IVideoTypesRepository repository, IMapper mapper) : IVideoTypesService
+public class VideoTypesService(
+    IUnitOfWork unitOfWork,
+    IMapper mapper)
+    : IVideoTypesService
 {
     public async Task<VideoTypeModel> CreateVideoTypeAsync(CreateVideoTypeModel model)
     {
-        var maybeType = await repository.GetByTitleAsync(model.Title);
-        if (maybeType is not null)
-            throw new AlreadyExistsException("VideoType");
+        await using var transaction = await unitOfWork.BeginTransactionAsync();
 
-        var typeEntity = mapper.Map<VideoTypeEntity>(model);
-        typeEntity.VideoTypeId = Guid.NewGuid();
-        typeEntity = await repository.CreateAsync(typeEntity);
-        if (typeEntity is null)
+        try
+        {
+            var videoTypeEntity = mapper.Map<VideoTypeEntity>(model);
+            videoTypeEntity.VideoTypeId = Guid.NewGuid();
+
+            videoTypeEntity = await unitOfWork.VideoTypes.CreateAsync(videoTypeEntity);
+
+            if (videoTypeEntity is null)
+                throw new AlreadyExistsException("VideoType");
+
+            await unitOfWork.CommitAsync();
+            return mapper.Map<VideoTypeModel>(videoTypeEntity);
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" })
+        {
+            await unitOfWork.RollbackAsync();
             throw new AlreadyExistsException("VideoType");
-        return mapper.Map<VideoTypeModel>(typeEntity);
+        }
+        catch
+        {
+            await unitOfWork.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task<IEnumerable<VideoTypeModel>> GetAllVideoTypesAsync()
     {
-        var videoTypes = await repository.GetAllAsync();
+        var videoTypes = await unitOfWork.VideoTypes.GetAllAsync();
         return mapper.Map<IEnumerable<VideoTypeModel>>(videoTypes);
     }
 
     public async Task<VideoTypeModel> GetVideoTypeByIdAsync(Guid id)
     {
-        var maybeType = await repository.GetByIdAsync(id);
-        if (maybeType is null)
-            throw new NotFoundException("VideoType");
+        var videoType = await unitOfWork.VideoTypes.GetByIdAsync(id);
+        if (videoType is null)
+            throw new NotFoundException("VideoType", id);
 
-        return mapper.Map<VideoTypeModel>(maybeType);
+        return mapper.Map<VideoTypeModel>(videoType);
     }
 
     public async Task<VideoTypeModel> UpdateVideoTypeAsync(Guid id, UpdateVideoTypeModel model)
     {
-        var maybeType = await repository.GetByIdAsync(id);
-        if (maybeType is null)
-            throw new NotFoundException("VideoType", id);
+        await using var transaction = await unitOfWork.BeginTransactionAsync();
 
-        if (!string.Equals(maybeType.Title, model.Title, StringComparison.OrdinalIgnoreCase))
+        try
         {
-            var typeWithSameTitle = await repository.GetByTitleAsync(model.Title);
-            if (typeWithSameTitle is not null)
-                throw new AlreadyExistsException("VideoType with this title");
+            var videoType = await unitOfWork.VideoTypes.GetByIdAsync(id);
+            if (videoType is null)
+                throw new NotFoundException("VideoType", id);
+
+            if (!string.Equals(videoType.Title, model.Title, StringComparison.OrdinalIgnoreCase))
+            {
+                var existing = await unitOfWork.VideoTypes.GetByTitleAsync(model.Title);
+                if (existing is not null && existing.VideoTypeId != id)
+                {
+                    throw new AlreadyExistsException("VideoType");
+                }
+            }
+
+            mapper.Map(model, videoType);
+            unitOfWork.VideoTypes.Update(videoType);
+
+            await unitOfWork.CommitAsync();
+            return mapper.Map<VideoTypeModel>(videoType);
         }
-
-        mapper.Map(model, maybeType);
-        var updatedVideoType = await repository.Update(maybeType);
-
-        return mapper.Map<VideoTypeModel>(updatedVideoType);
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" })
+        {
+            await unitOfWork.RollbackAsync();
+            throw new AlreadyExistsException("VideoType");
+        }
+        catch
+        {
+            await unitOfWork.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task DeleteVideoTypeAsync(Guid id)
     {
-        var maybeType = await repository.GetByIdAsync(id);
-        if (maybeType is null)
-            throw new NotFoundException("VideoType", id);
+        await using var transaction = await unitOfWork.BeginTransactionAsync();
 
-        await repository.Delete(maybeType);
+        try
+        {
+            var videoType = await unitOfWork.VideoTypes.GetByIdAsync(id);
+            if (videoType is null)
+                throw new NotFoundException("VideoType", id);
+
+            unitOfWork.VideoTypes.Delete(videoType);
+            await unitOfWork.CommitAsync();
+        }
+        catch
+        {
+            await unitOfWork.RollbackAsync();
+            throw;
+        }
     }
 }

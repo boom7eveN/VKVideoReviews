@@ -6,6 +6,5 @@ public class VideosBLProfile : Profile
 {
     VideosBLProfile()
     {
-        
     }
 }

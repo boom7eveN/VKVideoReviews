@@ -9,7 +9,7 @@ public class GenresRepository(VkVideoReviewsDbContext context) : IGenresReposito
 {
     public async Task<GenreEntity?> CreateAsync(GenreEntity entity)
     {
-        var maybeGenre = await context.Genres.FirstOrDefaultAsync(x => x.GenreId == entity.GenreId);
+        var maybeGenre = await context.Genres.FirstOrDefaultAsync(x => x.Title == entity.Title);
 
         if (maybeGenre is not null)
             return null;

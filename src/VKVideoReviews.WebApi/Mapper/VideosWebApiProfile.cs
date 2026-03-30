@@ -7,7 +7,6 @@ using VKVideoReviews.WebApi.Controllers.Requests.Videos;
 
 namespace VKVideoReviews.WebApi.Mapper;
 
-
 public class VideosWebApiProfile : Profile
 {
     public VideosWebApiProfile()
