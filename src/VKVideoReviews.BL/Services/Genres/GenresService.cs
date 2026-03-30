@@ -52,7 +52,7 @@ public class GenresService(IGenresRepository repository, IMapper mapper) : IGenr
         }
 
         mapper.Map(model, maybeGenre);
-        var updatedGenre = await repository.UpdateAsync(maybeGenre);
+        var updatedGenre = await repository.Update(maybeGenre);
 
         return mapper.Map<GenreModel>(updatedGenre);
     }
@@ -63,6 +63,6 @@ public class GenresService(IGenresRepository repository, IMapper mapper) : IGenr
         if (maybeGenre is null)
             throw new NotFoundException("Genre", id);
 
-        await repository.DeleteAsync(maybeGenre);
+        await repository.Delete(maybeGenre);
     }
 }

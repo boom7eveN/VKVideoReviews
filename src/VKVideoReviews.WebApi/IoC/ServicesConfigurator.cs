@@ -40,6 +40,7 @@ public static class ServicesConfigurator
         
         services.AddSingleton(appSettings.JwtAuthSettings);
         services.AddScoped<IAuthUnitOfWork, AuthUnitOfWork>();
+        services.AddScoped<UnitOfWork, UnitOfWork>();
         services.AddHttpClient<IVkApiAuthClient, VkApiAuthClient>(client =>
         {
             client.BaseAddress = new Uri(appSettings.VkIdUri);

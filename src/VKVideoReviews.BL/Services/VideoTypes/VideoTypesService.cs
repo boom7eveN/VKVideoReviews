@@ -52,7 +52,7 @@ public class VideoTypesService(IVideoTypesRepository repository, IMapper mapper)
         }
 
         mapper.Map(model, maybeType);
-        var updatedVideoType = await repository.UpdateAsync(maybeType);
+        var updatedVideoType = await repository.Update(maybeType);
 
         return mapper.Map<VideoTypeModel>(updatedVideoType);
     }
@@ -63,6 +63,6 @@ public class VideoTypesService(IVideoTypesRepository repository, IMapper mapper)
         if (maybeType is null)
             throw new NotFoundException("VideoType", id);
 
-        await repository.DeleteAsync(maybeType);
+        await repository.Delete(maybeType);
     }
 }

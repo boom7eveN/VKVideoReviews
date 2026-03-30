@@ -9,13 +9,12 @@ public class VideoTypesRepository(VkVideoReviewsDbContext context) : IVideoTypes
 {
     public async Task<VideoTypeEntity?> CreateAsync(VideoTypeEntity entity)
     {
-        var maybeType = await context.Genres.FirstOrDefaultAsync(x => x.GenreId == entity.VideoTypeId);
+        var maybeType = await context.VideoTypes.FirstOrDefaultAsync(x => x.VideoTypeId == entity.VideoTypeId);
         if (maybeType is not null)
             return null;
 
-        await context.VideoTypes.AddAsync(entity);
-        await context.SaveChangesAsync();
-        return entity;
+        var result = await context.VideoTypes.AddAsync(entity);
+        return result.Entity;
     }
 
     public async Task<IEnumerable<VideoTypeEntity>> GetAllAsync()
@@ -28,18 +27,14 @@ public class VideoTypesRepository(VkVideoReviewsDbContext context) : IVideoTypes
         return await context.VideoTypes.AsNoTracking().FirstOrDefaultAsync(x => x.VideoTypeId == id);
     }
 
-    public async Task DeleteAsync(VideoTypeEntity entity)
+    public void Delete(VideoTypeEntity entity)
     {
         context.VideoTypes.Remove(entity);
-        await context.SaveChangesAsync();
     }
 
-    public async Task<VideoTypeEntity> UpdateAsync(VideoTypeEntity entity)
+    public void Update(VideoTypeEntity entity)
     {
-        var result = context.VideoTypes.Attach(entity);
-        result.State = EntityState.Modified;
-        await context.SaveChangesAsync();
-        return result.Entity;
+        context.VideoTypes.Update(entity);
     }
 
     public async Task<VideoTypeEntity?> GetByTitleAsync(string title)
