@@ -15,7 +15,7 @@ public class GenresController(ILogger<GenresController> logger, IGenresService g
     : ControllerBase
 {
     [HttpPost]
-    [Route("create")]
+    [Route("")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<GenresListResponse>> CreateGenre([FromBody] CreateGenreRequest request)
     {

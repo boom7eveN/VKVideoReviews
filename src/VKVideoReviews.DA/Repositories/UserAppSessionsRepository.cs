@@ -10,7 +10,6 @@ public class UserAppSessionsRepository(VkVideoReviewsDbContext context) : IUserA
     public async Task AddAsync(UserAppSessionEntity entity)
     {
         await context.UserAppSessions.AddAsync(entity);
-        await context.SaveChangesAsync();
     }
 
     public async Task<UserAppSessionEntity?> GetByRefreshTokenHashAsync(string refreshTokenHash)
@@ -20,10 +19,9 @@ public class UserAppSessionsRepository(VkVideoReviewsDbContext context) : IUserA
             .FirstOrDefaultAsync(s => s.RefreshTokenHash == refreshTokenHash);
     }
 
-    public async Task RemoveAsync(UserAppSessionEntity entity)
+    public void Remove(UserAppSessionEntity entity)
     {
         context.UserAppSessions.Remove(entity);
-        await context.SaveChangesAsync();
     }
 
     public async Task RemoveAllForUserAsync(Guid userId)

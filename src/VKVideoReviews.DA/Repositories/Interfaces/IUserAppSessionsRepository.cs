@@ -6,6 +6,6 @@ public interface IUserAppSessionsRepository
 {
     Task AddAsync(UserAppSessionEntity entity);
     Task<UserAppSessionEntity?> GetByRefreshTokenHashAsync(string refreshTokenHash);
-    Task RemoveAsync(UserAppSessionEntity entity);
+    void Remove(UserAppSessionEntity entity);
     Task RemoveAllForUserAsync(Guid userId);
 }

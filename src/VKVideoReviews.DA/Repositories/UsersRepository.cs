@@ -16,14 +16,12 @@ public class UserRepository(VkVideoReviewsDbContext context) : IUsersRepository
     public async Task<UserEntity?> AddAsync(UserEntity entity)
     {
         await context.Users.AddAsync(entity);
-        await context.SaveChangesAsync();
         return entity;
     }
 
     public async Task UpdateAsync(UserEntity entity)
     {
         context.Users.Update(entity);
-        await context.SaveChangesAsync();
     }
 
     public async Task<UserEntity?> GetByIdAsync(Guid userId)

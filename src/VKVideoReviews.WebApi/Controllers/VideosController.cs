@@ -8,14 +8,13 @@ using VKVideoReviews.WebApi.Controllers.Responses.Videos;
 
 namespace VKVideoReviews.WebApi.Controllers;
 
-
 [ApiController]
 [Route("[controller]")]
 public class VideosController(ILogger<GenresController> logger, IVideosService videosService, IMapper mapper)
     : ControllerBase
 {
     [HttpPost]
-    [Route("create")]
+    [Route("")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<VideosListResponse>> CreateGenre([FromBody] CreateVideoRequest request)
     {
@@ -23,5 +22,4 @@ public class VideosController(ILogger<GenresController> logger, IVideosService v
         var videoModel = await videosService.CreateVideoAsync(createVideoModel);
         return Ok(new VideosListResponse([mapper.Map<VideoResponse>(videoModel)]));
     }
-    
 }

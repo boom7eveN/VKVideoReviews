@@ -9,14 +9,13 @@ public class GenresRepository(VkVideoReviewsDbContext context) : IGenresReposito
 {
     public async Task<GenreEntity?> CreateAsync(GenreEntity entity)
     {
-        var maybeGenre = await context.Genres.FirstOrDefaultAsync(x => x.GenreId == entity.GenreId);
+        var maybeGenre = await context.Genres.FirstOrDefaultAsync(x => x.Title == entity.Title);
 
         if (maybeGenre is not null)
             return null;
 
-        await context.Genres.AddAsync(entity);
-        await context.SaveChangesAsync();
-        return entity;
+        var result = await context.Genres.AddAsync(entity);
+        return result.Entity;
     }
 
     public async Task<IEnumerable<GenreEntity>> GetAllAsync()
@@ -29,18 +28,14 @@ public class GenresRepository(VkVideoReviewsDbContext context) : IGenresReposito
         return await context.Genres.AsNoTracking().FirstOrDefaultAsync(x => x.GenreId == id);
     }
 
-    public async Task DeleteAsync(GenreEntity entity)
+    public void Delete(GenreEntity entity)
     {
         context.Genres.Remove(entity);
-        await context.SaveChangesAsync();
     }
 
-    public async Task<GenreEntity> UpdateAsync(GenreEntity entity)
+    public void Update(GenreEntity entity)
     {
-        var result = context.Genres.Attach(entity);
-        result.State = EntityState.Modified;
-        await context.SaveChangesAsync();
-        return result.Entity;
+        context.Genres.Update(entity);
     }
 
     public async Task<GenreEntity?> GetByTitleAsync(string title)

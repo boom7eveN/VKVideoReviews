@@ -12,6 +12,7 @@ var settings = AppSettingsReader.Read(configuration);
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddRouting(options => { options.LowercaseUrls = true; });
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 builder.Configuration.AddConfiguration(configuration);
@@ -30,8 +31,6 @@ ExceptionHandlerConfigurator.ConfigureApplication(app);
 SwaggerConfigurator.ConfigureApplication(app);
 DbContextConfigurator.ConfigureApplication(app);
 
-
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

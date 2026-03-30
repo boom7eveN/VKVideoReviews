@@ -5,7 +5,7 @@ using VKVideoReviews.DA.Repositories.Interfaces;
 
 namespace VKVideoReviews.DA.Repositories;
 
-public class VideosRepository(VkVideoReviewsDbContext context)  : IVideosRepository
+public class VideosRepository(VkVideoReviewsDbContext context) : IVideosRepository
 {
     public async Task<VideoEntity?> CreateAsync(VideoEntity entity)
     {
@@ -13,10 +13,8 @@ public class VideosRepository(VkVideoReviewsDbContext context)  : IVideosReposit
 
         if (maybeVideo is not null)
             return null;
-
-        await context.Videos.AddAsync(entity);
-        await context.SaveChangesAsync();
-        return entity;
+        var result = await context.Videos.AddAsync(entity);
+        return result.Entity;
     }
 
     public async Task<IEnumerable<VideoEntity>> GetAllAsync()
@@ -29,17 +27,13 @@ public class VideosRepository(VkVideoReviewsDbContext context)  : IVideosReposit
         return await context.Videos.AsNoTracking().FirstOrDefaultAsync(x => x.VideoId == id);
     }
 
-    public async Task DeleteAsync(VideoEntity entity)
+    public void Delete(VideoEntity entity)
     {
         context.Videos.Remove(entity);
-        await context.SaveChangesAsync();
     }
 
-    public async Task<VideoEntity> UpdateAsync(VideoEntity entity)
+    public void Update(VideoEntity entity)
     {
-        var result = context.Videos.Attach(entity);
-        result.State = EntityState.Modified;
-        await context.SaveChangesAsync();
-        return result.Entity;
+        context.Videos.Update(entity);
     }
 }
