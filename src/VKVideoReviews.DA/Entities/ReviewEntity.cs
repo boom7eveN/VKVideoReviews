@@ -5,6 +5,7 @@ namespace VKVideoReviews.DA.Entities;
 [Table("Reviews")]
 public class ReviewEntity
 {
+    public Guid ReviewId { get; set; }
     public int Rate { get; set; }
     public String Text { get; set; }
 

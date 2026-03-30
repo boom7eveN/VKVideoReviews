@@ -6,9 +6,12 @@ namespace VKVideoReviews.DA.Entities;
 public class VideoEntity
 {
     public Guid VideoId { get; set; }
-    public long VkVideoId { get; set; }
+    public string VideoUrl { get; set; }
     public string Title { get; set; }
     public string ImageUrl { get; set; }
+    public string Description { get; set; }
+    public int StartYear { get; set; }
+    public int? EndYear { get; set; }
     public double AverageRate { get; set; } = 0.0;
     public int TotalReviews { get; set; } = 0;
 

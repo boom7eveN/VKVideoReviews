@@ -8,6 +8,6 @@ public class AppAuthWebApiProfile : Profile
 {
     public AppAuthWebApiProfile()
     {
-        CreateMap<AuthTokensResult, AuthTokensResponse>();
+        CreateMap<AuthTokensModel, AuthTokensResponse>();
     }
 }

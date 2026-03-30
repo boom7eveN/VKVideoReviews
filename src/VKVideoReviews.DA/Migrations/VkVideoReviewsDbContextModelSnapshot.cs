@@ -24,13 +24,19 @@ namespace VKVideoReviews.DA.Migrations
 
             modelBuilder.Entity("VKVideoReviews.DA.Entities.FavoriteEntity", b =>
                 {
+                    b.Property<Guid>("FavoriteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("VideoId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("UserId", "VideoId");
+                    b.HasKey("FavoriteId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("VideoId");
 
@@ -73,10 +79,8 @@ namespace VKVideoReviews.DA.Migrations
 
             modelBuilder.Entity("VKVideoReviews.DA.Entities.ReviewEntity", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("VideoId")
+                    b.Property<Guid>("ReviewId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreateDate")
@@ -96,9 +100,17 @@ namespace VKVideoReviews.DA.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.HasKey("UserId", "VideoId");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("VideoId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ReviewId");
 
                     b.HasIndex("Rate");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("VideoId");
 
@@ -232,9 +244,19 @@ namespace VKVideoReviews.DA.Migrations
                         .HasColumnType("double precision")
                         .HasDefaultValue(0.0);
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("EndYear")
+                        .HasColumnType("integer");
+
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("StartYear")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -248,14 +270,13 @@ namespace VKVideoReviews.DA.Migrations
                     b.Property<Guid>("VideoTypeId")
                         .HasColumnType("uuid");
 
-                    b.Property<long>("VkVideoId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("VideoUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("VideoId");
 
                     b.HasIndex("VideoTypeId");
-
-                    b.HasIndex("VkVideoId");
 
                     b.ToTable("Videos");
                 });

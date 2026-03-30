@@ -5,6 +5,7 @@ namespace VKVideoReviews.DA.Entities;
 [Table("Favorite")]
 public class FavoriteEntity
 {
+    public Guid FavoriteId { get; set; }
     public Guid VideoId { get; set; }
     public VideoEntity Video { get; set; }
 

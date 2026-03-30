@@ -9,7 +9,7 @@ public static class ReviewsConfiguration
     {
         modelBuilder.Entity<ReviewEntity>(entity =>
         {
-            entity.HasKey(r => new { r.UserId, r.VideoId });
+            entity.HasKey(r => new { r.ReviewId });
 
             entity.Property(r => r.Rate)
                 .IsRequired();

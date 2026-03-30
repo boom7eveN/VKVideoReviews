@@ -24,7 +24,7 @@ public class AppAuthService(
 {
     private static readonly TimeSpan VkRefreshTokenLifeTime = TimeSpan.FromDays(180);
 
-    public async Task<AuthTokensResult> SignInWithVkTokensAsync(VkTokensApiResponse vkTokens)
+    public async Task<AuthTokensModel> SignInWithVkTokensAsync(VkTokensApiResponse vkTokens)
     {
         var userResponse = await httpClient.GetUserAsync(new VkUserGetRequest
         {
@@ -82,7 +82,7 @@ public class AppAuthService(
             CreatedAt = DateTime.UtcNow,
         };
         await appSessionsRepository.AddAsync(newSession);
-        return new AuthTokensResult()
+        return new AuthTokensModel()
         {
             AccessToken = jwtTokenService.CreateAccessToken(user),
             RefreshToken = refreshToken,
@@ -91,7 +91,7 @@ public class AppAuthService(
         };
     }
 
-    public async Task<AuthTokensResult?> RefreshAsync(string refreshToken)
+    public async Task<AuthTokensModel?> RefreshAsync(string refreshToken)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
             return null;
@@ -116,7 +116,7 @@ public class AppAuthService(
         };
         await appSessionsRepository.AddAsync(newSession);
 
-        return new AuthTokensResult
+        return new AuthTokensModel
         {
             AccessToken = jwtTokenService.CreateAccessToken(user),
             RefreshToken = newRefreshToken,

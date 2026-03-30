@@ -1,6 +1,6 @@
 ﻿namespace VKVideoReviews.BL.Services.AppAuth.Models;
 
-public class AuthTokensResult
+public class AuthTokensModel
 {
     public string AccessToken { get; set; }
     public string RefreshToken { get; set; }
