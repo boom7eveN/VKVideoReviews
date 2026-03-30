@@ -13,6 +13,8 @@ using VKVideoReviews.BL.Services.VkAuth;
 using VKVideoReviews.BL.Services.VkAuth.Interfaces;
 using VKVideoReviews.DA.Repositories;
 using VKVideoReviews.DA.Repositories.Interfaces;
+using VKVideoReviews.DA.UnitOfWork;
+using VKVideoReviews.DA.UnitOfWork.Interfaces;
 using VKVideoReviews.WebApi.Settings;
 
 namespace VKVideoReviews.WebApi.IoC;
@@ -35,9 +37,9 @@ public static class ServicesConfigurator
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         
         services.AddScoped<IVideosRepository, VideosRepository>();
-
+        
         services.AddSingleton(appSettings.JwtAuthSettings);
-
+        services.AddScoped<IAuthUnitOfWork, AuthUnitOfWork>();
         services.AddHttpClient<IVkApiAuthClient, VkApiAuthClient>(client =>
         {
             client.BaseAddress = new Uri(appSettings.VkIdUri);
@@ -63,17 +65,13 @@ public static class ServicesConfigurator
         {
             var vkMethodsClient = sp.GetRequiredService<IVkApiMethodsClient>();
             var mapper = sp.GetRequiredService<IMapper>();
-            var userRepository = sp.GetRequiredService<IUsersRepository>();
-            var userTokensRepository = sp.GetRequiredService<IUserTokensRepository>();
-            var userAppSessionsRepository = sp.GetRequiredService<IUserAppSessionsRepository>();
+            var unitOfWork = sp.GetRequiredService<IAuthUnitOfWork>();
             var jwtAuthSettings = sp.GetRequiredService<JwtAuthSettings>();
             var jwtTokenService = sp.GetRequiredService<IJwtTokenService>();
             return new AppAuthService(
                 vkMethodsClient,
                 mapper,
-                userRepository,
-                userTokensRepository,
-                userAppSessionsRepository,
+                unitOfWork,
                 jwtAuthSettings,
                 jwtTokenService,
                 appSettings.AdminVkUserIds);

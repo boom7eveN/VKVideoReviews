@@ -7,16 +7,14 @@ using VKVideoReviews.BL.Integrations.Vk.Contracts.Responses;
 using VKVideoReviews.BL.Services.AppAuth.Interfaces;
 using VKVideoReviews.BL.Services.AppAuth.Models;
 using VKVideoReviews.DA.Entities;
-using VKVideoReviews.DA.Repositories.Interfaces;
+using VKVideoReviews.DA.UnitOfWork.Interfaces;
 
 namespace VKVideoReviews.BL.Services.AppAuth;
 
 public class AppAuthService(
     IVkApiMethodsClient httpClient,
     IMapper mapper,
-    IUsersRepository usersRepository,
-    IUserTokensRepository userTokensRepository,
-    IUserAppSessionsRepository appSessionsRepository,
+    IAuthUnitOfWork unitOfWork,
     JwtAuthSettings settings,
     IJwtTokenService jwtTokenService,
     long[] adminVkUserIds)
@@ -31,64 +29,75 @@ public class AppAuthService(
             UserId = vkTokens.UserId,
             AccessToken = vkTokens.AccessToken,
         });
-
-        var user = await usersRepository.GetByVkUserIdAsync(userResponse.VkUserId);
-
-        if (user == null)
+        
+        await using var transaction = await unitOfWork.BeginTransactionAsync();
+        try
         {
-            user = mapper.Map<UserEntity>(userResponse);
-            user.UserId = Guid.NewGuid();
-            user = await usersRepository.AddAsync(user);
+            var user = await unitOfWork.Users.GetByVkUserIdAsync(userResponse.VkUserId);
+
+            if (user == null)
+            {
+                user = mapper.Map<UserEntity>(userResponse);
+                user.UserId = Guid.NewGuid();
+                user = await unitOfWork.Users.AddAsync(user);
+            }
+            else
+            {
+                mapper.Map(userResponse, user);
+                await unitOfWork.Users.UpdateAsync(user);
+            }
+
+            if (adminVkUserIds.Length > 0
+                && adminVkUserIds.Contains(user!.VkUserId)
+                && !user.IsAdmin)
+            {
+                user.IsAdmin = true;
+                await unitOfWork.Users.UpdateAsync(user);
+            }
+
+            var accessExpiresAt = DateTime.UtcNow.AddSeconds(vkTokens.ExpiresIn);
+            var refreshExpiresAt = DateTime.UtcNow.AddDays(VkRefreshTokenLifeTime.Days);
+
+            var userToken = new UserTokenEntity()
+            {
+                UserId = user!.UserId,
+                TokenRecordId = Guid.NewGuid(),
+                VkUserId = vkTokens.UserId,
+                AccessToken = vkTokens.AccessToken,
+                RefreshToken = vkTokens.RefreshToken,
+                AccessTokenExpiresAt = accessExpiresAt,
+                RefreshTokenExpiresAt = refreshExpiresAt,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            await unitOfWork.UserTokens.UpsertForUserAsync(userToken);
+            await unitOfWork.UserAppSessions.RemoveAllForUserAsync(user.UserId);
+
+            var refreshToken = CreateRefreshToken();
+            var newSession = new UserAppSessionEntity
+            {
+                SessionId = Guid.NewGuid(),
+                UserId = user.UserId,
+                RefreshTokenHash = Hash(refreshToken),
+                ExpiresAt = DateTime.UtcNow.AddDays(settings.RefreshTokenLifeTimeDays),
+                CreatedAt = DateTime.UtcNow,
+            };
+            await unitOfWork.UserAppSessions.AddAsync(newSession);
+            await unitOfWork.CommitAsync();
+            return new AuthTokensModel()
+            {
+                AccessToken = jwtTokenService.CreateAccessToken(user),
+                RefreshToken = refreshToken,
+                ExpiresInSeconds = jwtTokenService.GetAccessTokenLifetimeSeconds(),
+                TokenType = "Bearer"
+            };
+            
         }
-        else
+        catch
         {
-            mapper.Map(userResponse, user);
-            await usersRepository.UpdateAsync(user);
+            await unitOfWork.RollbackAsync();
+            throw;
         }
-
-        if (adminVkUserIds.Length > 0
-            && adminVkUserIds.Contains(user!.VkUserId)
-            && !user.IsAdmin)
-        {
-            user.IsAdmin = true;
-            await usersRepository.UpdateAsync(user);
-        }
-
-        var accessExpiresAt = DateTime.UtcNow.AddSeconds(vkTokens.ExpiresIn);
-        var refreshExpiresAt = DateTime.UtcNow.AddDays(VkRefreshTokenLifeTime.Days);
-
-        var userToken = new UserTokenEntity()
-        {
-            UserId = user!.UserId,
-            TokenRecordId = Guid.NewGuid(),
-            VkUserId = vkTokens.UserId,
-            AccessToken = vkTokens.AccessToken,
-            RefreshToken = vkTokens.RefreshToken,
-            AccessTokenExpiresAt = accessExpiresAt,
-            RefreshTokenExpiresAt = refreshExpiresAt,
-            CreatedAt = DateTime.UtcNow,
-        };
-
-        await userTokensRepository.UpsertForUserAsync(userToken);
-        await appSessionsRepository.RemoveAllForUserAsync(user.UserId);
-
-        var refreshToken = CreateRefreshToken();
-        var newSession = new UserAppSessionEntity
-        {
-            SessionId = Guid.NewGuid(),
-            UserId = user.UserId,
-            RefreshTokenHash = Hash(refreshToken),
-            ExpiresAt = DateTime.UtcNow.AddDays(settings.RefreshTokenLifeTimeDays),
-            CreatedAt = DateTime.UtcNow,
-        };
-        await appSessionsRepository.AddAsync(newSession);
-        return new AuthTokensModel()
-        {
-            AccessToken = jwtTokenService.CreateAccessToken(user),
-            RefreshToken = refreshToken,
-            ExpiresInSeconds = jwtTokenService.GetAccessTokenLifetimeSeconds(),
-            TokenType = "Bearer"
-        };
     }
 
     public async Task<AuthTokensModel?> RefreshAsync(string refreshToken)
@@ -97,32 +106,44 @@ public class AppAuthService(
             return null;
 
         var refreshTokenHash = Hash(refreshToken);
-        var session = await appSessionsRepository.GetByRefreshTokenHashAsync(refreshTokenHash);
-        if (session == null || session.ExpiresAt <= DateTime.UtcNow)
-            return null;
-
-        var user = session.User;
-
-        await appSessionsRepository.RemoveAsync(session);
-
-        var newRefreshToken = CreateRefreshToken();
-        var newSession = new UserAppSessionEntity
+        await using var transaction = await unitOfWork.BeginTransactionAsync();
+        try
         {
-            SessionId = Guid.NewGuid(),
-            UserId = user.UserId,
-            RefreshTokenHash = Hash(newRefreshToken),
-            ExpiresAt = DateTime.UtcNow.AddDays(settings.RefreshTokenLifeTimeDays),
-            CreatedAt = DateTime.UtcNow,
-        };
-        await appSessionsRepository.AddAsync(newSession);
+            var session = await unitOfWork.UserAppSessions.GetByRefreshTokenHashAsync(refreshTokenHash);
+            if (session == null || session.ExpiresAt <= DateTime.UtcNow)
+            {
+                await unitOfWork.RollbackAsync();
+                return null;
+            }
 
-        return new AuthTokensModel
+            var user = session.User;
+
+            unitOfWork.UserAppSessions.Remove(session);
+
+            var newRefreshToken = CreateRefreshToken();
+            var newSession = new UserAppSessionEntity
+            {
+                SessionId = Guid.NewGuid(),
+                UserId = user.UserId,
+                RefreshTokenHash = Hash(newRefreshToken),
+                ExpiresAt = DateTime.UtcNow.AddDays(settings.RefreshTokenLifeTimeDays),
+                CreatedAt = DateTime.UtcNow,
+            };
+            await unitOfWork.UserAppSessions.AddAsync(newSession);
+            await unitOfWork.CommitAsync();
+            return new AuthTokensModel
+            {
+                AccessToken = jwtTokenService.CreateAccessToken(user),
+                RefreshToken = newRefreshToken,
+                ExpiresInSeconds = jwtTokenService.GetAccessTokenLifetimeSeconds(),
+                TokenType = "Bearer"
+            };
+        }
+        catch
         {
-            AccessToken = jwtTokenService.CreateAccessToken(user),
-            RefreshToken = newRefreshToken,
-            ExpiresInSeconds = jwtTokenService.GetAccessTokenLifetimeSeconds(),
-            TokenType = "Bearer"
-        };
+            await unitOfWork.RollbackAsync();
+            throw;
+        }
     }
 
     private static string CreateRefreshToken()
@@ -138,19 +159,5 @@ public class AppAuthService(
     {
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken));
         return Convert.ToBase64String(bytes);
-    }
-
-    private string GetParametersForUserGet(VkTokensApiResponse vkTokens)
-    {
-        var requestParams = new Dictionary<string, string>()
-        {
-            { "user_id", vkTokens.UserId.ToString() },
-            { "access_token", vkTokens.AccessToken },
-            { "fields", "photo_200" },
-            { "v", "5.131" }
-        };
-        var queryString = string.Join("&", requestParams
-            .Select(x => $"{x.Key}={Uri.EscapeDataString(x.Value)}"));
-        return queryString;
     }
 }
