@@ -20,6 +20,8 @@ public static class MapperConfigurator
             config.AddProfile<AppAuthWebApiProfile>();
 
             config.AddProfile<UsersBLProfile>();
+            
+            config.AddProfile<VideosWebApiProfile>();
         });
     }
 }

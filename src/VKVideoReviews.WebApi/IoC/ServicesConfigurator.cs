@@ -33,6 +33,8 @@ public static class ServicesConfigurator
         services.AddScoped<IUserAppSessionsRepository, UserAppSessionsRepository>();
 
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+        
+        services.AddScoped<IVideosRepository, VideosRepository>();
 
         services.AddSingleton(appSettings.JwtAuthSettings);
 

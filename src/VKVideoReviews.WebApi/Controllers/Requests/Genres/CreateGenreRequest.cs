@@ -1,4 +1,4 @@
-﻿namespace VKVideoReviews.WebApi.Controllers.Requests.Genre;
+﻿namespace VKVideoReviews.WebApi.Controllers.Requests.Genres;
 
 public class CreateGenreRequest
 {

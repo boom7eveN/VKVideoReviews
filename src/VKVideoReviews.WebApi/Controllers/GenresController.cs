@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using VKVideoReviews.BL.Services.Genres.Interfaces;
 using VKVideoReviews.BL.Services.Genres.Models;
 using VKVideoReviews.WebApi.Controllers.Requests.Genre;
-using VKVideoReviews.WebApi.Controllers.Responses.Genre;
+using VKVideoReviews.WebApi.Controllers.Requests.Genres;
+using VKVideoReviews.WebApi.Controllers.Responses.Genres;
 
 namespace VKVideoReviews.WebApi.Controllers;
 
