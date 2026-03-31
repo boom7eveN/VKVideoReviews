@@ -11,6 +11,9 @@ public static class FavoriteConfiguration
         {
             entity.HasKey(f => new { f.FavoriteId });
 
+            entity.HasIndex(r => new { r.UserId, r.VideoId })
+                .IsUnique();
+
             entity.HasOne(f => f.User)
                 .WithMany(u => u.Favorites)
                 .HasForeignKey(f => f.UserId)

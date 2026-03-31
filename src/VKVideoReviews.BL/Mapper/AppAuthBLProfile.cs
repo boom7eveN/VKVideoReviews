@@ -5,9 +5,9 @@ using VKVideoReviews.DA.Entities;
 
 namespace VKVideoReviews.BL.Mapper;
 
-public class UsersBLProfile : Profile
+public class AppAuthBLProfile : Profile
 {
-    public UsersBLProfile()
+    public AppAuthBLProfile()
     {
         CreateMap<VkApiUserResponse, UserEntity>()
             .ForMember(dest => dest.AvatarUrl, opt
@@ -18,5 +18,6 @@ public class UsersBLProfile : Profile
                 => opt.MapFrom(src => src.Surname))
             .ForMember(dest => dest.VkUserId, opt
                 => opt.MapFrom(src => src.VkUserId));
+        CreateMap<UserEntity, UserModel>();
     }
 }

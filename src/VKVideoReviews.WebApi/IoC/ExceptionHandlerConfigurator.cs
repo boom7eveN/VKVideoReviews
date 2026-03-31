@@ -35,6 +35,11 @@ public static class ExceptionHandlerConfigurator
                         errorCode = authException.ErrorCode;
                         message = authException.Message;
                         break;
+                    case UnauthorizedAccessException unauthorizedException:
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        errorCode = "UNAUTHORIZED";
+                        message = unauthorizedException.Message ?? "User is not authorized";
+                        break;
                     default:
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                         errorCode = "INTERNAL_ERROR";

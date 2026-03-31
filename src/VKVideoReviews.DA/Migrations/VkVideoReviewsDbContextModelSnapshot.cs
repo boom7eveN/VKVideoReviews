@@ -36,9 +36,10 @@ namespace VKVideoReviews.DA.Migrations
 
                     b.HasKey("FavoriteId");
 
-                    b.HasIndex("UserId");
-
                     b.HasIndex("VideoId");
+
+                    b.HasIndex("UserId", "VideoId")
+                        .IsUnique();
 
                     b.ToTable("Favorite");
                 });
@@ -110,9 +111,10 @@ namespace VKVideoReviews.DA.Migrations
 
                     b.HasIndex("Rate");
 
-                    b.HasIndex("UserId");
-
                     b.HasIndex("VideoId");
+
+                    b.HasIndex("UserId", "VideoId")
+                        .IsUnique();
 
                     b.ToTable("Reviews", t =>
                         {

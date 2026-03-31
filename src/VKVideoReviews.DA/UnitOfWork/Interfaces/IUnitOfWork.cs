@@ -10,8 +10,12 @@ public interface IUnitOfWork
     IVideoTypesRepository VideoTypes { get; }
     IVideosRepository Videos { get; }
     IGenresVideosRepository GenresVideos { get; }
-    Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel 
+    IReviewsRepository Reviews { get; }
+    IUsersRepository Users { get; }
+
+    Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel
         = IsolationLevel.ReadCommitted);
+
     Task CommitAsync();
     Task RollbackAsync();
     Task<int> SaveChangesAsync();

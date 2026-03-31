@@ -11,7 +11,6 @@ public class VideosBLProfile : Profile
         CreateMap<CreateVideoModel, VideoEntity>();
         CreateMap<VideoEntity, VideoModel>()
             .ForMember(dest => dest.Genres,
-                opt => opt.MapFrom(
-                    src => src.GenresVideos.Select(gv => gv.Genre)));
+                opt => opt.MapFrom(src => src.GenresVideos.Select(gv => gv.Genre)));
     }
 }

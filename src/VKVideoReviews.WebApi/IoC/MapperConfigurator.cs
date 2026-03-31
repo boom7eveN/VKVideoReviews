@@ -14,16 +14,17 @@ public static class MapperConfigurator
 
             config.AddProfile<VideoTypesBLProfile>();
             config.AddProfile<VideoTypesWebApiProfile>();
-            
+
             config.AddProfile<VideosWebApiProfile>();
             config.AddProfile<VideosBLProfile>();
 
             config.AddProfile<VkAuthWebApiProfile>();
 
             config.AddProfile<AppAuthWebApiProfile>();
+            config.AddProfile<AppAuthBLProfile>();
 
-            config.AddProfile<UsersBLProfile>();
-            
+            config.AddProfile<ReviewsWebApiProfile>();
+            config.AddProfile<ReviewsBLProfile>();
         });
     }
 }

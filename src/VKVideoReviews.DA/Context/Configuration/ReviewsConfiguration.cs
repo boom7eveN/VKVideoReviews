@@ -11,6 +11,9 @@ public static class ReviewsConfiguration
         {
             entity.HasKey(r => new { r.ReviewId });
 
+            entity.HasIndex(r => new { r.UserId, r.VideoId })
+                .IsUnique();
+
             entity.Property(r => r.Rate)
                 .IsRequired();
 

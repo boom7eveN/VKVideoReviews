@@ -9,11 +9,10 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
 {
     public async Task<VideoEntity?> CreateAsync(VideoEntity entity)
     {
-        var maybeVideo = await context.Videos.FirstOrDefaultAsync(
-            x => 
-                 x.Title == entity.Title && 
-                 x.StartYear == entity.StartYear &&
-                 x.VideoTypeId == entity.VideoTypeId);
+        var maybeVideo = await context.Videos.FirstOrDefaultAsync(x =>
+            x.Title == entity.Title &&
+            x.StartYear == entity.StartYear &&
+            x.VideoTypeId == entity.VideoTypeId);
 
         if (maybeVideo is not null)
             return null;
@@ -45,8 +44,8 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
     {
         return await context.Videos
             .AsNoTracking()
-            .Include(v=> v.VideoType)
-            .Include(v=>v.GenresVideos)
+            .Include(v => v.VideoType)
+            .Include(v => v.GenresVideos)
             .ThenInclude(gv => gv.Genre)
             .FirstOrDefaultAsync(v => v.VideoId == id);
     }
@@ -59,5 +58,30 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
             .Include(v => v.GenresVideos)
             .ThenInclude(gv => gv.Genre).ToListAsync();
     }
-    
+
+    public async Task UpdateVideoRatingAsync(Guid videoId)
+    {
+        await context.Database.ExecuteSqlRawAsync(@"
+        UPDATE ""Videos""
+        SET 
+            ""TotalReviews"" = (
+                SELECT COUNT(*) 
+                FROM ""Reviews"" 
+                WHERE ""VideoId"" = {0}
+            ),
+            ""AverageRate"" = (
+                SELECT COALESCE(AVG(""Rate""::double precision), 0)
+                FROM ""Reviews"" 
+                WHERE ""VideoId"" = {0}
+            )
+        WHERE ""VideoId"" = {0}
+    ", videoId);
+    }
+
+    public async Task<VideoEntity?> LockForUpdateAsync(Guid videoId)
+    {
+        return await context.Videos
+            .FromSqlRaw("SELECT * FROM \"Videos\" WHERE \"VideoId\" = {0} FOR UPDATE", videoId)
+            .FirstOrDefaultAsync();
+    }
 }

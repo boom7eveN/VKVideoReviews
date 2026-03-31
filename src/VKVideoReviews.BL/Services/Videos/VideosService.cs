@@ -66,84 +66,84 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
     }
 
     public async Task<VideoModel> UpdateVideoAsync(Guid id, UpdateVideoModel model)
-{
-    await using var transaction = await unitOfWork.BeginTransactionAsync();
-    try
     {
-        var video = await unitOfWork.Videos.GetByIdAsync(id);
-        if (video is null)
-            throw new NotFoundException("Video", id);
-        
-        if (model.Title is not null)
-            video.Title = model.Title;
-
-        if (model.Description is not null)
-            video.Description = model.Description;
-
-        if (model.ImageUrl is not null)
-            video.ImageUrl = model.ImageUrl;
-
-        if (model.VideoUrl is not null)
-            video.VideoUrl = model.VideoUrl;
-
-        if (model.StartYear.HasValue)
-            video.StartYear = model.StartYear.Value;
-
-        if (model.EndYear != null) 
-            video.EndYear = model.EndYear;
-        
-        if (model.VideoTypeId.HasValue)
+        await using var transaction = await unitOfWork.BeginTransactionAsync();
+        try
         {
-            var videoType = await unitOfWork.VideoTypes
-                .GetByIdAsync(model.VideoTypeId.Value);
+            var video = await unitOfWork.Videos.GetByIdAsync(id);
+            if (video is null)
+                throw new NotFoundException("Video", id);
 
-            if (videoType is null)
-                throw new NotFoundException("VideoType", model.VideoTypeId.Value);
+            if (model.Title is not null)
+                video.Title = model.Title;
 
-            video.VideoTypeId = model.VideoTypeId.Value;
-        }
-        
-        if (model.GenreIds is not null)
-        {
-            var uniqueGenreIds = model.GenreIds.Distinct().ToHashSet();
+            if (model.Description is not null)
+                video.Description = model.Description;
 
-            var existingGenres = await unitOfWork.Genres
-                .GetAllAsync(g => uniqueGenreIds.Contains(g.GenreId));
+            if (model.ImageUrl is not null)
+                video.ImageUrl = model.ImageUrl;
 
-            var genreEntities = existingGenres.ToList();
+            if (model.VideoUrl is not null)
+                video.VideoUrl = model.VideoUrl;
 
-            if (genreEntities.Count != uniqueGenreIds.Count)
-                throw new NotFoundException("Genre");
-            
-            await unitOfWork.GenresVideos.DeleteByVideoIdAsync(id);
-            var newGenresVideos = genreEntities.Select(g => new GenresVideosEntity
+            if (model.StartYear.HasValue)
+                video.StartYear = model.StartYear.Value;
+
+            if (model.EndYear != null)
+                video.EndYear = model.EndYear;
+
+            if (model.VideoTypeId.HasValue)
             {
-                VideoId = id,
-                GenreId = g.GenreId
-            });
+                var videoType = await unitOfWork.VideoTypes
+                    .GetByIdAsync(model.VideoTypeId.Value);
 
-            await unitOfWork.GenresVideos.AddRangeAsync(newGenresVideos);
+                if (videoType is null)
+                    throw new NotFoundException("VideoType", model.VideoTypeId.Value);
+
+                video.VideoTypeId = model.VideoTypeId.Value;
+            }
+
+            if (model.GenreIds is not null)
+            {
+                var uniqueGenreIds = model.GenreIds.Distinct().ToHashSet();
+
+                var existingGenres = await unitOfWork.Genres
+                    .GetAllAsync(g => uniqueGenreIds.Contains(g.GenreId));
+
+                var genreEntities = existingGenres.ToList();
+
+                if (genreEntities.Count != uniqueGenreIds.Count)
+                    throw new NotFoundException("Genre");
+
+                await unitOfWork.GenresVideos.DeleteByVideoIdAsync(id);
+                var newGenresVideos = genreEntities.Select(g => new GenresVideosEntity
+                {
+                    VideoId = id,
+                    GenreId = g.GenreId
+                });
+
+                await unitOfWork.GenresVideos.AddRangeAsync(newGenresVideos);
+            }
+
+            unitOfWork.Videos.Update(video);
+            await unitOfWork.CommitAsync();
+
+            var result = await unitOfWork.Videos
+                .GetVideoByIdWithGenresAndVideotypesAsync(id);
+
+            return mapper.Map<VideoModel>(result);
         }
-
-        unitOfWork.Videos.Update(video);
-        await unitOfWork.CommitAsync();
-
-        var result = await unitOfWork.Videos
-            .GetVideoByIdWithGenresAndVideotypesAsync(id);
-
-        return mapper.Map<VideoModel>(result);
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" })
+        {
+            await unitOfWork.RollbackAsync();
+            throw new AlreadyExistsException("Video");
+        }
+        catch
+        {
+            await unitOfWork.RollbackAsync();
+            throw;
+        }
     }
-    catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" })
-    {
-        await unitOfWork.RollbackAsync();
-        throw new AlreadyExistsException("Video");
-    }
-    catch
-    {
-        await unitOfWork.RollbackAsync();
-        throw;
-    }
-}
 
     public async Task DeleteVideoAsync(Guid id)
     {

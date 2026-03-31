@@ -22,7 +22,7 @@ public class VideosController(ILogger<VideosController> logger, IVideosService v
         var videoModel = await videosService.CreateVideoAsync(createVideoModel);
         return Ok(new VideosListResponse([mapper.Map<VideoResponse>(videoModel)]));
     }
-    
+
     [HttpGet("")]
     [AllowAnonymous]
     public async Task<ActionResult<VideosListResponse>> GetAllVideos()
@@ -30,7 +30,7 @@ public class VideosController(ILogger<VideosController> logger, IVideosService v
         var videos = await videosService.GetAllVideosAsync();
         return Ok(new VideosListResponse(mapper.Map<List<VideoResponse>>(videos)));
     }
-    
+
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<ActionResult<VideosListResponse>> GetAllVideos(Guid id)
@@ -38,7 +38,7 @@ public class VideosController(ILogger<VideosController> logger, IVideosService v
         var video = await videosService.GetVideoByIdAsync(id);
         return Ok(new VideosListResponse([mapper.Map<VideoResponse>(video)]));
     }
-    
+
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteVideo(Guid id)
@@ -46,7 +46,7 @@ public class VideosController(ILogger<VideosController> logger, IVideosService v
         await videosService.DeleteVideoAsync(id);
         return NoContent();
     }
-    
+
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<VideosListResponse>> UpdateVideo(Guid id, [FromBody] UpdateVideoRequest request)

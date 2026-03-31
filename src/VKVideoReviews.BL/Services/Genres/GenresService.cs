@@ -21,7 +21,6 @@ public class GenresService(
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-
             genreEntity = await unitOfWork.Genres.CreateAsync(genreEntity);
 
             if (genreEntity is null)

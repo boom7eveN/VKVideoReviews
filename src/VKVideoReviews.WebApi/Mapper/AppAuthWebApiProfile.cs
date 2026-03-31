@@ -9,5 +9,6 @@ public class AppAuthWebApiProfile : Profile
     public AppAuthWebApiProfile()
     {
         CreateMap<AuthTokensModel, AuthTokensResponse>();
+        CreateMap<UserModel, UserResponse>();
     }
 }
