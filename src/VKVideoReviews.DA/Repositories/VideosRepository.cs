@@ -9,7 +9,11 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
 {
     public async Task<VideoEntity?> CreateAsync(VideoEntity entity)
     {
-        var maybeVideo = await context.Videos.FirstOrDefaultAsync(x => x.VideoId == entity.VideoId);
+        var maybeVideo = await context.Videos.FirstOrDefaultAsync(
+            x => 
+                 x.Title == entity.Title && 
+                 x.StartYear == entity.StartYear &&
+                 x.VideoTypeId == entity.VideoTypeId);
 
         if (maybeVideo is not null)
             return null;
@@ -36,4 +40,24 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
     {
         context.Videos.Update(entity);
     }
+
+    public async Task<VideoEntity?> GetVideoByIdWithGenresAndVideotypesAsync(Guid id)
+    {
+        return await context.Videos
+            .AsNoTracking()
+            .Include(v=> v.VideoType)
+            .Include(v=>v.GenresVideos)
+            .ThenInclude(gv => gv.Genre)
+            .FirstOrDefaultAsync(v => v.VideoId == id);
+    }
+
+    public async Task<IEnumerable<VideoEntity>> GetAllVideosWithGenresAndVideotypesAsync()
+    {
+        return await context.Videos
+            .AsNoTracking()
+            .Include(v => v.VideoType)
+            .Include(v => v.GenresVideos)
+            .ThenInclude(gv => gv.Genre).ToListAsync();
+    }
+    
 }

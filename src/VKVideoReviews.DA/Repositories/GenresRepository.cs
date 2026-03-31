@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 using VKVideoReviews.DA.Context;
 using VKVideoReviews.DA.Entities;
 using VKVideoReviews.DA.Repositories.Interfaces;
@@ -41,5 +42,10 @@ public class GenresRepository(VkVideoReviewsDbContext context) : IGenresReposito
     public async Task<GenreEntity?> GetByTitleAsync(string title)
     {
         return await context.Genres.AsNoTracking().FirstOrDefaultAsync(x => x.Title == title);
+    }
+
+    public async Task<IEnumerable<GenreEntity>> GetAllAsync(Expression<Func<GenreEntity, bool>> predicate)
+    {
+        return await context.Genres.AsNoTracking().Where(predicate).ToListAsync();
     }
 }

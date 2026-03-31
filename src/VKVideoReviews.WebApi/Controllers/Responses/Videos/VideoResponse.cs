@@ -5,7 +5,7 @@ namespace VKVideoReviews.WebApi.Controllers.Responses.Videos;
 
 public class VideoResponse
 {
-    public Guid Id { get; set; }
+    public Guid VideoId { get; set; }
     public string VideoUrl { get; set; }
     public string Title { get; set; }
     public string ImageUrl { get; set; }

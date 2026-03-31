@@ -16,12 +16,11 @@ public class GenresService(
 {
     public async Task<GenreModel> CreateGenreAsync(CreateGenreModel model)
     {
+        var genreEntity = mapper.Map<GenreEntity>(model);
+        genreEntity.GenreId = Guid.NewGuid();
         await using var transaction = await unitOfWork.BeginTransactionAsync();
-
         try
         {
-            var genreEntity = mapper.Map<GenreEntity>(model);
-            genreEntity.GenreId = Guid.NewGuid();
 
             genreEntity = await unitOfWork.Genres.CreateAsync(genreEntity);
 
@@ -30,11 +29,6 @@ public class GenresService(
 
             await unitOfWork.CommitAsync();
             return mapper.Map<GenreModel>(genreEntity);
-        }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" })
-        {
-            await unitOfWork.RollbackAsync();
-            throw new AlreadyExistsException("Genre");
         }
         catch
         {
@@ -82,11 +76,6 @@ public class GenresService(
 
             await unitOfWork.CommitAsync();
             return mapper.Map<GenreModel>(genre);
-        }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" })
-        {
-            await unitOfWork.RollbackAsync();
-            throw new AlreadyExistsException("Genre");
         }
         catch
         {

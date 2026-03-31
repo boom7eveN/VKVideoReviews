@@ -7,6 +7,8 @@ using VKVideoReviews.BL.Services.AppAuth.Interfaces;
 using VKVideoReviews.BL.Services.AppAuth.Models;
 using VKVideoReviews.BL.Services.Genres;
 using VKVideoReviews.BL.Services.Genres.Interfaces;
+using VKVideoReviews.BL.Services.Videos;
+using VKVideoReviews.BL.Services.Videos.Interfaces;
 using VKVideoReviews.BL.Services.VideoTypes;
 using VKVideoReviews.BL.Services.VideoTypes.Interfaces;
 using VKVideoReviews.BL.Services.VkAuth;
@@ -29,6 +31,7 @@ public static class ServicesConfigurator
         services.AddScoped<IUsersRepository, UserRepository>();
         services.AddScoped<IUserAppSessionsRepository, UserAppSessionsRepository>();
         services.AddScoped<IVideosRepository, VideosRepository>();
+        services.AddScoped<IGenresVideosRepository, GenresVideosRepository>();
 
         services.AddScoped<IAuthUnitOfWork, AuthUnitOfWork>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -36,6 +39,7 @@ public static class ServicesConfigurator
         services.AddScoped<IGenresService, GenresService>();
         services.AddScoped<IVideoTypesService, VideoTypesService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IVideosService, VideosService>();
 
 
         services.AddSingleton(appSettings.JwtAuthSettings);

@@ -15,12 +15,14 @@ public class UnitOfWork : IUnitOfWork
     public IGenresRepository Genres { get; }
     public IVideoTypesRepository VideoTypes { get; }
     public IVideosRepository Videos { get; }
+    public IGenresVideosRepository GenresVideos { get; }
 
     public UnitOfWork(VkVideoReviewsDbContext context)
     {
         Genres = new GenresRepository(context);
         VideoTypes = new VideoTypesRepository(context);
         Videos = new VideosRepository(context);
+        GenresVideos = new GenresVideosRepository(context);
         _context = context;
     }
 

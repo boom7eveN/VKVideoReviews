@@ -16,13 +16,11 @@ public class VideoTypesService(
 {
     public async Task<VideoTypeModel> CreateVideoTypeAsync(CreateVideoTypeModel model)
     {
+        var videoTypeEntity = mapper.Map<VideoTypeEntity>(model);
+        videoTypeEntity.VideoTypeId = Guid.NewGuid();
         await using var transaction = await unitOfWork.BeginTransactionAsync();
-
         try
         {
-            var videoTypeEntity = mapper.Map<VideoTypeEntity>(model);
-            videoTypeEntity.VideoTypeId = Guid.NewGuid();
-
             videoTypeEntity = await unitOfWork.VideoTypes.CreateAsync(videoTypeEntity);
 
             if (videoTypeEntity is null)
@@ -98,7 +96,6 @@ public class VideoTypesService(
     public async Task DeleteVideoTypeAsync(Guid id)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync();
-
         try
         {
             var videoType = await unitOfWork.VideoTypes.GetByIdAsync(id);

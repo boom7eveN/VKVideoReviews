@@ -1,6 +1,6 @@
-﻿namespace VKVideoReviews.BL.Services.Videos.Models;
+﻿namespace VKVideoReviews.WebApi.Controllers.Requests.Videos;
 
-public class UpdateVideoModel
+public class UpdateVideoRequest
 {
     public string? VideoUrl { get; set; }
     public string? Title { get; set; }
