@@ -62,6 +62,8 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
     public async Task<VideoModel> GetVideoByIdAsync(Guid videoId)
     {
         var video = await unitOfWork.Videos.GetVideoByIdWithGenresAndVideotypeAsync(videoId);
+        if (video is null)
+            throw new NotFoundException("Video", videoId);
         return mapper.Map<VideoModel>(video);
     }
 

@@ -85,7 +85,10 @@ public class ReviewsService(IUnitOfWork unitOfWork, IMapper mapper) : IReviewsSe
     public async Task<ReviewModel> GetReviewAsync(Guid reviewId)
     {
         var review = await unitOfWork.Reviews.GetReviewByIdWithUserAndVideoAsync(reviewId);
+        if (review is null)
+            throw new NotFoundException("Review", reviewId);
         return mapper.Map<ReviewModel>(review);
+
     }
 
     public async Task<IEnumerable<ReviewModel>> GetAllReviewAsync()

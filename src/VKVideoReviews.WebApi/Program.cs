@@ -18,7 +18,6 @@ builder.Configuration.AddConfiguration(configuration);
 
 //TODO: Подумать чё делать с репозиториями(отказаться от дженерика/унифицировать как то)
 //TODO: рефактор методов create чтобы в репозитории были только вызовы без проверок а все проверки делать в service
-//TODO: унифицировать get методы в сервисах где то есть thrown not found где то возвращаем даже если null
 
 SerilogConfigurator.ConfigureServices(builder);
 SwaggerConfigurator.ConfigureServices(builder.Services);
