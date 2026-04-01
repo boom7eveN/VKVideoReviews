@@ -46,6 +46,7 @@ public class AppAuthService(
                 mapper.Map(userResponse, user);
                 await unitOfWork.Users.UpdateAsync(user);
             }
+            await unitOfWork.SaveChangesAsync();
 
             if (adminVkUserIds.Length > 0
                 && adminVkUserIds.Contains(user!.VkUserId)
@@ -71,7 +72,9 @@ public class AppAuthService(
             };
 
             await unitOfWork.UserTokens.UpsertForUserAsync(userToken);
+            await unitOfWork.SaveChangesAsync();
             await unitOfWork.UserAppSessions.RemoveAllForUserAsync(user.UserId);
+            await unitOfWork.SaveChangesAsync();
 
             var refreshToken = CreateRefreshToken();
             var newSession = new UserAppSessionEntity
@@ -118,6 +121,7 @@ public class AppAuthService(
             var user = session.User;
 
             unitOfWork.UserAppSessions.Remove(session);
+            await unitOfWork.SaveChangesAsync();
 
             var newRefreshToken = CreateRefreshToken();
             var newSession = new UserAppSessionEntity

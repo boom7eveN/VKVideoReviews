@@ -15,8 +15,8 @@ public class UserTokensRepository(VkVideoReviewsDbContext context) : IUserTokens
                 ""TokenRecordId"", 
                 ""UserId"", 
                 ""VkUserId"", 
-                ""AccessToken"", 
-                ""RefreshToken"",
+                ""VkAccessTokenHash"", 
+                ""VkRefreshTokenHash"",
                 ""AccessTokenExpiresAt"", 
                 ""RefreshTokenExpiresAt"", 
                 ""CreatedAt""
@@ -33,8 +33,8 @@ public class UserTokensRepository(VkVideoReviewsDbContext context) : IUserTokens
             )
             ON CONFLICT (""UserId"") DO UPDATE SET
                 ""VkUserId"" = EXCLUDED.""VkUserId"",
-                ""AccessToken"" = EXCLUDED.""AccessToken"",
-                ""RefreshToken"" = EXCLUDED.""RefreshToken"",
+                ""VkAccessTokenHash"" = EXCLUDED.""VkAccessTokenHash"",
+                ""VkRefreshTokenHash"" = EXCLUDED.""VkRefreshTokenHash"",
                 ""AccessTokenExpiresAt"" = EXCLUDED.""AccessTokenExpiresAt"",
                 ""RefreshTokenExpiresAt"" = EXCLUDED.""RefreshTokenExpiresAt"",
                 ""CreatedAt"" = EXCLUDED.""CreatedAt"";
