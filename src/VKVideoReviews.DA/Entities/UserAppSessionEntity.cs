@@ -10,8 +10,8 @@ public class UserAppSessionEntity
     public virtual UserEntity User { get; set; }
 
     /// <summary>SHA256 Base64</summary>
-    public string RefreshTokenHash { get; set; }
+    public string AppRefreshTokenHash { get; set; }
 
-    public DateTime ExpiresAt { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public DateTime RefreshTokenExpiresAt { get; set; }
+    public DateTime RefreshTokenCreatedAt { get; set; }
 }

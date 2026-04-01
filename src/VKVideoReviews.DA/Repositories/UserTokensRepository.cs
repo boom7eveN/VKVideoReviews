@@ -25,8 +25,8 @@ public class UserTokensRepository(VkVideoReviewsDbContext context) : IUserTokens
                 {entity.TokenRecordId}, 
                 {entity.UserId}, 
                 {entity.VkUserId}, 
-                {entity.AccessToken}, 
-                {entity.RefreshToken},
+                {entity.VkAccessTokenHash}, 
+                {entity.VkRefreshTokenHash},
                 {entity.AccessTokenExpiresAt}, 
                 {entity.RefreshTokenExpiresAt}, 
                 {entity.CreatedAt}

@@ -12,14 +12,15 @@ public class UserTokenEntity
 
     public long VkUserId { get; set; }
 
-    public string AccessToken { get; set; } // 1h
+    public string VkAccessTokenHash { get; set; } // 1h
 
-    public string? RefreshToken { get; set; } // 180d
+    /// <summary>SHA256 Base64</summary>
+    public string VkRefreshTokenHash { get; set; } // 180d
 
 
-    public DateTime AccessTokenExpiresAt { get; set; } //+1h
+    public DateTime AccessTokenExpiresAt { get; set; } //1h
 
-    public DateTime? RefreshTokenExpiresAt { get; set; } //+180d
+    public DateTime RefreshTokenExpiresAt { get; set; } //180d
 
 
     public DateTime CreatedAt { get; set; }

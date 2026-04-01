@@ -13,8 +13,9 @@ public class ReviewsService(IUnitOfWork unitOfWork, IMapper mapper) : IReviewsSe
     {
         var review = mapper.Map<ReviewEntity>(model);
         review.ReviewId = Guid.NewGuid();
-        review.CreateDate = DateTime.UtcNow;
-        review.UpdateDate = DateTime.UtcNow;
+        var currentTime =  DateTime.UtcNow;
+        review.CreateDate = currentTime;
+        review.UpdateDate = currentTime;
 
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try

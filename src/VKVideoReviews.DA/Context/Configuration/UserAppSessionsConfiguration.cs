@@ -11,14 +11,14 @@ public static class UserAppSessionsConfiguration
         {
             entity.HasKey(s => s.SessionId);
 
-            entity.Property(s => s.RefreshTokenHash)
+            entity.Property(s => s.AppRefreshTokenHash)
                 .IsRequired();
 
-            entity.Property(s => s.CreatedAt)
+            entity.Property(s => s.RefreshTokenCreatedAt)
                 .IsRequired()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-            entity.HasIndex(s => s.RefreshTokenHash)
+            entity.HasIndex(s => s.AppRefreshTokenHash)
                 .HasDatabaseName("IX_UserAppSessions_RefreshTokenHash");
 
             entity.HasIndex(s => s.UserId)

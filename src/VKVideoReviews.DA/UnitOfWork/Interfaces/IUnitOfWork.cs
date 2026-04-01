@@ -12,6 +12,7 @@ public interface IUnitOfWork
     IGenresVideosRepository GenresVideos { get; }
     IReviewsRepository Reviews { get; }
     IUsersRepository Users { get; }
+    IFavoriteRepository Favorite { get; }
 
     Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel
         = IsolationLevel.ReadCommitted);

@@ -18,6 +18,8 @@ public class UnitOfWork : IUnitOfWork
     public IGenresVideosRepository GenresVideos { get; }
     public IReviewsRepository Reviews { get; }
     public IUsersRepository Users { get; }
+    
+    public IFavoriteRepository Favorite { get; }
 
     public UnitOfWork(VkVideoReviewsDbContext context)
     {
@@ -27,6 +29,7 @@ public class UnitOfWork : IUnitOfWork
         GenresVideos = new GenresVideosRepository(context);
         Reviews = new ReviewsRepository(context);
         Users = new UserRepository(context);
+        Favorite = new FavoriteRepository(context);
         _context = context;
     }
 

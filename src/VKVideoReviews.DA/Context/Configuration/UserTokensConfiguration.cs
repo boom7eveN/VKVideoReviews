@@ -23,9 +23,12 @@ public static class UserTokensConfiguration
 
             entity.HasIndex(t => t.AccessTokenExpiresAt)
                 .HasDatabaseName("IX_UserTokens_ExpiresAt");
+            
+            entity.HasIndex(t => t.VkAccessTokenHash)
+                .HasDatabaseName("IX_UserTokens_VkAccessTokenHash");
 
-            entity.HasIndex(t => t.RefreshToken)
-                .HasDatabaseName("IX_UserTokens_RefreshToken");
+            entity.HasIndex(t => t.VkRefreshTokenHash)
+                .HasDatabaseName("IX_UserTokens_VkRefreshTokenHash");
 
             entity.HasOne(t => t.User)
                 .WithMany(u => u.Tokens)

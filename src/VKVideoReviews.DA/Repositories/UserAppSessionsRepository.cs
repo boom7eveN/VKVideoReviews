@@ -16,7 +16,7 @@ public class UserAppSessionsRepository(VkVideoReviewsDbContext context) : IUserA
     {
         return await context.UserAppSessions
             .Include(s => s.User)
-            .FirstOrDefaultAsync(s => s.RefreshTokenHash == refreshTokenHash);
+            .FirstOrDefaultAsync(s => s.AppRefreshTokenHash == refreshTokenHash);
     }
 
     public void Remove(UserAppSessionEntity entity)
