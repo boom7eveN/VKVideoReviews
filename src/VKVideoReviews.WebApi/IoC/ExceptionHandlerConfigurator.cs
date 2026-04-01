@@ -15,13 +15,7 @@ public static class ExceptionHandlerConfigurator
                 if (exception is null)
                     return;
                 var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-
-                logger.LogError(exception,
-                    "Unhandled exception: {Message}\nPath: {Path}\nMethod: {Method}",
-                    exception.Message,
-                    context.Request.Path,
-                    context.Request.Method);
-
+                
                 string errorCode, message;
                 switch (exception)
                 {

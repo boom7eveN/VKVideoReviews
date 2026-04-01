@@ -12,7 +12,7 @@ public class VkVideoReviewsDbContext(DbContextOptions options) : DbContext(optio
     public DbSet<GenreEntity> Genres { get; set; }
     public DbSet<ReviewEntity> Reviews { get; set; }
     public DbSet<GenresVideosEntity> GenresVideosEntities { get; set; }
-    public DbSet<FavoriteEntity> Favourite { get; set; }
+    public DbSet<FavoriteEntity> Favorite { get; set; }
     public DbSet<UserTokenEntity> UserTokens { get; set; }
     public DbSet<UserAppSessionEntity> UserAppSessions { get; set; }
 

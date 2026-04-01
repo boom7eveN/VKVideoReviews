@@ -11,7 +11,7 @@ using VKVideoReviews.WebApi.Controllers.Responses.AppAuth;
 namespace VKVideoReviews.WebApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class VkAuthController(
     IAppAuthService appAuthService,
     IVkAuthService vkAuthService,

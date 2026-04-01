@@ -10,9 +10,8 @@ using VKVideoReviews.WebApi.Controllers.Responses.Reviews;
 namespace VKVideoReviews.WebApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class ReviewsController(
-    ILogger<ReviewsController> logger,
     IReviewsService reviewsService,
     IMapper mapper)
     : ControllerBase
@@ -35,7 +34,7 @@ public class ReviewsController(
 
 
     [HttpPost("videos/{videoId:guid}")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "User, Admin")] 
     public async Task<ActionResult<ReviewResponse>> CreateReview(
         Guid videoId,
         [FromBody] CreateReviewRequest request)
@@ -52,7 +51,7 @@ public class ReviewsController(
     }
 
     [HttpDelete("videos/{videoId:guid}")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "User, Admin")] 
     public async Task<IActionResult> DeleteMyReview(Guid videoId)
     {
         var userId = this.GetCurrentUserId();
@@ -63,7 +62,7 @@ public class ReviewsController(
     }
 
     [HttpPut("videos/{videoId:guid}")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "User, Admin")] 
     public async Task<ActionResult<ReviewResponse>> UpdateReview(
         Guid videoId,
         [FromBody] UpdateReviewRequest request)

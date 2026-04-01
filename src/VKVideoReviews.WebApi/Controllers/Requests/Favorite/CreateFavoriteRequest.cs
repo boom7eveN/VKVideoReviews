@@ -2,5 +2,5 @@
 
 public class CreateFavoriteRequest
 {
-    
+    public Guid VideoId { get; set; }
 }

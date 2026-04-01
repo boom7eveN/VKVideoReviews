@@ -1,6 +1,3 @@
 ﻿namespace VKVideoReviews.WebApi.Controllers.Responses.Favorite;
 
-public class FavoriteListResponse
-{
-    
-}
+public record FavoriteListResponse(List<FavoriteResponse> Favorite);

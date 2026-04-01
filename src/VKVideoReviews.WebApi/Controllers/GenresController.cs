@@ -10,8 +10,8 @@ using VKVideoReviews.WebApi.Controllers.Responses.Genres;
 namespace VKVideoReviews.WebApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
-public class GenresController(ILogger<GenresController> logger, IGenresService genresService, IMapper mapper)
+[Route("api/[controller]")]
+public class GenresController(IGenresService genresService, IMapper mapper)
     : ControllerBase
 {
     [HttpPost]

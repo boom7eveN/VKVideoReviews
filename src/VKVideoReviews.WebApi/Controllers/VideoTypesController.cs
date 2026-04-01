@@ -9,9 +9,8 @@ using VKVideoReviews.WebApi.Controllers.Responses.VideoType;
 namespace VKVideoReviews.WebApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class VideoTypesController(
-    ILogger<VideoTypesController> logger,
     IVideoTypesService videoTypesService,
     IMapper mapper)
     : ControllerBase
