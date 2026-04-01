@@ -17,9 +17,10 @@ public class GenresController(IGenresService genresService, IMapper mapper)
     [HttpPost]
     [Route("")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<GenresListResponse>> CreateGenre([FromBody] CreateGenreRequest request)
+    public async Task<ActionResult<GenresListResponse>> CreateGenre(
+        [FromBody] CreateGenreRequest createGenreRequest)
     {
-        var createGenreModel = mapper.Map<CreateGenreModel>(request);
+        var createGenreModel = mapper.Map<CreateGenreModel>(createGenreRequest);
         GenreModel genreModel = await genresService.CreateGenreAsync(createGenreModel);
         return Ok(new GenresListResponse([mapper.Map<GenreResponse>(genreModel)]));
     }
@@ -28,32 +29,33 @@ public class GenresController(IGenresService genresService, IMapper mapper)
     [AllowAnonymous]
     public async Task<ActionResult<GenresListResponse>> GetAllGenres()
     {
-        var genres = await genresService.GetAllGenresAsync();
-        return Ok(new GenresListResponse(mapper.Map<List<GenreResponse>>(genres)));
+        var genreModels = await genresService.GetAllGenresAsync();
+        return Ok(new GenresListResponse(mapper.Map<List<GenreResponse>>(genreModels)));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{genreId}")]
     [AllowAnonymous]
-    public async Task<ActionResult<GenresListResponse>> GetGenreById(Guid id)
+    public async Task<ActionResult<GenresListResponse>> GetGenreById(Guid genreId)
     {
-        var genre = await genresService.GetGenreByIdAsync(id);
-        return Ok(new GenresListResponse([mapper.Map<GenreResponse>(genre)]));
+        var genreModel = await genresService.GetGenreByIdAsync(genreId);
+        return Ok(new GenresListResponse([mapper.Map<GenreResponse>(genreModel)]));
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{genreId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<GenresListResponse>> UpdateGenre(Guid id, [FromBody] UpdateGenreRequest request)
+    public async Task<ActionResult<GenresListResponse>> UpdateGenre(Guid genreId,
+        [FromBody] UpdateGenreRequest updateGenreRequest)
     {
-        var updateGenreModel = mapper.Map<UpdateGenreModel>(request);
-        var updatedGenre = await genresService.UpdateGenreAsync(id, updateGenreModel);
-        return Ok(new GenresListResponse([mapper.Map<GenreResponse>(updatedGenre)]));
+        var updateGenreModel = mapper.Map<UpdateGenreModel>(updateGenreRequest);
+        var genreModel = await genresService.UpdateGenreAsync(genreId, updateGenreModel);
+        return Ok(new GenresListResponse([mapper.Map<GenreResponse>(genreModel)]));
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{genreId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteGenre(Guid id)
+    public async Task<IActionResult> DeleteGenre(Guid genreId)
     {
-        await genresService.DeleteGenreAsync(id);
+        await genresService.DeleteGenreAsync(genreId);
         return NoContent();
     }
 }

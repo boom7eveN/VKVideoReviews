@@ -13,8 +13,10 @@ public class FavoriteRepository(VkVideoReviewsDbContext context) : IFavoriteRepo
             .FirstOrDefaultAsync(f =>
                 f.VideoId == favorite.VideoId &&
                 f.UserId == favorite.UserId);
+
         if (maybeFavorite is not null)
             return null;
+
         await context.Favorite.AddAsync(favorite);
         return favorite;
     }
@@ -32,7 +34,7 @@ public class FavoriteRepository(VkVideoReviewsDbContext context) : IFavoriteRepo
                 f.UserId == userId);
     }
 
-    public async Task<IEnumerable<FavoriteEntity>> GetAllFavoriteWithVideoAsync(Guid userId)
+    public async Task<IEnumerable<FavoriteEntity>> GetAllFavoriteWithVideoByUserIdAsync(Guid userId)
     {
         return await context.Favorite.AsNoTracking()
             .Include(f => f.Video)
@@ -41,7 +43,7 @@ public class FavoriteRepository(VkVideoReviewsDbContext context) : IFavoriteRepo
             .ThenInclude(v => v.GenresVideos)
             .ThenInclude(gv => gv.Genre)
             .Where(f => f.UserId == userId)
-            .ToListAsync(); 
+            .ToListAsync();
     }
 
     public void DeleteFavorite(FavoriteEntity favorite)

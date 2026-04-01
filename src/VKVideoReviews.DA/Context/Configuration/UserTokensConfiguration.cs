@@ -23,7 +23,7 @@ public static class UserTokensConfiguration
 
             entity.HasIndex(t => t.AccessTokenExpiresAt)
                 .HasDatabaseName("IX_UserTokens_ExpiresAt");
-            
+
             entity.HasIndex(t => t.VkAccessTokenHash)
                 .HasDatabaseName("IX_UserTokens_VkAccessTokenHash");
 

@@ -24,11 +24,11 @@ public class VkAuthController(
     }
 
     [HttpGet("callback")]
-    public async Task<IActionResult> Callback([FromQuery] VkAuthCallbackRequest request)
+    public async Task<IActionResult> Callback([FromQuery] VkAuthCallbackRequest vkAuthCallbackRequest)
     {
-        var vkAuthCallbackModel = mapper.Map<VkAuthCallbackModel>(request);
+        var vkAuthCallbackModel = mapper.Map<VkAuthCallbackModel>(vkAuthCallbackRequest);
         var vkTokens = await vkAuthService.ExchangeCodeForTokenAsync(vkAuthCallbackModel);
-        var authTokensResult = await appAuthService.SignInWithVkTokensAsync(vkTokens);
-        return Ok(mapper.Map<AuthTokensResponse>(authTokensResult));
+        var authTokensModel = await appAuthService.SignInWithVkTokensAsync(vkTokens);
+        return Ok(mapper.Map<AuthTokensResponse>(authTokensModel));
     }
 }

@@ -7,11 +7,12 @@ namespace VKVideoReviews.DA.Repositories;
 
 public class ReviewsRepository(VkVideoReviewsDbContext context) : IReviewsRepository
 {
-    public async Task<ReviewEntity?> CreateAsync(ReviewEntity review)
+    public async Task<ReviewEntity?> CreateReviewAsync(ReviewEntity review)
     {
         var maybeReview = await context.Reviews.FirstOrDefaultAsync(r =>
             r.UserId == review.UserId &&
             r.VideoId == review.VideoId);
+
         if (maybeReview is not null)
             return null;
 
@@ -19,7 +20,7 @@ public class ReviewsRepository(VkVideoReviewsDbContext context) : IReviewsReposi
         return review;
     }
 
-    public async Task<ReviewEntity?> GetByReviewIdWithUserAndVideoAsync(Guid reviewId)
+    public async Task<ReviewEntity?> GetReviewByIdWithUserAndVideoAsync(Guid reviewId)
     {
         return await context.Reviews
             .AsNoTracking()
@@ -28,7 +29,7 @@ public class ReviewsRepository(VkVideoReviewsDbContext context) : IReviewsReposi
             .FirstOrDefaultAsync(r => r.ReviewId == reviewId);
     }
 
-    public async Task<ReviewEntity?> GetByUserAndVideoIdsWithUserAndVideoAsync(Guid userId, Guid videoId)
+    public async Task<ReviewEntity?> GetReviewByUserAndVideoIdsWithUserAndVideoAsync(Guid userId, Guid videoId)
     {
         return await context.Reviews
             .AsNoTracking()
@@ -37,12 +38,12 @@ public class ReviewsRepository(VkVideoReviewsDbContext context) : IReviewsReposi
             .FirstOrDefaultAsync(r => r.UserId == userId && r.VideoId == videoId);
     }
 
-    public void Delete(ReviewEntity review)
+    public void DeleteReview(ReviewEntity review)
     {
         context.Reviews.Remove(review);
     }
 
-    public async Task<IEnumerable<ReviewEntity>> GetAllWithUserAndVideoAsync()
+    public async Task<IEnumerable<ReviewEntity>> GetAllReviewsWithUsersAndVideosAsync()
     {
         return await context.Reviews
             .AsNoTracking()
@@ -51,8 +52,15 @@ public class ReviewsRepository(VkVideoReviewsDbContext context) : IReviewsReposi
             .ToListAsync();
     }
 
-    public void Update(ReviewEntity review)
+    public void UpdateReview(ReviewEntity review)
     {
         context.Reviews.Update(review);
+    }
+
+    public async Task<ReviewEntity?> GetReviewByUserAndVideoIdsAsync(Guid userId, Guid videoId)
+    {
+        return await context.Reviews
+            .AsNoTracking()
+            .FirstOrDefaultAsync(r => r.UserId == userId && r.VideoId == videoId);
     }
 }

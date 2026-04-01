@@ -4,6 +4,6 @@ namespace VKVideoReviews.DA.Repositories.Interfaces;
 
 public interface IGenresVideosRepository
 {
-    Task AddRangeAsync(IEnumerable<GenresVideosEntity> entities);
-    Task DeleteByVideoIdAsync(Guid videoId);
+    Task AddGenresVideosRangeAsync(IEnumerable<GenresVideosEntity> genresVideos);
+    Task DeleteGenreVideoByVideoIdAsync(Guid videoId);
 }

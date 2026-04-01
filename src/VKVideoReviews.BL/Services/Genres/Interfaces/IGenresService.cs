@@ -4,9 +4,9 @@ namespace VKVideoReviews.BL.Services.Genres.Interfaces;
 
 public interface IGenresService
 {
-    Task<GenreModel> CreateGenreAsync(CreateGenreModel model);
+    Task<GenreModel> CreateGenreAsync(CreateGenreModel createGenreModel);
     Task<IEnumerable<GenreModel>> GetAllGenresAsync();
-    Task<GenreModel> GetGenreByIdAsync(Guid id);
-    Task<GenreModel> UpdateGenreAsync(Guid id, UpdateGenreModel model);
-    Task DeleteGenreAsync(Guid id);
+    Task<GenreModel> GetGenreByIdAsync(Guid genreId);
+    Task<GenreModel> UpdateGenreAsync(Guid genreId, UpdateGenreModel updateGenreModel);
+    Task DeleteGenreAsync(Guid genreId);
 }

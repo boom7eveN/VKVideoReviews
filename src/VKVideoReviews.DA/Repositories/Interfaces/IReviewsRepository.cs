@@ -4,10 +4,11 @@ namespace VKVideoReviews.DA.Repositories.Interfaces;
 
 public interface IReviewsRepository
 {
-    Task<ReviewEntity?> CreateAsync(ReviewEntity review);
-    Task<ReviewEntity?> GetByReviewIdWithUserAndVideoAsync(Guid reviewId);
-    Task<ReviewEntity?> GetByUserAndVideoIdsWithUserAndVideoAsync(Guid userId, Guid videoId);
-    void Delete(ReviewEntity review);
-    Task<IEnumerable<ReviewEntity>> GetAllWithUserAndVideoAsync();
-    void Update(ReviewEntity review);
+    Task<ReviewEntity?> CreateReviewAsync(ReviewEntity review);
+    Task<ReviewEntity?> GetReviewByIdWithUserAndVideoAsync(Guid reviewId);
+    Task<ReviewEntity?> GetReviewByUserAndVideoIdsWithUserAndVideoAsync(Guid userId, Guid videoId);
+    void DeleteReview(ReviewEntity review);
+    Task<IEnumerable<ReviewEntity>> GetAllReviewsWithUsersAndVideosAsync();
+    void UpdateReview(ReviewEntity review);
+    Task<ReviewEntity?> GetReviewByUserAndVideoIdsAsync(Guid userId, Guid videoId);
 }

@@ -7,24 +7,24 @@ namespace VKVideoReviews.DA.Repositories;
 
 public class UserAppSessionsRepository(VkVideoReviewsDbContext context) : IUserAppSessionsRepository
 {
-    public async Task AddAsync(UserAppSessionEntity entity)
+    public async Task AddUserSessionAsync(UserAppSessionEntity sessionEntity)
     {
-        await context.UserAppSessions.AddAsync(entity);
+        await context.UserAppSessions.AddAsync(sessionEntity);
     }
 
-    public async Task<UserAppSessionEntity?> GetByRefreshTokenHashAsync(string refreshTokenHash)
+    public async Task<UserAppSessionEntity?> GetUserSessionByRefreshTokenHashAsync(string refreshTokenHash)
     {
         return await context.UserAppSessions
             .Include(s => s.User)
             .FirstOrDefaultAsync(s => s.AppRefreshTokenHash == refreshTokenHash);
     }
 
-    public void Remove(UserAppSessionEntity entity)
+    public void RemoveUserSession(UserAppSessionEntity sessionEntity)
     {
-        context.UserAppSessions.Remove(entity);
+        context.UserAppSessions.Remove(sessionEntity);
     }
 
-    public async Task RemoveAllForUserAsync(Guid userId)
+    public async Task RemoveAllUserSessionsForUserAsync(Guid userId)
     {
         await context.UserAppSessions.Where(s => s.UserId == userId)
             .ExecuteDeleteAsync();

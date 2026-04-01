@@ -9,22 +9,22 @@ namespace VKVideoReviews.BL.Services.Favorite;
 
 public class FavoriteService(IMapper mapper, IUnitOfWork unitOfWork) : IFavoriteService
 {
-    public async Task<FavoriteModel> CreateFavoriteAsync(Guid userId, CreateFavoriteModel model)
+    public async Task<FavoriteModel> CreateFavoriteAsync(Guid userId, CreateFavoriteModel createFavoriteModel)
     {
-        var favoriteEntity = mapper.Map<FavoriteEntity>(model);
+        var favoriteEntity = mapper.Map<FavoriteEntity>(createFavoriteModel);
         favoriteEntity.UserId = userId;
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var video = await unitOfWork.Videos.GetVideoByIdWithGenresAndVideotypesAsync(model.VideoId);
+            var video = await unitOfWork.Videos.GetVideoByIdWithGenresAndVideotypeAsync(createFavoriteModel.VideoId);
             if (video == null)
-                throw new NotFoundException("Video", model.VideoId);
+                throw new NotFoundException("Video", createFavoriteModel.VideoId);
 
             favoriteEntity = await unitOfWork.Favorite.CreateFavoriteAsync(favoriteEntity);
             if (favoriteEntity is null)
                 throw new AlreadyExistsException("Favorite");
             await unitOfWork.CommitAsync();
-            favoriteEntity = await unitOfWork.Favorite.GetFavoriteWithVideoAsync(userId, model.VideoId);
+            favoriteEntity = await unitOfWork.Favorite.GetFavoriteWithVideoAsync(userId, createFavoriteModel.VideoId);
             return mapper.Map<FavoriteModel>(favoriteEntity);
         }
         catch
@@ -36,7 +36,7 @@ public class FavoriteService(IMapper mapper, IUnitOfWork unitOfWork) : IFavorite
 
     public async Task<IEnumerable<FavoriteModel>> GetAllFavoriteAsync(Guid userId)
     {
-        var favorite = await unitOfWork.Favorite.GetAllFavoriteWithVideoAsync(userId);
+        var favorite = await unitOfWork.Favorite.GetAllFavoriteWithVideoByUserIdAsync(userId);
         return mapper.Map<IEnumerable<FavoriteModel>>(favorite);
     }
 

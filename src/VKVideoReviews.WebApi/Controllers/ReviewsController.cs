@@ -16,42 +16,39 @@ public class ReviewsController(
     IMapper mapper)
     : ControllerBase
 {
-    [HttpGet("{id:guid}")]
+    [HttpGet("{reviewId}")]
     [AllowAnonymous]
-    public async Task<ActionResult<ReviewResponse>> GetReview(Guid id)
+    public async Task<ActionResult<ReviewResponse>> GetReview(Guid reviewId)
     {
-        var review = await reviewsService.GetReviewAsync(id);
-        return Ok(mapper.Map<ReviewResponse>(review));
+        var reviewModel = await reviewsService.GetReviewAsync(reviewId);
+        return Ok(mapper.Map<ReviewResponse>(reviewModel));
     }
 
     [HttpGet("")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ReviewsListResponse>> GetAllReviews()
     {
-        var reviews = await reviewsService.GetAllReviewAsync();
-        return Ok(new ReviewsListResponse(mapper.Map<List<ReviewResponse>>(reviews)));
+        var reviewModels = await reviewsService.GetAllReviewAsync();
+        return Ok(new ReviewsListResponse(mapper.Map<List<ReviewResponse>>(reviewModels)));
     }
 
 
-    [HttpPost("videos/{videoId:guid}")]
-    [Authorize(Roles = "User, Admin")] 
-    public async Task<ActionResult<ReviewResponse>> CreateReview(
+    [HttpPost("videos/{videoId}")]
+    [Authorize(Roles = "User, Admin")]
+    public async Task<ActionResult<ReviewResponse>> CreateMyReview(
         Guid videoId,
-        [FromBody] CreateReviewRequest request)
+        [FromBody] CreateReviewRequest createReviewRequest)
     {
         var userId = this.GetCurrentUserId();
 
-        var createReviewModel = mapper.Map<CreateReviewModel>(request);
-        var review = await reviewsService.CreateReviewAsync(userId, videoId, createReviewModel);
+        var createReviewModel = mapper.Map<CreateReviewModel>(createReviewRequest);
+        var reviewModel = await reviewsService.CreateReviewAsync(userId, videoId, createReviewModel);
 
-        return CreatedAtAction(
-            nameof(GetReview),
-            new { id = review.ReviewId },
-            mapper.Map<ReviewResponse>(review));
+        return Ok(mapper.Map<ReviewResponse>(reviewModel));
     }
 
-    [HttpDelete("videos/{videoId:guid}")]
-    [Authorize(Roles = "User, Admin")] 
+    [HttpDelete("videos/{videoId}")]
+    [Authorize(Roles = "User, Admin")]
     public async Task<IActionResult> DeleteMyReview(Guid videoId)
     {
         var userId = this.GetCurrentUserId();
@@ -61,17 +58,17 @@ public class ReviewsController(
         return NoContent();
     }
 
-    [HttpPut("videos/{videoId:guid}")]
-    [Authorize(Roles = "User, Admin")] 
-    public async Task<ActionResult<ReviewResponse>> UpdateReview(
+    [HttpPut("videos/{videoId}")]
+    [Authorize(Roles = "User, Admin")]
+    public async Task<ActionResult<ReviewResponse>> UpdateMyReview(
         Guid videoId,
-        [FromBody] UpdateReviewRequest request)
+        [FromBody] UpdateReviewRequest updateReviewRequest)
     {
         var userId = this.GetCurrentUserId();
 
-        var updateReviewModel = mapper.Map<UpdateReviewModel>(request);
-        var review = await reviewsService.UpdateReviewAsync(userId, videoId, updateReviewModel);
+        var updateReviewModel = mapper.Map<UpdateReviewModel>(updateReviewRequest);
+        var reviewModel = await reviewsService.UpdateReviewAsync(userId, videoId, updateReviewModel);
 
-        return Ok(mapper.Map<ReviewResponse>(review));
+        return Ok(mapper.Map<ReviewResponse>(reviewModel));
     }
 }

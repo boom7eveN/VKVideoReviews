@@ -17,28 +17,29 @@ public class FavoriteController(
     IMapper mapper) : ControllerBase
 {
     [HttpGet]
-    [Authorize(Roles = "User, Admin")] 
-    public async Task<ActionResult<FavoriteListResponse>> GetAllFavorite()
+    [Authorize(Roles = "User, Admin")]
+    public async Task<ActionResult<FavoriteListResponse>> GetAllMyFavorite()
     {
         var userId = this.GetCurrentUserId();
         var favoriteModel = await favoriteService.GetAllFavoriteAsync(userId);
         return Ok(new FavoriteListResponse(mapper.Map<List<FavoriteResponse>>(favoriteModel)));
     }
-    
+
     [HttpPost]
-    [Authorize(Roles = "User, Admin")] 
-    public async Task<ActionResult<FavoriteListResponse>> CreateFavorite([FromBody] CreateFavoriteRequest request)
+    [Authorize(Roles = "User, Admin")]
+    public async Task<ActionResult<FavoriteListResponse>> CreateMyFavorite(
+        [FromBody] CreateFavoriteRequest createFavoriteRequest)
     {
         var userId = this.GetCurrentUserId();
-        var createFavoriteModel = mapper.Map<CreateFavoriteModel>(request);
+        var createFavoriteModel = mapper.Map<CreateFavoriteModel>(createFavoriteRequest);
         var favoriteModel = await favoriteService.CreateFavoriteAsync(userId, createFavoriteModel);
         return Ok(new FavoriteListResponse([mapper.Map<FavoriteResponse>(favoriteModel)]));
     }
-    
+
     [HttpDelete]
-    [Authorize(Roles = "User, Admin")] 
+    [Authorize(Roles = "User, Admin")]
     [Route("{videoId}")]
-    public async Task<IActionResult> DeleteFavorite(Guid videoId)
+    public async Task<IActionResult> DeleteMyFavorite(Guid videoId)
     {
         var userId = this.GetCurrentUserId();
         await favoriteService.DeleteFavoriteAsync(userId, videoId);

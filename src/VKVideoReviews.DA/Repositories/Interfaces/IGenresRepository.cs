@@ -5,6 +5,6 @@ namespace VKVideoReviews.DA.Repositories.Interfaces;
 
 public interface IGenresRepository : IRepository<GenreEntity>
 {
-    Task<GenreEntity?> GetByTitleAsync(string title);
-    Task<IEnumerable<GenreEntity>> GetAllAsync(Expression<Func<GenreEntity, bool>> predicate);
+    Task<GenreEntity?> GetGenreByTitleAsync(string title);
+    Task<IEnumerable<GenreEntity>> GetAllGenresAsync(Expression<Func<GenreEntity, bool>> predicate);
 }

@@ -7,24 +7,24 @@ namespace VKVideoReviews.DA.Repositories;
 
 public class UserRepository(VkVideoReviewsDbContext context) : IUsersRepository
 {
-    public async Task<UserEntity?> GetByVkUserIdAsync(long vkUserId)
+    public async Task<UserEntity?> GetUserByVkIdAsync(long vkUserId)
     {
         return await context.Users.AsNoTracking()
             .FirstOrDefaultAsync(u => u.VkUserId == vkUserId);
     }
 
-    public async Task<UserEntity?> AddAsync(UserEntity entity)
+    public async Task<UserEntity?> AddUserAsync(UserEntity entity)
     {
         await context.Users.AddAsync(entity);
         return entity;
     }
 
-    public async Task UpdateAsync(UserEntity entity)
+    public void UpdateUserAsync(UserEntity entity)
     {
         context.Users.Update(entity);
     }
 
-    public async Task<UserEntity?> GetByIdAsync(Guid userId)
+    public async Task<UserEntity?> GetUserByIdAsync(Guid userId)
     {
         return await context.Users.AsNoTracking()
             .FirstOrDefaultAsync(u => u.UserId == userId);

@@ -17,10 +17,8 @@ builder.Services.AddMemoryCache();
 builder.Configuration.AddConfiguration(configuration);
 
 //TODO: Подумать чё делать с репозиториями(отказаться от дженерика/унифицировать как то)
-//TODO: ВЕЗДЕ в интерфейсах и имплемент. репозиториев унифицировать названия методов и нормлально прописать названия параметров
-//TODO: То же самое что и выше ток в сервисах и контроллерах чтобы по названию параметра было понятно что передавать а не тупо id
 //TODO: рефактор методов create чтобы в репозитории были только вызовы без проверок а все проверки делать в service
-//TODO: проверить сервисы используется ли в delete облегчённый поиск или тяжелый с include
+//TODO: унифицировать get методы в сервисах где то есть thrown not found где то возвращаем даже если null
 
 SerilogConfigurator.ConfigureServices(builder);
 SwaggerConfigurator.ConfigureServices(builder.Services);

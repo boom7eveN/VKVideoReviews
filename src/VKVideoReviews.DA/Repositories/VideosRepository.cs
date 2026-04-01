@@ -16,6 +16,7 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
 
         if (maybeVideo is not null)
             return null;
+
         var result = await context.Videos.AddAsync(entity);
         return result.Entity;
     }
@@ -40,17 +41,17 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
         context.Videos.Update(entity);
     }
 
-    public async Task<VideoEntity?> GetVideoByIdWithGenresAndVideotypesAsync(Guid id)
+    public async Task<VideoEntity?> GetVideoByIdWithGenresAndVideotypeAsync(Guid videoId)
     {
         return await context.Videos
             .AsNoTracking()
             .Include(v => v.VideoType)
             .Include(v => v.GenresVideos)
             .ThenInclude(gv => gv.Genre)
-            .FirstOrDefaultAsync(v => v.VideoId == id);
+            .FirstOrDefaultAsync(v => v.VideoId == videoId);
     }
 
-    public async Task<IEnumerable<VideoEntity>> GetAllVideosWithGenresAndVideotypesAsync()
+    public async Task<IEnumerable<VideoEntity>> GetAllVideosWithGenresAndVideotypeAsync()
     {
         return await context.Videos
             .AsNoTracking()
@@ -59,7 +60,7 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
             .ThenInclude(gv => gv.Genre).ToListAsync();
     }
 
-    public async Task UpdateVideoRatingAsync(Guid videoId)
+    public async Task UpdateVideoRatingByIdAsync(Guid videoId)
     {
         await context.Database.ExecuteSqlRawAsync(@"
         UPDATE ""Videos""
@@ -78,7 +79,7 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
     ", videoId);
     }
 
-    public async Task<VideoEntity?> LockForUpdateAsync(Guid videoId)
+    public async Task<VideoEntity?> LockForUpdateByIdAsync(Guid videoId)
     {
         return await context.Videos
             .FromSqlRaw("SELECT * FROM \"Videos\" WHERE \"VideoId\" = {0} FOR UPDATE", videoId)

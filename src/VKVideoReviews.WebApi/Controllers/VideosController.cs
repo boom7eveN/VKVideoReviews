@@ -16,9 +16,9 @@ public class VideosController(IVideosService videosService, IMapper mapper)
     [HttpPost]
     [Route("")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<VideosListResponse>> CreateVideo([FromBody] CreateVideoRequest request)
+    public async Task<ActionResult<VideosListResponse>> CreateVideo([FromBody] CreateVideoRequest createVideoRequest)
     {
-        var createVideoModel = mapper.Map<CreateVideoModel>(request);
+        var createVideoModel = mapper.Map<CreateVideoModel>(createVideoRequest);
         var videoModel = await videosService.CreateVideoAsync(createVideoModel);
         return Ok(new VideosListResponse([mapper.Map<VideoResponse>(videoModel)]));
     }
@@ -27,32 +27,34 @@ public class VideosController(IVideosService videosService, IMapper mapper)
     [AllowAnonymous]
     public async Task<ActionResult<VideosListResponse>> GetAllVideos()
     {
-        var videos = await videosService.GetAllVideosAsync();
-        return Ok(new VideosListResponse(mapper.Map<List<VideoResponse>>(videos)));
+        var videoModels = await videosService.GetAllVideosAsync();
+        return Ok(new VideosListResponse(mapper.Map<List<VideoResponse>>(videoModels)));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{videoId}")]
     [AllowAnonymous]
-    public async Task<ActionResult<VideosListResponse>> GetAllVideos(Guid id)
+    public async Task<ActionResult<VideosListResponse>> GetAllVideos(Guid videoId)
     {
-        var video = await videosService.GetVideoByIdAsync(id);
-        return Ok(new VideosListResponse([mapper.Map<VideoResponse>(video)]));
+        var videoModel = await videosService.GetVideoByIdAsync(videoId);
+        return Ok(new VideosListResponse([mapper.Map<VideoResponse>(videoModel)]));
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{videoId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteVideo(Guid id)
+    public async Task<IActionResult> DeleteVideo(Guid videoId)
     {
-        await videosService.DeleteVideoAsync(id);
+        await videosService.DeleteVideoAsync(videoId);
         return NoContent();
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{videoId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<VideosListResponse>> UpdateVideo(Guid id, [FromBody] UpdateVideoRequest request)
+    public async Task<ActionResult<VideosListResponse>> UpdateVideo(
+        Guid videoId,
+        [FromBody] UpdateVideoRequest updateVideoRequest)
     {
-        var updateVideoModel = mapper.Map<UpdateVideoModel>(request);
-        var updatedVideo = await videosService.UpdateVideoAsync(id, updateVideoModel);
-        return Ok(new VideosListResponse([mapper.Map<VideoResponse>(updatedVideo)]));
+        var updateVideoModel = mapper.Map<UpdateVideoModel>(updateVideoRequest);
+        var videoModel = await videosService.UpdateVideoAsync(videoId, updateVideoModel);
+        return Ok(new VideosListResponse([mapper.Map<VideoResponse>(videoModel)]));
     }
 }

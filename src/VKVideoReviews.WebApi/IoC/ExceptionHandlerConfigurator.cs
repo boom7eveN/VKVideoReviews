@@ -15,7 +15,7 @@ public static class ExceptionHandlerConfigurator
                 if (exception is null)
                     return;
                 var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-                
+
                 string errorCode, message;
                 switch (exception)
                 {

@@ -7,7 +7,7 @@ namespace VKVideoReviews.DA.Repositories;
 
 public class UserTokensRepository(VkVideoReviewsDbContext context) : IUserTokensRepository
 {
-    public async Task UpsertForUserAsync(UserTokenEntity entity)
+    public async Task UpsertTokensForUserAsync(UserTokenEntity entity)
     {
         await context.Database.ExecuteSqlInterpolatedAsync(
             $@"

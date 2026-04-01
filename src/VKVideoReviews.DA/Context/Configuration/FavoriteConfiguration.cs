@@ -10,7 +10,7 @@ public static class FavoriteConfiguration
         modelBuilder.Entity<FavoriteEntity>(entity =>
         {
             entity.HasKey(f => new { f.UserId, f.VideoId });
-            
+
             entity.HasOne(f => f.User)
                 .WithMany(u => u.Favorites)
                 .HasForeignKey(f => f.UserId)

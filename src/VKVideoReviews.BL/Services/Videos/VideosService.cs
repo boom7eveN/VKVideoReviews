@@ -11,9 +11,9 @@ namespace VKVideoReviews.BL.Services.Videos;
 
 public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosService
 {
-    public async Task<VideoModel> CreateVideoAsync(CreateVideoModel model)
+    public async Task<VideoModel> CreateVideoAsync(CreateVideoModel createVideoModel)
     {
-        var video = mapper.Map<VideoEntity>(model);
+        var video = mapper.Map<VideoEntity>(createVideoModel);
         video.VideoId = Guid.NewGuid();
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
@@ -21,15 +21,15 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
             var videoType = await unitOfWork.VideoTypes.GetByIdAsync(video.VideoTypeId);
             if (videoType is null)
                 throw new NotFoundException("VideoType", video.VideoTypeId);
-            video.VideoTypeId = model.VideoTypeId;
+            video.VideoTypeId = createVideoModel.VideoTypeId;
 
             video = await unitOfWork.Videos.CreateAsync(video);
             if (video is null)
                 throw new AlreadyExistsException("Video");
 
-            var uniqueGenreIds = model.GenreIds.Distinct().ToHashSet();
+            var uniqueGenreIds = createVideoModel.GenreIds.Distinct().ToHashSet();
             var existingGenres = await unitOfWork.Genres
-                .GetAllAsync(g => uniqueGenreIds.Contains(g.GenreId));
+                .GetAllGenresAsync(g => uniqueGenreIds.Contains(g.GenreId));
             var genreEntities = existingGenres.ToList();
             if (genreEntities.Count != uniqueGenreIds.Count)
                 throw new NotFoundException("Genre");
@@ -39,9 +39,9 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
                     VideoId = video.VideoId,
                     GenreId = genre.GenreId
                 });
-            await unitOfWork.GenresVideos.AddRangeAsync(genresVideos);
+            await unitOfWork.GenresVideos.AddGenresVideosRangeAsync(genresVideos);
             await unitOfWork.CommitAsync();
-            var videoWithRelations = await unitOfWork.Videos.GetVideoByIdWithGenresAndVideotypesAsync(
+            var videoWithRelations = await unitOfWork.Videos.GetVideoByIdWithGenresAndVideotypeAsync(
                 video.VideoId);
             return mapper.Map<VideoModel>(videoWithRelations);
         }
@@ -55,81 +55,81 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
     public async Task<IEnumerable<VideoModel>> GetAllVideosAsync()
     {
         var videos =
-            await unitOfWork.Videos.GetAllVideosWithGenresAndVideotypesAsync();
+            await unitOfWork.Videos.GetAllVideosWithGenresAndVideotypeAsync();
         return mapper.Map<IEnumerable<VideoModel>>(videos);
     }
 
-    public async Task<VideoModel> GetVideoByIdAsync(Guid id)
+    public async Task<VideoModel> GetVideoByIdAsync(Guid videoId)
     {
-        var video = await unitOfWork.Videos.GetVideoByIdWithGenresAndVideotypesAsync(id);
+        var video = await unitOfWork.Videos.GetVideoByIdWithGenresAndVideotypeAsync(videoId);
         return mapper.Map<VideoModel>(video);
     }
 
-    public async Task<VideoModel> UpdateVideoAsync(Guid id, UpdateVideoModel model)
+    public async Task<VideoModel> UpdateVideoAsync(Guid videoId, UpdateVideoModel updateVideoModel)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var video = await unitOfWork.Videos.GetByIdAsync(id);
+            var video = await unitOfWork.Videos.GetByIdAsync(videoId);
             if (video is null)
-                throw new NotFoundException("Video", id);
+                throw new NotFoundException("Video", videoId);
 
-            if (model.Title is not null)
-                video.Title = model.Title;
+            if (updateVideoModel.Title is not null)
+                video.Title = updateVideoModel.Title;
 
-            if (model.Description is not null)
-                video.Description = model.Description;
+            if (updateVideoModel.Description is not null)
+                video.Description = updateVideoModel.Description;
 
-            if (model.ImageUrl is not null)
-                video.ImageUrl = model.ImageUrl;
+            if (updateVideoModel.ImageUrl is not null)
+                video.ImageUrl = updateVideoModel.ImageUrl;
 
-            if (model.VideoUrl is not null)
-                video.VideoUrl = model.VideoUrl;
+            if (updateVideoModel.VideoUrl is not null)
+                video.VideoUrl = updateVideoModel.VideoUrl;
 
-            if (model.StartYear.HasValue)
-                video.StartYear = model.StartYear.Value;
+            if (updateVideoModel.StartYear.HasValue)
+                video.StartYear = updateVideoModel.StartYear.Value;
 
-            if (model.EndYear != null)
-                video.EndYear = model.EndYear;
+            if (updateVideoModel.EndYear != null)
+                video.EndYear = updateVideoModel.EndYear;
 
-            if (model.VideoTypeId.HasValue)
+            if (updateVideoModel.VideoTypeId.HasValue)
             {
                 var videoType = await unitOfWork.VideoTypes
-                    .GetByIdAsync(model.VideoTypeId.Value);
+                    .GetByIdAsync(updateVideoModel.VideoTypeId.Value);
 
                 if (videoType is null)
-                    throw new NotFoundException("VideoType", model.VideoTypeId.Value);
+                    throw new NotFoundException("VideoType", updateVideoModel.VideoTypeId.Value);
 
-                video.VideoTypeId = model.VideoTypeId.Value;
+                video.VideoTypeId = updateVideoModel.VideoTypeId.Value;
             }
 
-            if (model.GenreIds is not null)
+            if (updateVideoModel.GenreIds is not null)
             {
-                var uniqueGenreIds = model.GenreIds.Distinct().ToHashSet();
+                var uniqueGenreIds = updateVideoModel.GenreIds.Distinct().ToHashSet();
 
                 var existingGenres = await unitOfWork.Genres
-                    .GetAllAsync(g => uniqueGenreIds.Contains(g.GenreId));
+                    .GetAllGenresAsync(g => uniqueGenreIds.Contains(g.GenreId));
 
                 var genreEntities = existingGenres.ToList();
 
                 if (genreEntities.Count != uniqueGenreIds.Count)
                     throw new NotFoundException("Genre");
 
-                await unitOfWork.GenresVideos.DeleteByVideoIdAsync(id);
+                await unitOfWork.GenresVideos.DeleteGenreVideoByVideoIdAsync(videoId);
                 var newGenresVideos = genreEntities.Select(g => new GenresVideosEntity
                 {
-                    VideoId = id,
+                    VideoId = videoId,
                     GenreId = g.GenreId
                 });
 
-                await unitOfWork.GenresVideos.AddRangeAsync(newGenresVideos);
+                await unitOfWork.GenresVideos.AddGenresVideosRangeAsync(newGenresVideos);
             }
 
             unitOfWork.Videos.Update(video);
             await unitOfWork.CommitAsync();
 
             var result = await unitOfWork.Videos
-                .GetVideoByIdWithGenresAndVideotypesAsync(id);
+                .GetVideoByIdWithGenresAndVideotypeAsync(videoId);
 
             return mapper.Map<VideoModel>(result);
         }
@@ -145,14 +145,14 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
         }
     }
 
-    public async Task DeleteVideoAsync(Guid id)
+    public async Task DeleteVideoAsync(Guid videoId)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var video = await unitOfWork.Videos.GetVideoByIdWithGenresAndVideotypesAsync(id);
+            var video = await unitOfWork.Videos.GetByIdAsync(videoId);
             if (video is null)
-                throw new NotFoundException("Video", id);
+                throw new NotFoundException("Video", videoId);
             unitOfWork.Videos.Delete(video);
             await unitOfWork.CommitAsync();
         }

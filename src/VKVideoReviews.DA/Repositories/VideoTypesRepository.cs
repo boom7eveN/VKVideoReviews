@@ -37,7 +37,7 @@ public class VideoTypesRepository(VkVideoReviewsDbContext context) : IVideoTypes
         context.VideoTypes.Update(entity);
     }
 
-    public async Task<VideoTypeEntity?> GetByTitleAsync(string title)
+    public async Task<VideoTypeEntity?> GetVideoTypeByTitleAsync(string title)
     {
         return await context.VideoTypes.AsNoTracking().FirstOrDefaultAsync(x => x.Title == title);
     }

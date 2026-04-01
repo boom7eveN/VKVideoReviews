@@ -25,7 +25,7 @@ public static class MapperConfigurator
 
             config.AddProfile<ReviewsWebApiProfile>();
             config.AddProfile<ReviewsBLProfile>();
-            
+
             config.AddProfile<FavoriteBLProfile>();
             config.AddProfile<FavoriteWebApiProfile>();
         });

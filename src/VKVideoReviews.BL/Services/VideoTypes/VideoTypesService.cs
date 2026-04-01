@@ -14,9 +14,9 @@ public class VideoTypesService(
     IMapper mapper)
     : IVideoTypesService
 {
-    public async Task<VideoTypeModel> CreateVideoTypeAsync(CreateVideoTypeModel model)
+    public async Task<VideoTypeModel> CreateVideoTypeAsync(CreateVideoTypeModel createVideoTypeModel)
     {
-        var videoTypeEntity = mapper.Map<VideoTypeEntity>(model);
+        var videoTypeEntity = mapper.Map<VideoTypeEntity>(createVideoTypeModel);
         videoTypeEntity.VideoTypeId = Guid.NewGuid();
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
@@ -47,35 +47,35 @@ public class VideoTypesService(
         return mapper.Map<IEnumerable<VideoTypeModel>>(videoTypes);
     }
 
-    public async Task<VideoTypeModel> GetVideoTypeByIdAsync(Guid id)
+    public async Task<VideoTypeModel> GetVideoTypeByIdAsync(Guid videoTypeId)
     {
-        var videoType = await unitOfWork.VideoTypes.GetByIdAsync(id);
+        var videoType = await unitOfWork.VideoTypes.GetByIdAsync(videoTypeId);
         if (videoType is null)
-            throw new NotFoundException("VideoType", id);
+            throw new NotFoundException("VideoType", videoTypeId);
 
         return mapper.Map<VideoTypeModel>(videoType);
     }
 
-    public async Task<VideoTypeModel> UpdateVideoTypeAsync(Guid id, UpdateVideoTypeModel model)
+    public async Task<VideoTypeModel> UpdateVideoTypeAsync(Guid videoTypeId, UpdateVideoTypeModel updateVideoTypeModel)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync();
 
         try
         {
-            var videoType = await unitOfWork.VideoTypes.GetByIdAsync(id);
+            var videoType = await unitOfWork.VideoTypes.GetByIdAsync(videoTypeId);
             if (videoType is null)
-                throw new NotFoundException("VideoType", id);
+                throw new NotFoundException("VideoType", videoTypeId);
 
-            if (!string.Equals(videoType.Title, model.Title, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(videoType.Title, updateVideoTypeModel.Title, StringComparison.OrdinalIgnoreCase))
             {
-                var existing = await unitOfWork.VideoTypes.GetByTitleAsync(model.Title);
-                if (existing is not null && existing.VideoTypeId != id)
+                var existing = await unitOfWork.VideoTypes.GetVideoTypeByTitleAsync(updateVideoTypeModel.Title);
+                if (existing is not null && existing.VideoTypeId != videoTypeId)
                 {
                     throw new AlreadyExistsException("VideoType");
                 }
             }
 
-            mapper.Map(model, videoType);
+            mapper.Map(updateVideoTypeModel, videoType);
             unitOfWork.VideoTypes.Update(videoType);
 
             await unitOfWork.CommitAsync();
@@ -93,14 +93,14 @@ public class VideoTypesService(
         }
     }
 
-    public async Task DeleteVideoTypeAsync(Guid id)
+    public async Task DeleteVideoTypeAsync(Guid videoTypeId)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var videoType = await unitOfWork.VideoTypes.GetByIdAsync(id);
+            var videoType = await unitOfWork.VideoTypes.GetByIdAsync(videoTypeId);
             if (videoType is null)
-                throw new NotFoundException("VideoType", id);
+                throw new NotFoundException("VideoType", videoTypeId);
 
             unitOfWork.VideoTypes.Delete(videoType);
             await unitOfWork.CommitAsync();

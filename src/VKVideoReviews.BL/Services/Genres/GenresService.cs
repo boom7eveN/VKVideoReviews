@@ -14,9 +14,9 @@ public class GenresService(
     IMapper mapper)
     : IGenresService
 {
-    public async Task<GenreModel> CreateGenreAsync(CreateGenreModel model)
+    public async Task<GenreModel> CreateGenreAsync(CreateGenreModel createGenreModel)
     {
-        var genreEntity = mapper.Map<GenreEntity>(model);
+        var genreEntity = mapper.Map<GenreEntity>(createGenreModel);
         genreEntity.GenreId = Guid.NewGuid();
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
@@ -42,35 +42,35 @@ public class GenresService(
         return mapper.Map<IEnumerable<GenreModel>>(genres);
     }
 
-    public async Task<GenreModel> GetGenreByIdAsync(Guid id)
+    public async Task<GenreModel> GetGenreByIdAsync(Guid genreId)
     {
-        var genre = await unitOfWork.Genres.GetByIdAsync(id);
+        var genre = await unitOfWork.Genres.GetByIdAsync(genreId);
         if (genre is null)
-            throw new NotFoundException("Genre", id);
+            throw new NotFoundException("Genre", genreId);
 
         return mapper.Map<GenreModel>(genre);
     }
 
-    public async Task<GenreModel> UpdateGenreAsync(Guid id, UpdateGenreModel model)
+    public async Task<GenreModel> UpdateGenreAsync(Guid genreId, UpdateGenreModel updateGenreModel)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync();
 
         try
         {
-            var genre = await unitOfWork.Genres.GetByIdAsync(id);
+            var genre = await unitOfWork.Genres.GetByIdAsync(genreId);
             if (genre is null)
-                throw new NotFoundException("Genre", id);
+                throw new NotFoundException("Genre", genreId);
 
-            if (!string.Equals(genre.Title, model.Title, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(genre.Title, updateGenreModel.Title, StringComparison.OrdinalIgnoreCase))
             {
-                var existing = await unitOfWork.Genres.GetByTitleAsync(model.Title);
-                if (existing is not null && existing.GenreId != id)
+                var existing = await unitOfWork.Genres.GetGenreByTitleAsync(updateGenreModel.Title);
+                if (existing is not null && existing.GenreId != genreId)
                 {
                     throw new AlreadyExistsException("Genre");
                 }
             }
 
-            mapper.Map(model, genre);
+            mapper.Map(updateGenreModel, genre);
             unitOfWork.Genres.Update(genre);
 
             await unitOfWork.CommitAsync();
@@ -83,15 +83,15 @@ public class GenresService(
         }
     }
 
-    public async Task DeleteGenreAsync(Guid id)
+    public async Task DeleteGenreAsync(Guid genreId)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync();
 
         try
         {
-            var genre = await unitOfWork.Genres.GetByIdAsync(id);
+            var genre = await unitOfWork.Genres.GetByIdAsync(genreId);
             if (genre is null)
-                throw new NotFoundException("Genre", id);
+                throw new NotFoundException("Genre", genreId);
 
             unitOfWork.Genres.Delete(genre);
             await unitOfWork.CommitAsync();

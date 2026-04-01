@@ -39,12 +39,12 @@ public class GenresRepository(VkVideoReviewsDbContext context) : IGenresReposito
         context.Genres.Update(entity);
     }
 
-    public async Task<GenreEntity?> GetByTitleAsync(string title)
+    public async Task<GenreEntity?> GetGenreByTitleAsync(string title)
     {
         return await context.Genres.AsNoTracking().FirstOrDefaultAsync(x => x.Title == title);
     }
 
-    public async Task<IEnumerable<GenreEntity>> GetAllAsync(Expression<Func<GenreEntity, bool>> predicate)
+    public async Task<IEnumerable<GenreEntity>> GetAllGenresAsync(Expression<Func<GenreEntity, bool>> predicate)
     {
         return await context.Genres.AsNoTracking().Where(predicate).ToListAsync();
     }

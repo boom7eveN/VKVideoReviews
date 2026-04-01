@@ -10,6 +10,6 @@ public class FavoriteEntity
 
     public Guid UserId { get; set; }
     public UserEntity User { get; set; }
-    
+
     public DateTime CreateDate { get; set; }
 }

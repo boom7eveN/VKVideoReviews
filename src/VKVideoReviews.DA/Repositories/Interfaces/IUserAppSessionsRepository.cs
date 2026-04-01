@@ -4,8 +4,8 @@ namespace VKVideoReviews.DA.Repositories.Interfaces;
 
 public interface IUserAppSessionsRepository
 {
-    Task AddAsync(UserAppSessionEntity entity);
-    Task<UserAppSessionEntity?> GetByRefreshTokenHashAsync(string refreshTokenHash);
-    void Remove(UserAppSessionEntity entity);
-    Task RemoveAllForUserAsync(Guid userId);
+    Task AddUserSessionAsync(UserAppSessionEntity sessionEntity);
+    Task<UserAppSessionEntity?> GetUserSessionByRefreshTokenHashAsync(string refreshTokenHash);
+    void RemoveUserSession(UserAppSessionEntity sessionEntity);
+    Task RemoveAllUserSessionsForUserAsync(Guid userId);
 }

@@ -7,17 +7,17 @@ namespace VKVideoReviews.DA.Repositories;
 
 public class GenresVideosRepository(VkVideoReviewsDbContext context) : IGenresVideosRepository
 {
-    public async Task AddRangeAsync(IEnumerable<GenresVideosEntity> entities)
+    public async Task AddGenresVideosRangeAsync(IEnumerable<GenresVideosEntity> genresVideos)
     {
-        await context.GenresVideosEntities.AddRangeAsync(entities);
+        await context.GenresVideosEntities.AddRangeAsync(genresVideos);
     }
 
-    public async Task DeleteByVideoIdAsync(Guid videoId)
+    public async Task DeleteGenreVideoByVideoIdAsync(Guid videoId)
     {
-        var entities = await context.GenresVideosEntities
+        var genresVideosEntities = await context.GenresVideosEntities
             .Where(x => x.VideoId == videoId)
             .ToListAsync();
 
-        context.GenresVideosEntities.RemoveRange(entities);
+        context.GenresVideosEntities.RemoveRange(genresVideosEntities);
     }
 }

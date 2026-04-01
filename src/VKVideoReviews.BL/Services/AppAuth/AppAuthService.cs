@@ -33,19 +33,20 @@ public class AppAuthService(
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var user = await unitOfWork.Users.GetByVkUserIdAsync(userResponse.VkUserId);
+            var user = await unitOfWork.Users.GetUserByVkIdAsync(userResponse.VkUserId);
 
             if (user == null)
             {
                 user = mapper.Map<UserEntity>(userResponse);
                 user.UserId = Guid.NewGuid();
-                user = await unitOfWork.Users.AddAsync(user);
+                user = await unitOfWork.Users.AddUserAsync(user);
             }
             else
             {
                 mapper.Map(userResponse, user);
-                await unitOfWork.Users.UpdateAsync(user);
+                unitOfWork.Users.UpdateUserAsync(user);
             }
+
             await unitOfWork.SaveChangesAsync();
 
             if (adminVkUserIds.Length > 0
@@ -53,7 +54,7 @@ public class AppAuthService(
                 && !user.IsAdmin)
             {
                 user.IsAdmin = true;
-                await unitOfWork.Users.UpdateAsync(user);
+                unitOfWork.Users.UpdateUserAsync(user);
             }
 
             var accessExpiresAt = DateTime.UtcNow.AddSeconds(vkTokens.ExpiresIn);
@@ -71,9 +72,9 @@ public class AppAuthService(
                 CreatedAt = DateTime.UtcNow,
             };
 
-            await unitOfWork.UserTokens.UpsertForUserAsync(userToken);
+            await unitOfWork.UserTokens.UpsertTokensForUserAsync(userToken);
             await unitOfWork.SaveChangesAsync();
-            await unitOfWork.UserAppSessions.RemoveAllForUserAsync(user.UserId);
+            await unitOfWork.UserAppSessions.RemoveAllUserSessionsForUserAsync(user.UserId);
             await unitOfWork.SaveChangesAsync();
 
             var refreshToken = CreateRefreshToken();
@@ -85,7 +86,7 @@ public class AppAuthService(
                 RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(settings.RefreshTokenLifeTimeDays),
                 RefreshTokenCreatedAt = DateTime.UtcNow,
             };
-            await unitOfWork.UserAppSessions.AddAsync(newSession);
+            await unitOfWork.UserAppSessions.AddUserSessionAsync(newSession);
             await unitOfWork.CommitAsync();
             return new AuthTokensModel()
             {
@@ -111,7 +112,7 @@ public class AppAuthService(
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var session = await unitOfWork.UserAppSessions.GetByRefreshTokenHashAsync(refreshTokenHash);
+            var session = await unitOfWork.UserAppSessions.GetUserSessionByRefreshTokenHashAsync(refreshTokenHash);
             if (session == null || session.RefreshTokenExpiresAt <= DateTime.UtcNow)
             {
                 await unitOfWork.RollbackAsync();
@@ -120,7 +121,7 @@ public class AppAuthService(
 
             var user = session.User;
 
-            unitOfWork.UserAppSessions.Remove(session);
+            unitOfWork.UserAppSessions.RemoveUserSession(session);
             await unitOfWork.SaveChangesAsync();
 
             var newRefreshToken = CreateRefreshToken();
@@ -132,7 +133,7 @@ public class AppAuthService(
                 RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(settings.RefreshTokenLifeTimeDays),
                 RefreshTokenCreatedAt = DateTime.UtcNow,
             };
-            await unitOfWork.UserAppSessions.AddAsync(newSession);
+            await unitOfWork.UserAppSessions.AddUserSessionAsync(newSession);
             await unitOfWork.CommitAsync();
             return new AuthTokensModel
             {

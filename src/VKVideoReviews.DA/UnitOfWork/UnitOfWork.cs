@@ -18,7 +18,7 @@ public class UnitOfWork : IUnitOfWork
     public IGenresVideosRepository GenresVideos { get; }
     public IReviewsRepository Reviews { get; }
     public IUsersRepository Users { get; }
-    
+
     public IFavoriteRepository Favorite { get; }
 
     public UnitOfWork(VkVideoReviewsDbContext context)

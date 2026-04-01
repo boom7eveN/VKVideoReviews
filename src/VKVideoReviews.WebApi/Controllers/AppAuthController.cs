@@ -11,11 +11,11 @@ namespace VKVideoReviews.WebApi.Controllers;
 public class AppAuthController(IAppAuthService appAuthService, IMapper mapper) : ControllerBase
 {
     [HttpPost("refresh")]
-    public async Task<ActionResult<AuthTokensResponse>> Refresh([FromBody] RefreshTokenRequest request)
+    public async Task<ActionResult<AuthTokensResponse>> Refresh([FromBody] RefreshTokenRequest refreshTokenRequest)
     {
-        var result = await appAuthService.RefreshAsync(request.RefreshToken);
-        if (result == null)
+        var authTokensModel = await appAuthService.RefreshAsync(refreshTokenRequest.RefreshToken);
+        if (authTokensModel == null)
             return Unauthorized();
-        return Ok(mapper.Map<AuthTokensResponse>(result));
+        return Ok(mapper.Map<AuthTokensResponse>(authTokensModel));
     }
 }
