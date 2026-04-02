@@ -14,8 +14,8 @@ public class AppSettings
     public string VkIdUri { get; set; }
     public string VkMethodsUri { get; set; }
 
-    public JwtAuthSettings JwtAuthSettings { get; set; } = new JwtAuthSettings();
+    public JwtAuthSettings JwtAuthSettings { get; set; } = new();
     public long[] AdminVkUserIds { get; set; } = [];
-    
+
     public string EncryptionKey { get; set; }
 }

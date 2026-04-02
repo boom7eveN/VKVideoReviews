@@ -20,8 +20,8 @@ public class VkAuthService(string clientId, string redirectUri, IVkApiAuthClient
 
     public string BuildAuthorizationUrl()
     {
-        PkceData pkceData = GeneratePkce();
-        string state = GenerateState();
+        var pkceData = GeneratePkce();
+        var state = GenerateState();
         cache.Set($"{StatePrefix}{state}", state, StateLifeTime);
         cache.Set($"{PkcePrefix}{state}", pkceData.CodeVerifier, PkceDataLifeTime);
         return GetVkAuthorizationUrl(pkceData, state);
@@ -31,21 +31,17 @@ public class VkAuthService(string clientId, string redirectUri, IVkApiAuthClient
     {
         var stateCacheKey = $"{StatePrefix}{vkAuthCallbackModel.State}";
         if (!cache.TryGetValue(stateCacheKey, out string? savedState) || savedState == null)
-        {
             throw new StateValidationException();
-        }
 
         cache.Remove(stateCacheKey);
 
         var pkceCacheKey = $"{PkcePrefix}{vkAuthCallbackModel.State}";
         if (!cache.TryGetValue(pkceCacheKey, out string? codeVerifier) || string.IsNullOrEmpty(codeVerifier))
-        {
             throw new PkceValidationException();
-        }
 
         cache.Remove(pkceCacheKey);
 
-        VkTokensApiResponse tokens = await ExchangeCodeForTokenAsync(vkAuthCallbackModel, codeVerifier);
+        var tokens = await ExchangeCodeForTokenAsync(vkAuthCallbackModel, codeVerifier);
         return tokens;
     }
 
@@ -62,13 +58,11 @@ public class VkAuthService(string clientId, string redirectUri, IVkApiAuthClient
             State = state,
             CodeVerifier = codeVerifier,
             RedirectUri = redirectUri,
-            ClientId = clientId,
+            ClientId = clientId
         });
         var stateCacheKey = $"{StatePrefix}{vkTokens.State}";
         if (!cache.TryGetValue(stateCacheKey, out string? savedState) || savedState == null)
-        {
             throw new StateValidationException();
-        }
 
         return vkTokens;
     }
@@ -91,20 +85,20 @@ public class VkAuthService(string clientId, string redirectUri, IVkApiAuthClient
         return new PkceData
         {
             CodeVerifier = codeVerifier,
-            CodeChallenge = codeChallenge,
+            CodeChallenge = codeChallenge
         };
     }
 
     private string GetVkAuthorizationUrl(PkceData data, string state)
     {
-        var queryParams = new Dictionary<string, string>()
+        var queryParams = new Dictionary<string, string>
         {
             { "response_type", "code" },
             { "client_id", clientId },
             { "redirect_uri", redirectUri },
             { "state", state },
             { "code_challenge", data.CodeChallenge },
-            { "code_challenge_method", "S256" },
+            { "code_challenge_method", "S256" }
         };
         var queryString = string.Join("&", queryParams
             .Select(x => $"{x.Key}={Uri.EscapeDataString(x.Value)}"));

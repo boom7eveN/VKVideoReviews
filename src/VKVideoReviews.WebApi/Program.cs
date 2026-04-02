@@ -1,10 +1,9 @@
-using System.Security.Cryptography;
 using VKVideoReviews.WebApi.IoC;
 using VKVideoReviews.WebApi.Settings;
 
 var configuration = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"appsettings.Development.json", optional: true, reloadOnChange: true)
+    .AddJsonFile("appsettings.json", false, true)
+    .AddJsonFile("appsettings.Development.json", true, true)
     .Build();
 
 

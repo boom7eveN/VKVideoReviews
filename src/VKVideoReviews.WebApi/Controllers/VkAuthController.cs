@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using VKVideoReviews.BL.Services.AppAuth.Interfaces;
-using VKVideoReviews.BL.Services.AppAuth.Models;
-using VKVideoReviews.BL.Services.VkAuth;
 using VKVideoReviews.BL.Services.VkAuth.Interfaces;
 using VKVideoReviews.BL.Services.VkAuth.Models;
 using VKVideoReviews.WebApi.Controllers.Requests.VkAuth;

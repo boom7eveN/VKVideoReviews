@@ -6,7 +6,7 @@ public static class AppSettingsReader
 {
     public static AppSettings Read(IConfiguration configuration)
     {
-        return new AppSettings()
+        return new AppSettings
         {
             VkVideoReviewsDbConnectionString = configuration.GetSection("ConnectionStrings:VkVideoReviews").Value,
             ProtectedKey = configuration.GetSection("VkKeys:ProtectedKey").Value,
@@ -25,10 +25,10 @@ public static class AppSettingsReader
                     : 60,
                 RefreshTokenLifeTimeDays = int.TryParse(configuration["Jwt:RefreshTokenLifetimeDays"], out var d)
                     ? d
-                    : 180,
+                    : 180
             },
             AdminVkUserIds = configuration.GetSection("AdminVkUserIds").Get<long[]>() ?? [],
-            EncryptionKey = configuration.GetSection("EncryptionKey").Value,
+            EncryptionKey = configuration.GetSection("EncryptionKey").Value
         };
     }
 }

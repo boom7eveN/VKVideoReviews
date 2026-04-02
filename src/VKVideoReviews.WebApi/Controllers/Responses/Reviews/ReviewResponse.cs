@@ -7,7 +7,7 @@ public class ReviewResponse
 {
     public Guid ReviewId { get; set; }
     public int Rate { get; set; }
-    public String Text { get; set; }
+    public string Text { get; set; }
     public UserResponse User { get; set; }
     public VideoResponse Video { get; set; }
     public DateTime CreateDate { get; set; }

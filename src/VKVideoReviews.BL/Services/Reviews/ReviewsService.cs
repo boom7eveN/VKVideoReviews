@@ -29,7 +29,7 @@ public class ReviewsService(IUnitOfWork unitOfWork, IMapper mapper) : IReviewsSe
                 .GetReviewByUserAndVideoIdsAsync(userId, videoId);
             if (existingReview != null)
                 throw new AlreadyExistsException("Review for this video from this user");
-            
+
             review = await unitOfWork.Reviews.CreateReviewAsync(review);
 
             await unitOfWork.SaveChangesAsync();
@@ -81,7 +81,6 @@ public class ReviewsService(IUnitOfWork unitOfWork, IMapper mapper) : IReviewsSe
         if (review is null)
             throw new NotFoundException("Review", reviewId);
         return mapper.Map<ReviewModel>(review);
-
     }
 
     public async Task<IEnumerable<ReviewModel>> GetAllReviewAsync()

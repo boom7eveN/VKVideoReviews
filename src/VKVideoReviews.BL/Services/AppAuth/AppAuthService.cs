@@ -28,7 +28,7 @@ public class AppAuthService(
         var userResponse = await httpClient.GetUserAsync(new VkUserGetRequest
         {
             UserId = vkTokens.UserId,
-            AccessToken = vkTokens.AccessToken,
+            AccessToken = vkTokens.AccessToken
         });
 
         await using var transaction = await unitOfWork.BeginTransactionAsync();
@@ -61,7 +61,7 @@ public class AppAuthService(
             var accessExpiresAt = DateTime.UtcNow.AddSeconds(vkTokens.ExpiresIn);
             var refreshExpiresAt = DateTime.UtcNow.AddDays(VkRefreshTokenLifeTime.Days);
 
-            var userToken = new UserTokenEntity()
+            var userToken = new UserTokenEntity
             {
                 UserId = user!.UserId,
                 TokenRecordId = Guid.NewGuid(),
@@ -70,7 +70,7 @@ public class AppAuthService(
                 VkRefreshTokenEncrypted = tokenEncryptionService.Encrypt(vkTokens.RefreshToken),
                 AccessTokenExpiresAt = accessExpiresAt,
                 RefreshTokenExpiresAt = refreshExpiresAt,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
             };
 
             await unitOfWork.UserTokens.UpsertTokensForUserAsync(userToken);
@@ -85,11 +85,11 @@ public class AppAuthService(
                 UserId = user.UserId,
                 AppRefreshTokenHash = Hash(refreshToken),
                 RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(settings.RefreshTokenLifeTimeDays),
-                RefreshTokenCreatedAt = DateTime.UtcNow,
+                RefreshTokenCreatedAt = DateTime.UtcNow
             };
             await unitOfWork.UserAppSessions.CreateUserSessionAsync(newSession);
             await unitOfWork.CommitAsync();
-            return new AuthTokensModel()
+            return new AuthTokensModel
             {
                 AccessToken = jwtTokenService.CreateAccessToken(user),
                 RefreshToken = refreshToken,
@@ -132,7 +132,7 @@ public class AppAuthService(
                 UserId = user.UserId,
                 AppRefreshTokenHash = Hash(newRefreshToken),
                 RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(settings.RefreshTokenLifeTimeDays),
-                RefreshTokenCreatedAt = DateTime.UtcNow,
+                RefreshTokenCreatedAt = DateTime.UtcNow
             };
             await unitOfWork.UserAppSessions.CreateUserSessionAsync(newSession);
             await unitOfWork.CommitAsync();

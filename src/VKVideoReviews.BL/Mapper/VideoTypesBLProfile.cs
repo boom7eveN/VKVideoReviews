@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using VKVideoReviews.BL.Services.Genres.Models;
 using VKVideoReviews.BL.Services.VideoTypes.Models;
 using VKVideoReviews.DA.Entities;
 

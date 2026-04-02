@@ -12,10 +12,8 @@ public static class JwtAuthenticationConfigurator
     {
         if (string.IsNullOrWhiteSpace(settings.JwtAuthSettings.Secret) ||
             Encoding.UTF8.GetByteCount(settings.JwtAuthSettings.Secret) < 32)
-        {
             throw new InvalidOperationException(
                 "Jwt:Secret must be configured and at least 32 bytes (UTF-8) for HMAC-SHA256.");
-        }
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>

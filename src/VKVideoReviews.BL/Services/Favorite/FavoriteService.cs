@@ -21,12 +21,12 @@ public class FavoriteService(IMapper mapper, IUnitOfWork unitOfWork) : IFavorite
             if (video == null)
                 throw new NotFoundException("Video", createFavoriteModel.VideoId);
 
-            
+
             var existingFavorite = await unitOfWork.Favorite
                 .GetFavoriteByUserAndVideoIdsAsync(userId, createFavoriteModel.VideoId);
             if (existingFavorite != null)
                 throw new AlreadyExistsException("Favorite");
-            
+
             favoriteEntity = await unitOfWork.Favorite.CreateFavoriteAsync(favoriteEntity);
             await unitOfWork.CommitAsync();
             favoriteEntity = await unitOfWork.Favorite.GetFavoriteWithVideoAsync(userId, createFavoriteModel.VideoId);

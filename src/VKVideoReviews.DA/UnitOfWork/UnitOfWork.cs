@@ -11,15 +11,9 @@ namespace VKVideoReviews.DA.UnitOfWork;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly VkVideoReviewsDbContext _context;
-    private IDbContextTransaction? _transaction;
-    public IGenresRepository Genres { get; }
-    public IVideoTypesRepository VideoTypes { get; }
-    public IVideosRepository Videos { get; }
-    public IGenresVideosRepository GenresVideos { get; }
-    public IReviewsRepository Reviews { get; }
-    public IUsersRepository Users { get; }
 
-    public IFavoriteRepository Favorite { get; }
+    private bool _disposed;
+    private IDbContextTransaction? _transaction;
 
     public UnitOfWork(VkVideoReviewsDbContext context)
     {
@@ -32,6 +26,15 @@ public class UnitOfWork : IUnitOfWork
         Favorite = new FavoriteRepository(context);
         _context = context;
     }
+
+    public IGenresRepository Genres { get; }
+    public IVideoTypesRepository VideoTypes { get; }
+    public IVideosRepository Videos { get; }
+    public IGenresVideosRepository GenresVideos { get; }
+    public IReviewsRepository Reviews { get; }
+    public IUsersRepository Users { get; }
+
+    public IFavoriteRepository Favorite { get; }
 
     public async Task<IDbContextTransaction> BeginTransactionAsync(
         IsolationLevel isolationLevel)
@@ -66,13 +69,8 @@ public class UnitOfWork : IUnitOfWork
 
     private void DetachAllEntities()
     {
-        foreach (var entry in _context.ChangeTracker.Entries())
-        {
-            entry.State = EntityState.Detached;
-        }
+        foreach (var entry in _context.ChangeTracker.Entries()) entry.State = EntityState.Detached;
     }
-
-    private bool _disposed;
 
     protected virtual void Dispose(bool disposing)
     {

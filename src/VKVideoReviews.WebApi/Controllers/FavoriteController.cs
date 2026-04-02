@@ -6,7 +6,6 @@ using VKVideoReviews.BL.Services.Favorite.Models;
 using VKVideoReviews.WebApi.Controllers.Helpers;
 using VKVideoReviews.WebApi.Controllers.Requests.Favorite;
 using VKVideoReviews.WebApi.Controllers.Responses.Favorite;
-using VKVideoReviews.WebApi.Controllers.Responses.Reviews;
 
 namespace VKVideoReviews.WebApi.Controllers;
 

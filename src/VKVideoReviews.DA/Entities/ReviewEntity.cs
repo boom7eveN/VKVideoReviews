@@ -7,7 +7,7 @@ public class ReviewEntity
 {
     public Guid ReviewId { get; set; }
     public int Rate { get; set; }
-    public String Text { get; set; }
+    public string Text { get; set; }
 
     public Guid UserId { get; set; }
     public UserEntity User { get; set; }

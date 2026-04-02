@@ -21,12 +21,12 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
             var videoType = await unitOfWork.VideoTypes.GetVideoTypeByIdAsync(video.VideoTypeId);
             if (videoType is null)
                 throw new NotFoundException("VideoType", video.VideoTypeId);
-            
+
             var existingVideo = await unitOfWork.Videos
                 .GetVideoByTitleYearAndTypeAsync(video.Title, video.StartYear, video.VideoTypeId);
             if (existingVideo is not null)
                 throw new AlreadyExistsException("Video with same title, year and type");
-            
+
             video = await unitOfWork.Videos.CreateVideoAsync(video);
 
             var uniqueGenreIds = createVideoModel.GenreIds.Distinct().ToHashSet();

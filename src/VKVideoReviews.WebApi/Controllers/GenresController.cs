@@ -21,7 +21,7 @@ public class GenresController(IGenresService genresService, IMapper mapper)
         [FromBody] CreateGenreRequest createGenreRequest)
     {
         var createGenreModel = mapper.Map<CreateGenreModel>(createGenreRequest);
-        GenreModel genreModel = await genresService.CreateGenreAsync(createGenreModel);
+        var genreModel = await genresService.CreateGenreAsync(createGenreModel);
         return Ok(new GenresListResponse([mapper.Map<GenreResponse>(genreModel)]));
     }
 

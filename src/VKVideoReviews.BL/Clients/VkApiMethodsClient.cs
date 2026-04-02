@@ -17,23 +17,14 @@ public class VkApiMethodsClient(HttpClient httpClient) : IVkApiMethodsClient
             $"v={Uri.EscapeDataString(request.Version)}";
         var response = await httpClient.GetAsync(url);
         if (!response.IsSuccessStatusCode)
-        {
             throw new VkApiException("VK API returned an unexpected status code", "VK_API_ERROR");
-        }
-        else
-        {
-            var vkUser = await response.Content.ReadFromJsonAsync<VkApiResponse<VkApiUserResponse>>();
-            if (vkUser?.Response is null)
-            {
-                throw new InvalidOperationException("Failed to deserialize VK API response");
-            }
 
-            if (vkUser.Response.Count == 0)
-            {
-                throw new VkApiException("VK API returned empty response", "VK_API_EMPTY_RESPONSE");
-            }
+        var vkUser = await response.Content.ReadFromJsonAsync<VkApiResponse<VkApiUserResponse>>();
+        if (vkUser?.Response is null) throw new InvalidOperationException("Failed to deserialize VK API response");
 
-            return vkUser.Response[0];
-        }
+        if (vkUser.Response.Count == 0)
+            throw new VkApiException("VK API returned empty response", "VK_API_EMPTY_RESPONSE");
+
+        return vkUser.Response[0];
     }
 }

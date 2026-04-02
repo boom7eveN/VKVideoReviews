@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.VideoTypes.Interfaces;
 using VKVideoReviews.BL.Services.VideoTypes.Models;
@@ -24,9 +22,9 @@ public class VideoTypesService(
             var maybeVideoType = await unitOfWork.VideoTypes.GetVideoTypeByTitleAsync(createVideoTypeModel.Title);
             if (maybeVideoType is not null)
                 throw new AlreadyExistsException("VideoType");
-            
+
             videoTypeEntity = await unitOfWork.VideoTypes.CreateVideoTypeAsync(videoTypeEntity);
-            
+
             await unitOfWork.CommitAsync();
             return mapper.Map<VideoTypeModel>(videoTypeEntity);
         }
@@ -66,9 +64,7 @@ public class VideoTypesService(
             {
                 var existing = await unitOfWork.VideoTypes.GetVideoTypeByTitleAsync(updateVideoTypeModel.Title);
                 if (existing is not null && existing.VideoTypeId != videoTypeId)
-                {
                     throw new AlreadyExistsException("VideoType");
-                }
             }
 
             mapper.Map(updateVideoTypeModel, videoType);

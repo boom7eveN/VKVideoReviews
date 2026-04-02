@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.Genres.Interfaces;
 using VKVideoReviews.BL.Services.Genres.Models;
@@ -22,12 +20,12 @@ public class GenresService(
         try
         {
             var maybegrenre = await unitOfWork.Genres.GetGenreByTitleAsync(createGenreModel.Title);
-            
+
             if (maybegrenre is not null)
                 throw new AlreadyExistsException("Genre");
-            
+
             genreEntity = await unitOfWork.Genres.CreateGenreAsync(genreEntity);
-            
+
             await unitOfWork.CommitAsync();
             return mapper.Map<GenreModel>(genreEntity);
         }
@@ -66,10 +64,7 @@ public class GenresService(
             if (!string.Equals(genre.Title, updateGenreModel.Title, StringComparison.OrdinalIgnoreCase))
             {
                 var existing = await unitOfWork.Genres.GetGenreByTitleAsync(updateGenreModel.Title);
-                if (existing is not null && existing.GenreId != genreId)
-                {
-                    throw new AlreadyExistsException("Genre");
-                }
+                if (existing is not null && existing.GenreId != genreId) throw new AlreadyExistsException("Genre");
             }
 
             mapper.Map(updateGenreModel, genre);

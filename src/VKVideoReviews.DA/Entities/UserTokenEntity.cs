@@ -11,9 +11,9 @@ public class UserTokenEntity
     public virtual UserEntity User { get; set; }
 
     public long VkUserId { get; set; }
-    
+
     public string VkAccessTokenEncrypted { get; set; } // 1h
-    
+
     public string VkRefreshTokenEncrypted { get; set; } // 180d
 
 

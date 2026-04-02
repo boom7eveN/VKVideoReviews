@@ -11,10 +11,9 @@ namespace VKVideoReviews.DA.UnitOfWork;
 public class AuthUnitOfWork : IAuthUnitOfWork
 {
     private readonly VkVideoReviewsDbContext _context;
+
+    private bool _disposed;
     private IDbContextTransaction? _transaction;
-    public IUsersRepository Users { get; }
-    public IUserTokensRepository UserTokens { get; }
-    public IUserAppSessionsRepository UserAppSessions { get; }
 
     public AuthUnitOfWork(VkVideoReviewsDbContext context)
     {
@@ -23,6 +22,10 @@ public class AuthUnitOfWork : IAuthUnitOfWork
         UserAppSessions = new UserAppSessionsRepository(context);
         _context = context;
     }
+
+    public IUsersRepository Users { get; }
+    public IUserTokensRepository UserTokens { get; }
+    public IUserAppSessionsRepository UserAppSessions { get; }
 
     public async Task<IDbContextTransaction> BeginTransactionAsync(
         IsolationLevel isolationLevel)
@@ -55,15 +58,16 @@ public class AuthUnitOfWork : IAuthUnitOfWork
         return await _context.SaveChangesAsync();
     }
 
-    private void DetachAllEntities()
+    public void Dispose()
     {
-        foreach (var entry in _context.ChangeTracker.Entries())
-        {
-            entry.State = EntityState.Detached;
-        }
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
-    private bool _disposed;
+    private void DetachAllEntities()
+    {
+        foreach (var entry in _context.ChangeTracker.Entries()) entry.State = EntityState.Detached;
+    }
 
     protected virtual void Dispose(bool disposing)
     {
@@ -75,11 +79,5 @@ public class AuthUnitOfWork : IAuthUnitOfWork
         }
 
         _disposed = true;
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
     }
 }

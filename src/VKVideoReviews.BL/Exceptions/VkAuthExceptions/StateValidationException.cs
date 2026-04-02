@@ -2,5 +2,4 @@
 
 public class StateValidationException()
     : VkAuthException("INVALID_STATE",
-        "State not found or expired",
-        500);
+        "State not found or expired");

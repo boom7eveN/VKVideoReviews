@@ -48,7 +48,7 @@ public static class ServicesConfigurator
         services.AddScoped<IVideosService, VideosService>();
         services.AddScoped<IReviewsService, ReviewsService>();
         services.AddScoped<IFavoriteService, FavoriteService>();
-        services.AddSingleton<ITokenEncryptionService>(_ => 
+        services.AddSingleton<ITokenEncryptionService>(_ =>
             new AesGcmTokenEncryptionService(appSettings.EncryptionKey));
 
 

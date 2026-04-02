@@ -3,5 +3,5 @@
 public class CreateReviewModel
 {
     public int Rate { get; set; }
-    public String Text { get; set; }
+    public string Text { get; set; }
 }

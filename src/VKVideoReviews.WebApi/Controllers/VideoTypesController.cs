@@ -22,7 +22,7 @@ public class VideoTypesController(
         [FromBody] CreateVideoTypeRequest createVideoTypeRequest)
     {
         var createVideoTypeModel = mapper.Map<CreateVideoTypeModel>(createVideoTypeRequest);
-        VideoTypeModel videoTypeModel = await videoTypesService.CreateVideoTypeAsync(createVideoTypeModel);
+        var videoTypeModel = await videoTypesService.CreateVideoTypeAsync(createVideoTypeModel);
         return Ok(new VideoTypesListResponse([mapper.Map<VideoTypeResponse>(videoTypeModel)]));
     }
 

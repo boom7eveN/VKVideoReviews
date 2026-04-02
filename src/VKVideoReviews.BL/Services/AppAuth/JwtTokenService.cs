@@ -10,7 +10,10 @@ namespace VKVideoReviews.BL.Services.AppAuth;
 
 public class JwtTokenService(JwtAuthSettings settings) : IJwtTokenService
 {
-    public int GetAccessTokenLifetimeSeconds() => settings.AccessTokenLifeTimeMinutes * 60;
+    public int GetAccessTokenLifetimeSeconds()
+    {
+        return settings.AccessTokenLifeTimeMinutes * 60;
+    }
 
     public string CreateAccessToken(UserEntity user)
     {
@@ -20,7 +23,7 @@ public class JwtTokenService(JwtAuthSettings settings) : IJwtTokenService
             new(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new("role", role),
-            new("vk_user_id", user.VkUserId.ToString()),
+            new("vk_user_id", user.VkUserId.ToString())
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.Secret));
@@ -28,9 +31,9 @@ public class JwtTokenService(JwtAuthSettings settings) : IJwtTokenService
         var expires = DateTime.UtcNow.AddMinutes(settings.AccessTokenLifeTimeMinutes);
 
         var token = new JwtSecurityToken(
-            issuer: settings.Issuer,
-            audience: settings.Audience,
-            claims: claims,
+            settings.Issuer,
+            settings.Audience,
+            claims,
             expires: expires,
             signingCredentials: creds);
 

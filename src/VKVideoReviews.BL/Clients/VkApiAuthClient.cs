@@ -18,7 +18,7 @@ public class VkApiAuthClient(HttpClient httpClient) : IVkApiAuthClient
             { "code", request.Code },
             { "client_id", request.ClientId },
             { "device_id", request.DeviceId },
-            { "state", request.State },
+            { "state", request.State }
         });
 
         var response = await httpClient.PostAsync(
@@ -35,15 +35,10 @@ public class VkApiAuthClient(HttpClient httpClient) : IVkApiAuthClient
                 (int)response.StatusCode
             );
         }
-        else
-        {
-            var vkTokens = await response.Content.ReadFromJsonAsync<VkTokensApiResponse>();
-            if (vkTokens is null)
-            {
-                throw new InvalidOperationException("Failed to deserialize VK tokens response");
-            }
 
-            return vkTokens;
-        }
+        var vkTokens = await response.Content.ReadFromJsonAsync<VkTokensApiResponse>();
+        if (vkTokens is null) throw new InvalidOperationException("Failed to deserialize VK tokens response");
+
+        return vkTokens;
     }
 }
