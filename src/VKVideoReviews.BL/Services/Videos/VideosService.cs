@@ -18,12 +18,12 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var videoType = await unitOfWork.VideoTypes.GetByIdAsync(video.VideoTypeId);
+            var videoType = await unitOfWork.VideoTypes.GetVideoTypeByIdAsync(video.VideoTypeId);
             if (videoType is null)
                 throw new NotFoundException("VideoType", video.VideoTypeId);
             video.VideoTypeId = createVideoModel.VideoTypeId;
 
-            video = await unitOfWork.Videos.CreateAsync(video);
+            video = await unitOfWork.Videos.CreateVideoAsync(video);
             if (video is null)
                 throw new AlreadyExistsException("Video");
 
@@ -72,7 +72,7 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var video = await unitOfWork.Videos.GetByIdAsync(videoId);
+            var video = await unitOfWork.Videos.GetVideoByIdAsync(videoId);
             if (video is null)
                 throw new NotFoundException("Video", videoId);
 
@@ -97,7 +97,7 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
             if (updateVideoModel.VideoTypeId.HasValue)
             {
                 var videoType = await unitOfWork.VideoTypes
-                    .GetByIdAsync(updateVideoModel.VideoTypeId.Value);
+                    .GetVideoTypeByIdAsync(updateVideoModel.VideoTypeId.Value);
 
                 if (videoType is null)
                     throw new NotFoundException("VideoType", updateVideoModel.VideoTypeId.Value);
@@ -127,7 +127,7 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
                 await unitOfWork.GenresVideos.AddGenresVideosRangeAsync(newGenresVideos);
             }
 
-            unitOfWork.Videos.Update(video);
+            unitOfWork.Videos.UpdateVideo(video);
             await unitOfWork.CommitAsync();
 
             var result = await unitOfWork.Videos
@@ -152,10 +152,10 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var video = await unitOfWork.Videos.GetByIdAsync(videoId);
+            var video = await unitOfWork.Videos.GetVideoByIdAsync(videoId);
             if (video is null)
                 throw new NotFoundException("Video", videoId);
-            unitOfWork.Videos.Delete(video);
+            unitOfWork.Videos.DeleteVideo(video);
             await unitOfWork.CommitAsync();
         }
         catch

@@ -12,7 +12,7 @@ using VKVideoReviews.DA.Context;
 namespace VKVideoReviews.DA.Migrations
 {
     [DbContext(typeof(VkVideoReviewsDbContext))]
-    [Migration("20260401160256_Init")]
+    [Migration("20260402114848_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -207,11 +207,11 @@ namespace VKVideoReviews.DA.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("VkAccessTokenHash")
+                    b.Property<string>("VkAccessTokenEncrypted")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("VkRefreshTokenHash")
+                    b.Property<string>("VkRefreshTokenEncrypted")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -226,10 +226,10 @@ namespace VKVideoReviews.DA.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.HasIndex("VkAccessTokenHash")
+                    b.HasIndex("VkAccessTokenEncrypted")
                         .HasDatabaseName("IX_UserTokens_VkAccessTokenHash");
 
-                    b.HasIndex("VkRefreshTokenHash")
+                    b.HasIndex("VkRefreshTokenEncrypted")
                         .HasDatabaseName("IX_UserTokens_VkRefreshTokenHash");
 
                     b.HasIndex("VkUserId")

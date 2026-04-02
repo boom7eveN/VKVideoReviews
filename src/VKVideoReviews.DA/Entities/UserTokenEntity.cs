@@ -11,11 +11,10 @@ public class UserTokenEntity
     public virtual UserEntity User { get; set; }
 
     public long VkUserId { get; set; }
-
-    public string VkAccessTokenHash { get; set; } // 1h
-
-    /// <summary>SHA256 Base64</summary>
-    public string VkRefreshTokenHash { get; set; } // 180d
+    
+    public string VkAccessTokenEncrypted { get; set; } // 1h
+    
+    public string VkRefreshTokenEncrypted { get; set; } // 180d
 
 
     public DateTime AccessTokenExpiresAt { get; set; } //1h

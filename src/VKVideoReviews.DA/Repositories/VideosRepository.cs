@@ -7,38 +7,34 @@ namespace VKVideoReviews.DA.Repositories;
 
 public class VideosRepository(VkVideoReviewsDbContext context) : IVideosRepository
 {
-    public async Task<VideoEntity?> CreateAsync(VideoEntity entity)
+    public async Task<VideoEntity?> CreateVideoAsync(VideoEntity videoEntity)
     {
         var maybeVideo = await context.Videos.FirstOrDefaultAsync(x =>
-            x.Title == entity.Title &&
-            x.StartYear == entity.StartYear &&
-            x.VideoTypeId == entity.VideoTypeId);
+            x.Title == videoEntity.Title &&
+            x.StartYear == videoEntity.StartYear &&
+            x.VideoTypeId == videoEntity.VideoTypeId);
 
         if (maybeVideo is not null)
             return null;
 
-        var result = await context.Videos.AddAsync(entity);
+        var result = await context.Videos.AddAsync(videoEntity);
         return result.Entity;
     }
+    
 
-    public async Task<IEnumerable<VideoEntity>> GetAllAsync()
+    public async Task<VideoEntity?> GetVideoByIdAsync(Guid videoId)
     {
-        return await context.Videos.AsNoTracking().ToListAsync();
+        return await context.Videos.AsNoTracking().FirstOrDefaultAsync(x => x.VideoId == videoId);
     }
 
-    public async Task<VideoEntity?> GetByIdAsync(Guid id)
+    public void DeleteVideo(VideoEntity videoEntity)
     {
-        return await context.Videos.AsNoTracking().FirstOrDefaultAsync(x => x.VideoId == id);
+        context.Videos.Remove(videoEntity);
     }
 
-    public void Delete(VideoEntity entity)
+    public void UpdateVideo(VideoEntity videoEntity)
     {
-        context.Videos.Remove(entity);
-    }
-
-    public void Update(VideoEntity entity)
-    {
-        context.Videos.Update(entity);
+        context.Videos.Update(videoEntity);
     }
 
     public async Task<VideoEntity?> GetVideoByIdWithGenresAndVideotypeAsync(Guid videoId)

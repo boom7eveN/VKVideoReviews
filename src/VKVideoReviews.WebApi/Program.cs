@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using VKVideoReviews.WebApi.IoC;
 using VKVideoReviews.WebApi.Settings;
 
@@ -16,7 +17,6 @@ builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 builder.Configuration.AddConfiguration(configuration);
 
-//TODO: Подумать чё делать с репозиториями(отказаться от дженерика/унифицировать как то)
 //TODO: рефактор методов create чтобы в репозитории были только вызовы без проверок а все проверки делать в service
 
 SerilogConfigurator.ConfigureServices(builder);

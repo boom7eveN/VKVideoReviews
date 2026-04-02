@@ -48,6 +48,8 @@ public static class ServicesConfigurator
         services.AddScoped<IVideosService, VideosService>();
         services.AddScoped<IReviewsService, ReviewsService>();
         services.AddScoped<IFavoriteService, FavoriteService>();
+        services.AddSingleton<ITokenEncryptionService>(_ => 
+            new AesGcmTokenEncryptionService(appSettings.EncryptionKey));
 
 
         services.AddSingleton(appSettings.JwtAuthSettings);
@@ -80,12 +82,14 @@ public static class ServicesConfigurator
             var unitOfWork = sp.GetRequiredService<IAuthUnitOfWork>();
             var jwtAuthSettings = sp.GetRequiredService<JwtAuthSettings>();
             var jwtTokenService = sp.GetRequiredService<IJwtTokenService>();
+            var tokenEncryptionService = sp.GetRequiredService<ITokenEncryptionService>();
             return new AppAuthService(
                 vkMethodsClient,
                 mapper,
                 unitOfWork,
                 jwtAuthSettings,
                 jwtTokenService,
+                tokenEncryptionService,
                 appSettings.AdminVkUserIds);
         });
     }

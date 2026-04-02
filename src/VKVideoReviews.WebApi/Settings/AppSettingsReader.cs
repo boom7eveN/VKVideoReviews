@@ -27,7 +27,8 @@ public static class AppSettingsReader
                     ? d
                     : 180,
             },
-            AdminVkUserIds = configuration.GetSection("AdminVkUserIds").Get<long[]>() ?? []
+            AdminVkUserIds = configuration.GetSection("AdminVkUserIds").Get<long[]>() ?? [],
+            EncryptionKey = configuration.GetSection("EncryptionKey").Value,
         };
     }
 }

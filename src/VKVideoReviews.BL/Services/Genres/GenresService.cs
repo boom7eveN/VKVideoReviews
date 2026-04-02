@@ -21,7 +21,7 @@ public class GenresService(
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            genreEntity = await unitOfWork.Genres.CreateAsync(genreEntity);
+            genreEntity = await unitOfWork.Genres.CreateGenreAsync(genreEntity);
 
             if (genreEntity is null)
                 throw new AlreadyExistsException("Genre");
@@ -38,13 +38,13 @@ public class GenresService(
 
     public async Task<IEnumerable<GenreModel>> GetAllGenresAsync()
     {
-        var genres = await unitOfWork.Genres.GetAllAsync();
+        var genres = await unitOfWork.Genres.GetAllGenresAsync();
         return mapper.Map<IEnumerable<GenreModel>>(genres);
     }
 
     public async Task<GenreModel> GetGenreByIdAsync(Guid genreId)
     {
-        var genre = await unitOfWork.Genres.GetByIdAsync(genreId);
+        var genre = await unitOfWork.Genres.GetGenreByIdAsync(genreId);
         if (genre is null)
             throw new NotFoundException("Genre", genreId);
 
@@ -57,7 +57,7 @@ public class GenresService(
 
         try
         {
-            var genre = await unitOfWork.Genres.GetByIdAsync(genreId);
+            var genre = await unitOfWork.Genres.GetGenreByIdAsync(genreId);
             if (genre is null)
                 throw new NotFoundException("Genre", genreId);
 
@@ -71,7 +71,7 @@ public class GenresService(
             }
 
             mapper.Map(updateGenreModel, genre);
-            unitOfWork.Genres.Update(genre);
+            unitOfWork.Genres.UpdateGenre(genre);
 
             await unitOfWork.CommitAsync();
             return mapper.Map<GenreModel>(genre);
@@ -89,11 +89,11 @@ public class GenresService(
 
         try
         {
-            var genre = await unitOfWork.Genres.GetByIdAsync(genreId);
+            var genre = await unitOfWork.Genres.GetGenreByIdAsync(genreId);
             if (genre is null)
                 throw new NotFoundException("Genre", genreId);
 
-            unitOfWork.Genres.Delete(genre);
+            unitOfWork.Genres.DeleteGenre(genre);
             await unitOfWork.CommitAsync();
         }
         catch

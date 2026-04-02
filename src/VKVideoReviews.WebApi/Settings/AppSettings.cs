@@ -16,4 +16,6 @@ public class AppSettings
 
     public JwtAuthSettings JwtAuthSettings { get; set; } = new JwtAuthSettings();
     public long[] AdminVkUserIds { get; set; } = [];
+    
+    public string EncryptionKey { get; set; }
 }

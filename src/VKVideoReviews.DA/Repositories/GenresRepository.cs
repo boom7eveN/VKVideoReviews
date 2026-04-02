@@ -8,35 +8,35 @@ namespace VKVideoReviews.DA.Repositories;
 
 public class GenresRepository(VkVideoReviewsDbContext context) : IGenresRepository
 {
-    public async Task<GenreEntity?> CreateAsync(GenreEntity entity)
+    public async Task<GenreEntity?> CreateGenreAsync(GenreEntity genreEntity)
     {
-        var maybeGenre = await context.Genres.FirstOrDefaultAsync(x => x.Title == entity.Title);
+        var maybeGenre = await context.Genres.FirstOrDefaultAsync(x => x.Title == genreEntity.Title);
 
         if (maybeGenre is not null)
             return null;
 
-        var result = await context.Genres.AddAsync(entity);
+        var result = await context.Genres.AddAsync(genreEntity);
         return result.Entity;
     }
 
-    public async Task<IEnumerable<GenreEntity>> GetAllAsync()
+    public async Task<IEnumerable<GenreEntity>> GetAllGenresAsync()
     {
         return await context.Genres.AsNoTracking().ToListAsync();
     }
 
-    public async Task<GenreEntity?> GetByIdAsync(Guid id)
+    public async Task<GenreEntity?> GetGenreByIdAsync(Guid genreId)
     {
-        return await context.Genres.AsNoTracking().FirstOrDefaultAsync(x => x.GenreId == id);
+        return await context.Genres.AsNoTracking().FirstOrDefaultAsync(x => x.GenreId == genreId);
     }
 
-    public void Delete(GenreEntity entity)
+    public void DeleteGenre(GenreEntity genreEntity)
     {
-        context.Genres.Remove(entity);
+        context.Genres.Remove(genreEntity);
     }
 
-    public void Update(GenreEntity entity)
+    public void UpdateGenre(GenreEntity genreEntity)
     {
-        context.Genres.Update(entity);
+        context.Genres.Update(genreEntity);
     }
 
     public async Task<GenreEntity?> GetGenreByTitleAsync(string title)

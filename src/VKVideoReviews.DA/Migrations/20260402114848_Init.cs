@@ -79,8 +79,8 @@ namespace VKVideoReviews.DA.Migrations
                     TokenRecordId = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     VkUserId = table.Column<long>(type: "bigint", nullable: false),
-                    VkAccessTokenHash = table.Column<string>(type: "text", nullable: false),
-                    VkRefreshTokenHash = table.Column<string>(type: "text", nullable: false),
+                    VkAccessTokenEncrypted = table.Column<string>(type: "text", nullable: false),
+                    VkRefreshTokenEncrypted = table.Column<string>(type: "text", nullable: false),
                     AccessTokenExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     RefreshTokenExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
@@ -263,12 +263,12 @@ namespace VKVideoReviews.DA.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_UserTokens_VkAccessTokenHash",
                 table: "UserTokens",
-                column: "VkAccessTokenHash");
+                column: "VkAccessTokenEncrypted");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserTokens_VkRefreshTokenHash",
                 table: "UserTokens",
-                column: "VkRefreshTokenHash");
+                column: "VkRefreshTokenEncrypted");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserTokens_VkUserId",

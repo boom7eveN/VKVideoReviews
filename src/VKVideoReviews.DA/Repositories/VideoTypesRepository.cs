@@ -7,34 +7,34 @@ namespace VKVideoReviews.DA.Repositories;
 
 public class VideoTypesRepository(VkVideoReviewsDbContext context) : IVideoTypesRepository
 {
-    public async Task<VideoTypeEntity?> CreateAsync(VideoTypeEntity entity)
+    public async Task<VideoTypeEntity?> CreateVideoTypeAsync(VideoTypeEntity videoTypeEntity)
     {
-        var maybeType = await context.VideoTypes.FirstOrDefaultAsync(x => x.Title == entity.Title);
+        var maybeType = await context.VideoTypes.FirstOrDefaultAsync(x => x.Title == videoTypeEntity.Title);
         if (maybeType is not null)
             return null;
 
-        var result = await context.VideoTypes.AddAsync(entity);
+        var result = await context.VideoTypes.AddAsync(videoTypeEntity);
         return result.Entity;
     }
 
-    public async Task<IEnumerable<VideoTypeEntity>> GetAllAsync()
+    public async Task<IEnumerable<VideoTypeEntity>> GetAllVideoTypesAsync()
     {
         return await context.VideoTypes.AsNoTracking().ToListAsync();
     }
 
-    public async Task<VideoTypeEntity?> GetByIdAsync(Guid id)
+    public async Task<VideoTypeEntity?> GetVideoTypeByIdAsync(Guid videoTypeId)
     {
-        return await context.VideoTypes.AsNoTracking().FirstOrDefaultAsync(x => x.VideoTypeId == id);
+        return await context.VideoTypes.AsNoTracking().FirstOrDefaultAsync(x => x.VideoTypeId == videoTypeId);
     }
 
-    public void Delete(VideoTypeEntity entity)
+    public void DeleteVideoType(VideoTypeEntity videoTypeEntity)
     {
-        context.VideoTypes.Remove(entity);
+        context.VideoTypes.Remove(videoTypeEntity);
     }
 
-    public void Update(VideoTypeEntity entity)
+    public void UpdateVideoType(VideoTypeEntity videoTypeEntity)
     {
-        context.VideoTypes.Update(entity);
+        context.VideoTypes.Update(videoTypeEntity);
     }
 
     public async Task<VideoTypeEntity?> GetVideoTypeByTitleAsync(string title)

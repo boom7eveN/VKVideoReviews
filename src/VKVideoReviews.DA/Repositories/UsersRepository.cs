@@ -13,7 +13,7 @@ public class UserRepository(VkVideoReviewsDbContext context) : IUsersRepository
             .FirstOrDefaultAsync(u => u.VkUserId == vkUserId);
     }
 
-    public async Task<UserEntity?> AddUserAsync(UserEntity entity)
+    public async Task<UserEntity?> CreateUserAsync(UserEntity entity)
     {
         await context.Users.AddAsync(entity);
         return entity;

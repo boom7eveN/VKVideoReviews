@@ -15,8 +15,8 @@ public class UserTokensRepository(VkVideoReviewsDbContext context) : IUserTokens
                 ""TokenRecordId"", 
                 ""UserId"", 
                 ""VkUserId"", 
-                ""VkAccessTokenHash"", 
-                ""VkRefreshTokenHash"",
+                ""VkAccessTokenEncrypted"", 
+                ""VkRefreshTokenEncrypted"",
                 ""AccessTokenExpiresAt"", 
                 ""RefreshTokenExpiresAt"", 
                 ""CreatedAt""
@@ -25,16 +25,16 @@ public class UserTokensRepository(VkVideoReviewsDbContext context) : IUserTokens
                 {entity.TokenRecordId}, 
                 {entity.UserId}, 
                 {entity.VkUserId}, 
-                {entity.VkAccessTokenHash}, 
-                {entity.VkRefreshTokenHash},
+                {entity.VkAccessTokenEncrypted}, 
+                {entity.VkRefreshTokenEncrypted},
                 {entity.AccessTokenExpiresAt}, 
                 {entity.RefreshTokenExpiresAt}, 
                 {entity.CreatedAt}
             )
             ON CONFLICT (""UserId"") DO UPDATE SET
                 ""VkUserId"" = EXCLUDED.""VkUserId"",
-                ""VkAccessTokenHash"" = EXCLUDED.""VkAccessTokenHash"",
-                ""VkRefreshTokenHash"" = EXCLUDED.""VkRefreshTokenHash"",
+                ""VkAccessTokenEncrypted"" = EXCLUDED.""VkAccessTokenEncrypted"",
+                ""VkRefreshTokenEncrypted"" = EXCLUDED.""VkRefreshTokenEncrypted"",
                 ""AccessTokenExpiresAt"" = EXCLUDED.""AccessTokenExpiresAt"",
                 ""RefreshTokenExpiresAt"" = EXCLUDED.""RefreshTokenExpiresAt"",
                 ""CreatedAt"" = EXCLUDED.""CreatedAt"";

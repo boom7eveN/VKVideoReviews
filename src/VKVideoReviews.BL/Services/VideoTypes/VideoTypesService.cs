@@ -21,7 +21,7 @@ public class VideoTypesService(
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            videoTypeEntity = await unitOfWork.VideoTypes.CreateAsync(videoTypeEntity);
+            videoTypeEntity = await unitOfWork.VideoTypes.CreateVideoTypeAsync(videoTypeEntity);
 
             if (videoTypeEntity is null)
                 throw new AlreadyExistsException("VideoType");
@@ -43,13 +43,13 @@ public class VideoTypesService(
 
     public async Task<IEnumerable<VideoTypeModel>> GetAllVideoTypesAsync()
     {
-        var videoTypes = await unitOfWork.VideoTypes.GetAllAsync();
+        var videoTypes = await unitOfWork.VideoTypes.GetAllVideoTypesAsync();
         return mapper.Map<IEnumerable<VideoTypeModel>>(videoTypes);
     }
 
     public async Task<VideoTypeModel> GetVideoTypeByIdAsync(Guid videoTypeId)
     {
-        var videoType = await unitOfWork.VideoTypes.GetByIdAsync(videoTypeId);
+        var videoType = await unitOfWork.VideoTypes.GetVideoTypeByIdAsync(videoTypeId);
         if (videoType is null)
             throw new NotFoundException("VideoType", videoTypeId);
 
@@ -62,7 +62,7 @@ public class VideoTypesService(
 
         try
         {
-            var videoType = await unitOfWork.VideoTypes.GetByIdAsync(videoTypeId);
+            var videoType = await unitOfWork.VideoTypes.GetVideoTypeByIdAsync(videoTypeId);
             if (videoType is null)
                 throw new NotFoundException("VideoType", videoTypeId);
 
@@ -76,7 +76,7 @@ public class VideoTypesService(
             }
 
             mapper.Map(updateVideoTypeModel, videoType);
-            unitOfWork.VideoTypes.Update(videoType);
+            unitOfWork.VideoTypes.UpdateVideoType(videoType);
 
             await unitOfWork.CommitAsync();
             return mapper.Map<VideoTypeModel>(videoType);
@@ -98,11 +98,11 @@ public class VideoTypesService(
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var videoType = await unitOfWork.VideoTypes.GetByIdAsync(videoTypeId);
+            var videoType = await unitOfWork.VideoTypes.GetVideoTypeByIdAsync(videoTypeId);
             if (videoType is null)
                 throw new NotFoundException("VideoType", videoTypeId);
 
-            unitOfWork.VideoTypes.Delete(videoType);
+            unitOfWork.VideoTypes.DeleteVideoType(videoType);
             await unitOfWork.CommitAsync();
         }
         catch
