@@ -17,8 +17,6 @@ builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 builder.Configuration.AddConfiguration(configuration);
 
-//TODO: рефактор методов create чтобы в репозитории были только вызовы без проверок а все проверки делать в service
-
 SerilogConfigurator.ConfigureServices(builder);
 SwaggerConfigurator.ConfigureServices(builder.Services);
 MapperConfigurator.ConfigureServices(builder.Services);

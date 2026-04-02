@@ -8,13 +8,8 @@ namespace VKVideoReviews.DA.Repositories;
 
 public class GenresRepository(VkVideoReviewsDbContext context) : IGenresRepository
 {
-    public async Task<GenreEntity?> CreateGenreAsync(GenreEntity genreEntity)
+    public async Task<GenreEntity> CreateGenreAsync(GenreEntity genreEntity)
     {
-        var maybeGenre = await context.Genres.FirstOrDefaultAsync(x => x.Title == genreEntity.Title);
-
-        if (maybeGenre is not null)
-            return null;
-
         var result = await context.Genres.AddAsync(genreEntity);
         return result.Entity;
     }

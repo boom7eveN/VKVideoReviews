@@ -7,15 +7,8 @@ namespace VKVideoReviews.DA.Repositories;
 
 public class ReviewsRepository(VkVideoReviewsDbContext context) : IReviewsRepository
 {
-    public async Task<ReviewEntity?> CreateReviewAsync(ReviewEntity review)
+    public async Task<ReviewEntity> CreateReviewAsync(ReviewEntity review)
     {
-        var maybeReview = await context.Reviews.FirstOrDefaultAsync(r =>
-            r.UserId == review.UserId &&
-            r.VideoId == review.VideoId);
-
-        if (maybeReview is not null)
-            return null;
-
         await context.Reviews.AddAsync(review);
         return review;
     }

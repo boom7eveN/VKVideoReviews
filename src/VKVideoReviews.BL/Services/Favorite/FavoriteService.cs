@@ -16,13 +16,18 @@ public class FavoriteService(IMapper mapper, IUnitOfWork unitOfWork) : IFavorite
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var video = await unitOfWork.Videos.GetVideoByIdWithGenresAndVideotypeAsync(createFavoriteModel.VideoId);
+            var video = await unitOfWork.Videos
+                .GetVideoByIdAsync(createFavoriteModel.VideoId);
             if (video == null)
                 throw new NotFoundException("Video", createFavoriteModel.VideoId);
 
-            favoriteEntity = await unitOfWork.Favorite.CreateFavoriteAsync(favoriteEntity);
-            if (favoriteEntity is null)
+            
+            var existingFavorite = await unitOfWork.Favorite
+                .GetFavoriteByUserAndVideoIdsAsync(userId, createFavoriteModel.VideoId);
+            if (existingFavorite != null)
                 throw new AlreadyExistsException("Favorite");
+            
+            favoriteEntity = await unitOfWork.Favorite.CreateFavoriteAsync(favoriteEntity);
             await unitOfWork.CommitAsync();
             favoriteEntity = await unitOfWork.Favorite.GetFavoriteWithVideoAsync(userId, createFavoriteModel.VideoId);
             return mapper.Map<FavoriteModel>(favoriteEntity);
@@ -36,7 +41,7 @@ public class FavoriteService(IMapper mapper, IUnitOfWork unitOfWork) : IFavorite
 
     public async Task<IEnumerable<FavoriteModel>> GetAllFavoriteAsync(Guid userId)
     {
-        var favorite = await unitOfWork.Favorite.GetAllFavoriteWithVideoByUserIdAsync(userId);
+        var favorite = await unitOfWork.Favorite.GetAllFavoriteByUserIdWithVideoAsync(userId);
         return mapper.Map<IEnumerable<FavoriteModel>>(favorite);
     }
 
@@ -45,7 +50,7 @@ public class FavoriteService(IMapper mapper, IUnitOfWork unitOfWork) : IFavorite
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var favorite = await unitOfWork.Favorite.GetFavoriteAsync(userId, videoId);
+            var favorite = await unitOfWork.Favorite.GetFavoriteByUserAndVideoIdsAsync(userId, videoId);
             if (favorite is null)
                 throw new NotFoundException("Favorite");
             unitOfWork.Favorite.DeleteFavorite(favorite);

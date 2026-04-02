@@ -7,20 +7,21 @@ namespace VKVideoReviews.DA.Repositories;
 
 public class VideosRepository(VkVideoReviewsDbContext context) : IVideosRepository
 {
-    public async Task<VideoEntity?> CreateVideoAsync(VideoEntity videoEntity)
+    public async Task<VideoEntity> CreateVideoAsync(VideoEntity videoEntity)
     {
-        var maybeVideo = await context.Videos.FirstOrDefaultAsync(x =>
-            x.Title == videoEntity.Title &&
-            x.StartYear == videoEntity.StartYear &&
-            x.VideoTypeId == videoEntity.VideoTypeId);
-
-        if (maybeVideo is not null)
-            return null;
-
         var result = await context.Videos.AddAsync(videoEntity);
         return result.Entity;
     }
-    
+
+    public async Task<VideoEntity?> GetVideoByTitleYearAndTypeAsync(string title, int startYear, Guid videoTypeId)
+    {
+        return await context.Videos
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x =>
+                x.Title == title &&
+                x.StartYear == startYear &&
+                x.VideoTypeId == videoTypeId);
+    }
 
     public async Task<VideoEntity?> GetVideoByIdAsync(Guid videoId)
     {
@@ -75,7 +76,7 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
     ", videoId);
     }
 
-    public async Task<VideoEntity?> LockForUpdateByIdAsync(Guid videoId)
+    public async Task<VideoEntity?> GetVideoByIdLockForUpdateAsync(Guid videoId)
     {
         return await context.Videos
             .FromSqlRaw("SELECT * FROM \"Videos\" WHERE \"VideoId\" = {0} FOR UPDATE", videoId)

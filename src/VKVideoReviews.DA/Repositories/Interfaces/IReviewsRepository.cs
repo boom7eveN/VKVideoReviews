@@ -4,7 +4,7 @@ namespace VKVideoReviews.DA.Repositories.Interfaces;
 
 public interface IReviewsRepository
 {
-    Task<ReviewEntity?> CreateReviewAsync(ReviewEntity review);
+    Task<ReviewEntity> CreateReviewAsync(ReviewEntity review);
     Task<ReviewEntity?> GetReviewByIdWithUserAndVideoAsync(Guid reviewId);
     Task<ReviewEntity?> GetReviewByUserAndVideoIdsWithUserAndVideoAsync(Guid userId, Guid videoId);
     void DeleteReview(ReviewEntity review);

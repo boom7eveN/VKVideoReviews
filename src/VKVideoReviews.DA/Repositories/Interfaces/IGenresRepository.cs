@@ -5,7 +5,7 @@ namespace VKVideoReviews.DA.Repositories.Interfaces;
 
 public interface IGenresRepository
 {
-    Task<GenreEntity?> CreateGenreAsync(GenreEntity genreEntity);
+    Task<GenreEntity> CreateGenreAsync(GenreEntity genreEntity);
     Task<IEnumerable<GenreEntity>> GetAllGenresAsync();
     Task<GenreEntity?> GetGenreByIdAsync(Guid genreId);
     void DeleteGenre(GenreEntity genreEntity);

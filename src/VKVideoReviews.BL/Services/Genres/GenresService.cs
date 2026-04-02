@@ -21,11 +21,13 @@ public class GenresService(
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            genreEntity = await unitOfWork.Genres.CreateGenreAsync(genreEntity);
-
-            if (genreEntity is null)
+            var maybegrenre = await unitOfWork.Genres.GetGenreByTitleAsync(createGenreModel.Title);
+            
+            if (maybegrenre is not null)
                 throw new AlreadyExistsException("Genre");
-
+            
+            genreEntity = await unitOfWork.Genres.CreateGenreAsync(genreEntity);
+            
             await unitOfWork.CommitAsync();
             return mapper.Map<GenreModel>(genreEntity);
         }

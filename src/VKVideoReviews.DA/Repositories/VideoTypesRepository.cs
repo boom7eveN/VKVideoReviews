@@ -7,12 +7,8 @@ namespace VKVideoReviews.DA.Repositories;
 
 public class VideoTypesRepository(VkVideoReviewsDbContext context) : IVideoTypesRepository
 {
-    public async Task<VideoTypeEntity?> CreateVideoTypeAsync(VideoTypeEntity videoTypeEntity)
+    public async Task<VideoTypeEntity> CreateVideoTypeAsync(VideoTypeEntity videoTypeEntity)
     {
-        var maybeType = await context.VideoTypes.FirstOrDefaultAsync(x => x.Title == videoTypeEntity.Title);
-        if (maybeType is not null)
-            return null;
-
         var result = await context.VideoTypes.AddAsync(videoTypeEntity);
         return result.Entity;
     }

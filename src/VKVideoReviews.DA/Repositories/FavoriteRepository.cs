@@ -7,16 +7,8 @@ namespace VKVideoReviews.DA.Repositories;
 
 public class FavoriteRepository(VkVideoReviewsDbContext context) : IFavoriteRepository
 {
-    public async Task<FavoriteEntity?> CreateFavoriteAsync(FavoriteEntity favorite)
+    public async Task<FavoriteEntity> CreateFavoriteAsync(FavoriteEntity favorite)
     {
-        var maybeFavorite = await context.Favorite
-            .FirstOrDefaultAsync(f =>
-                f.VideoId == favorite.VideoId &&
-                f.UserId == favorite.UserId);
-
-        if (maybeFavorite is not null)
-            return null;
-
         await context.Favorite.AddAsync(favorite);
         return favorite;
     }
@@ -34,7 +26,7 @@ public class FavoriteRepository(VkVideoReviewsDbContext context) : IFavoriteRepo
                 f.UserId == userId);
     }
 
-    public async Task<IEnumerable<FavoriteEntity>> GetAllFavoriteWithVideoByUserIdAsync(Guid userId)
+    public async Task<IEnumerable<FavoriteEntity>> GetAllFavoriteByUserIdWithVideoAsync(Guid userId)
     {
         return await context.Favorite.AsNoTracking()
             .Include(f => f.Video)
@@ -51,7 +43,7 @@ public class FavoriteRepository(VkVideoReviewsDbContext context) : IFavoriteRepo
         context.Favorite.Remove(favorite);
     }
 
-    public async Task<FavoriteEntity?> GetFavoriteAsync(Guid userId, Guid videoId)
+    public async Task<FavoriteEntity?> GetFavoriteByUserAndVideoIdsAsync(Guid userId, Guid videoId)
     {
         return await context.Favorite.AsNoTracking().FirstOrDefaultAsync(f =>
             f.VideoId == videoId &&

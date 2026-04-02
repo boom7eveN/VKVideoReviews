@@ -21,18 +21,14 @@ public class VideoTypesService(
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            videoTypeEntity = await unitOfWork.VideoTypes.CreateVideoTypeAsync(videoTypeEntity);
-
-            if (videoTypeEntity is null)
+            var maybeVideoType = await unitOfWork.VideoTypes.GetVideoTypeByTitleAsync(createVideoTypeModel.Title);
+            if (maybeVideoType is not null)
                 throw new AlreadyExistsException("VideoType");
-
+            
+            videoTypeEntity = await unitOfWork.VideoTypes.CreateVideoTypeAsync(videoTypeEntity);
+            
             await unitOfWork.CommitAsync();
             return mapper.Map<VideoTypeModel>(videoTypeEntity);
-        }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" })
-        {
-            await unitOfWork.RollbackAsync();
-            throw new AlreadyExistsException("VideoType");
         }
         catch
         {
@@ -80,11 +76,6 @@ public class VideoTypesService(
 
             await unitOfWork.CommitAsync();
             return mapper.Map<VideoTypeModel>(videoType);
-        }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" })
-        {
-            await unitOfWork.RollbackAsync();
-            throw new AlreadyExistsException("VideoType");
         }
         catch
         {

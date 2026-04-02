@@ -16,28 +16,21 @@ public class ReviewsService(IUnitOfWork unitOfWork, IMapper mapper) : IReviewsSe
         var currentTime = DateTime.UtcNow;
         review.CreateDate = currentTime;
         review.UpdateDate = currentTime;
-
+        review.UserId = userId;
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var lockedVideo = await unitOfWork.Videos.LockForUpdateByIdAsync(videoId);
+            var lockedVideo = await unitOfWork.Videos.GetVideoByIdLockForUpdateAsync(videoId);
             if (lockedVideo == null)
                 throw new NotFoundException("Video", videoId);
-
-            var user = await unitOfWork.Users.GetUserByIdAsync(userId);
-            if (user == null)
-                throw new NotFoundException("User", userId);
-            review.UserId = userId;
+            review.VideoId = videoId;
 
             var existingReview = await unitOfWork.Reviews
-                .GetReviewByUserAndVideoIdsWithUserAndVideoAsync(userId, videoId);
+                .GetReviewByUserAndVideoIdsAsync(userId, videoId);
             if (existingReview != null)
                 throw new AlreadyExistsException("Review for this video from this user");
-
-            review.VideoId = videoId;
+            
             review = await unitOfWork.Reviews.CreateReviewAsync(review);
-            if (review is null)
-                throw new AlreadyExistsException("Review for this video from this user");
 
             await unitOfWork.SaveChangesAsync();
 
@@ -60,7 +53,7 @@ public class ReviewsService(IUnitOfWork unitOfWork, IMapper mapper) : IReviewsSe
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var lockedVideo = await unitOfWork.Videos.LockForUpdateByIdAsync(videoId);
+            var lockedVideo = await unitOfWork.Videos.GetVideoByIdLockForUpdateAsync(videoId);
             if (lockedVideo == null)
                 throw new NotFoundException("Video", videoId);
 
@@ -102,7 +95,7 @@ public class ReviewsService(IUnitOfWork unitOfWork, IMapper mapper) : IReviewsSe
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
-            var lockedVideo = await unitOfWork.Videos.LockForUpdateByIdAsync(videoId);
+            var lockedVideo = await unitOfWork.Videos.GetVideoByIdLockForUpdateAsync(videoId);
             if (lockedVideo == null)
                 throw new NotFoundException("Video", videoId);
 
