@@ -1,0 +1,46 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "80:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+    env_file:
+      - ./backend/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  postgres:
+    container_name: postgres
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: "VKVideoReviews"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "P@ssw0rd"
+      PGDATA: "/var/lib/postgresql/data/pg-volume"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d VKVideoReviews" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

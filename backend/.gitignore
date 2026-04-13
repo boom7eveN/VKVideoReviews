@@ -4,3 +4,7 @@
 **/.vs
 **/.idea
 **/appsettings.Development.json
+
+.env
+.env.*
+!.env.example

@@ -4,6 +4,7 @@ using VKVideoReviews.WebApi.Settings;
 var configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", false, true)
     .AddJsonFile("appsettings.Development.json", true, true)
+    .AddEnvironmentVariables()
     .Build();
 
 
