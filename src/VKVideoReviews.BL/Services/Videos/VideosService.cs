@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
+using FluentValidation;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.Videos.Interfaces;
 using VKVideoReviews.BL.Services.Videos.Models;
@@ -9,10 +8,16 @@ using VKVideoReviews.DA.UnitOfWork.Interfaces;
 
 namespace VKVideoReviews.BL.Services.Videos;
 
-public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosService
+public class VideosService(
+    IUnitOfWork unitOfWork,
+    IMapper mapper,
+    IValidator<CreateVideoModel> createValidator,
+    IValidator<UpdateVideoModel> updateValidator) : IVideosService
 {
     public async Task<VideoModel> CreateVideoAsync(CreateVideoModel createVideoModel)
     {
+        await ValidateAsync(createValidator, createVideoModel);
+
         var video = mapper.Map<VideoEntity>(createVideoModel);
         video.VideoId = Guid.NewGuid();
         await using var transaction = await unitOfWork.BeginTransactionAsync();
@@ -71,6 +76,8 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
 
     public async Task<VideoModel> UpdateVideoAsync(Guid videoId, UpdateVideoModel updateVideoModel)
     {
+        await ValidateAsync(updateValidator, updateVideoModel);
+
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
@@ -137,11 +144,6 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
 
             return mapper.Map<VideoModel>(result);
         }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: "23505" })
-        {
-            await unitOfWork.RollbackAsync();
-            throw new AlreadyExistsException("Video");
-        }
         catch
         {
             await unitOfWork.RollbackAsync();
@@ -164,6 +166,23 @@ public class VideosService(IUnitOfWork unitOfWork, IMapper mapper) : IVideosServ
         {
             await unitOfWork.RollbackAsync();
             throw;
+        }
+    }
+
+    private async Task ValidateAsync<T>(IValidator<T> validator, T model)
+    {
+        var validationResult = await validator.ValidateAsync(model);
+
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                );
+
+            throw new ModelValidationException(errors);
         }
     }
 }

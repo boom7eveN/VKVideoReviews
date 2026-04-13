@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.Reviews.Interfaces;
 using VKVideoReviews.BL.Services.Reviews.Models;
@@ -7,10 +8,16 @@ using VKVideoReviews.DA.UnitOfWork.Interfaces;
 
 namespace VKVideoReviews.BL.Services.Reviews;
 
-public class ReviewsService(IUnitOfWork unitOfWork, IMapper mapper) : IReviewsService
+public class ReviewsService(
+    IUnitOfWork unitOfWork, 
+    IMapper mapper,
+    IValidator<CreateReviewModel> createValidator,
+    IValidator<UpdateReviewModel> updateValidator) : IReviewsService
 {
     public async Task<ReviewModel> CreateReviewAsync(Guid userId, Guid videoId, CreateReviewModel createReviewModel)
     {
+        await ValidateAsync(createValidator, createReviewModel);
+        
         var review = mapper.Map<ReviewEntity>(createReviewModel);
         review.ReviewId = Guid.NewGuid();
         var currentTime = DateTime.UtcNow;
@@ -91,6 +98,8 @@ public class ReviewsService(IUnitOfWork unitOfWork, IMapper mapper) : IReviewsSe
 
     public async Task<ReviewModel> UpdateReviewAsync(Guid userId, Guid videoId, UpdateReviewModel updateReviewModel)
     {
+        await ValidateAsync(updateValidator, updateReviewModel);
+        
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
@@ -120,6 +129,23 @@ public class ReviewsService(IUnitOfWork unitOfWork, IMapper mapper) : IReviewsSe
         {
             await transaction.RollbackAsync();
             throw;
+        }
+    }
+    
+    private static async Task ValidateAsync<T>(IValidator<T> validator, T model)
+    {
+        var validationResult = await validator.ValidateAsync(model);
+        
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                );
+            
+            throw new ModelValidationException(errors);
         }
     }
 }

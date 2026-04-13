@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.Genres.Interfaces;
 using VKVideoReviews.BL.Services.Genres.Models;
@@ -9,11 +10,14 @@ namespace VKVideoReviews.BL.Services.Genres;
 
 public class GenresService(
     IUnitOfWork unitOfWork,
-    IMapper mapper)
+    IMapper mapper,
+    IValidator<CreateGenreModel> createValidator,
+    IValidator<UpdateGenreModel> updateValidator)
     : IGenresService
 {
     public async Task<GenreModel> CreateGenreAsync(CreateGenreModel createGenreModel)
     {
+        await ValidateAsync(createValidator, createGenreModel);
         var genreEntity = mapper.Map<GenreEntity>(createGenreModel);
         genreEntity.GenreId = Guid.NewGuid();
         await using var transaction = await unitOfWork.BeginTransactionAsync();
@@ -53,6 +57,7 @@ public class GenresService(
 
     public async Task<GenreModel> UpdateGenreAsync(Guid genreId, UpdateGenreModel updateGenreModel)
     {
+        await ValidateAsync(updateValidator, updateGenreModel);
         await using var transaction = await unitOfWork.BeginTransactionAsync();
 
         try
@@ -97,6 +102,23 @@ public class GenresService(
         {
             await unitOfWork.RollbackAsync();
             throw;
+        }
+    }
+
+    private static async Task ValidateAsync<T>(IValidator<T> validator, T model)
+    {
+        var validationResult = await validator.ValidateAsync(model);
+
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                );
+
+            throw new ModelValidationException(errors);
         }
     }
 }

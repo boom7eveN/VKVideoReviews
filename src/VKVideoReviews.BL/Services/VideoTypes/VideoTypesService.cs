@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.VideoTypes.Interfaces;
 using VKVideoReviews.BL.Services.VideoTypes.Models;
@@ -9,11 +10,16 @@ namespace VKVideoReviews.BL.Services.VideoTypes;
 
 public class VideoTypesService(
     IUnitOfWork unitOfWork,
-    IMapper mapper)
+    IMapper mapper,
+    IValidator<CreateVideoTypeModel> createValidator,
+    IValidator<UpdateVideoTypeModel> updateValidator)
     : IVideoTypesService
+
 {
     public async Task<VideoTypeModel> CreateVideoTypeAsync(CreateVideoTypeModel createVideoTypeModel)
     {
+        await ValidateAsync(createValidator, createVideoTypeModel);
+
         var videoTypeEntity = mapper.Map<VideoTypeEntity>(createVideoTypeModel);
         videoTypeEntity.VideoTypeId = Guid.NewGuid();
         await using var transaction = await unitOfWork.BeginTransactionAsync();
@@ -52,6 +58,8 @@ public class VideoTypesService(
 
     public async Task<VideoTypeModel> UpdateVideoTypeAsync(Guid videoTypeId, UpdateVideoTypeModel updateVideoTypeModel)
     {
+        await ValidateAsync(updateValidator, updateVideoTypeModel);
+
         await using var transaction = await unitOfWork.BeginTransactionAsync();
 
         try
@@ -96,6 +104,23 @@ public class VideoTypesService(
         {
             await unitOfWork.RollbackAsync();
             throw;
+        }
+    }
+
+    private static async Task ValidateAsync<T>(IValidator<T> validator, T model)
+    {
+        var validationResult = await validator.ValidateAsync(model);
+
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                );
+
+            throw new ModelValidationException(errors);
         }
     }
 }

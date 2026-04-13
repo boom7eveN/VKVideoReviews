@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
 using VKVideoReviews.BL.Clients;
 using VKVideoReviews.BL.Clients.Interfaces;
@@ -15,6 +16,7 @@ using VKVideoReviews.BL.Services.Videos;
 using VKVideoReviews.BL.Services.Videos.Interfaces;
 using VKVideoReviews.BL.Services.VideoTypes;
 using VKVideoReviews.BL.Services.VideoTypes.Interfaces;
+using VKVideoReviews.BL.Services.VideoTypes.Validators;
 using VKVideoReviews.BL.Services.VkAuth;
 using VKVideoReviews.BL.Services.VkAuth.Interfaces;
 using VKVideoReviews.DA.Repositories;
@@ -29,6 +31,7 @@ public static class ServicesConfigurator
 {
     public static void ConfigureServices(IServiceCollection services, AppSettings appSettings)
     {
+        services.AddValidatorsFromAssemblyContaining<CreateVideoTypeValidator>();
         services.AddScoped<IGenresRepository, GenresRepository>();
         services.AddScoped<IVideoTypesRepository, VideoTypesRepository>();
         services.AddScoped<IUserTokensRepository, UserTokensRepository>();

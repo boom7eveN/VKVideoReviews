@@ -17,8 +17,15 @@ public static class ExceptionHandlerConfigurator
                 var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
 
                 string errorCode, message;
+                object? details = null;
                 switch (exception)
                 {
+                    case ModelValidationException validationException:
+                        context.Response.StatusCode = validationException.StatusCode;
+                        errorCode = validationException.ErrorCode;
+                        message = validationException.Message;
+                        details = validationException.Errors;
+                        break;
                     case BusinessLogicException businessLogicException:
                         context.Response.StatusCode = businessLogicException.StatusCode;
                         errorCode = businessLogicException.ErrorCode;
@@ -44,12 +51,23 @@ public static class ExceptionHandlerConfigurator
                 var environment = context.RequestServices.GetRequiredService<IHostEnvironment>();
                 if (environment.IsDevelopment())
                 {
-                    var response = new { Code = errorCode, Message = message, Detail = exception.ToString() };
+                    var response = new
+                    {
+                        Code = errorCode, 
+                        Message = message, 
+                        Errors = details, 
+                        Detail = exception.ToString()
+                    };
                     await context.Response.WriteAsJsonAsync(response);
                 }
                 else
                 {
-                    var response = new { Code = errorCode, Message = message };
+                    var response = new
+                    {
+                        Code = errorCode, 
+                        Message = message, 
+                        Errors = details,
+                    };
                     await context.Response.WriteAsJsonAsync(response);
                 }
             }));
