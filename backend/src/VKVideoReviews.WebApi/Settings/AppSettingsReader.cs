@@ -28,7 +28,9 @@ public static class AppSettingsReader
                     : 180
             },
             AdminVkUserIds = configuration.GetSection("AdminVkUserIds").Get<long[]>() ?? [],
-            EncryptionKey = configuration.GetSection("EncryptionKey").Value
+            EncryptionKey = configuration.GetSection("EncryptionKey").Value,
+            RedisConnectionString = configuration.GetSection("Redis:ConnectionString").Value,
+            RedisInstanceName = configuration.GetSection("Redis:InstanceName").Value,
         };
     }
 }

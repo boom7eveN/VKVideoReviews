@@ -11,7 +11,11 @@ var configuration = new ConfigurationBuilder()
 var settings = AppSettingsReader.Read(configuration);
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = settings.RedisConnectionString;
+    options.InstanceName = settings.RedisInstanceName;
+});
 builder.Services.AddRouting(options => { options.LowercaseUrls = true; });
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();

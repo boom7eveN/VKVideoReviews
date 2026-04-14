@@ -18,4 +18,7 @@ public class AppSettings
     public long[] AdminVkUserIds { get; set; } = [];
 
     public string EncryptionKey { get; set; }
+
+    public string RedisConnectionString { get; set; }
+    public string RedisInstanceName { get; set; }
 }
