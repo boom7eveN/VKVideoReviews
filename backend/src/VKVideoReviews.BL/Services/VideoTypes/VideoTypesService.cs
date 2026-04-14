@@ -1,5 +1,7 @@
-﻿using AutoMapper;
+﻿using System.Text.Json;
+using AutoMapper;
 using FluentValidation;
+using Microsoft.Extensions.Caching.Distributed;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.VideoTypes.Interfaces;
 using VKVideoReviews.BL.Services.VideoTypes.Models;
@@ -12,10 +14,14 @@ public class VideoTypesService(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateVideoTypeModel> createValidator,
-    IValidator<UpdateVideoTypeModel> updateValidator)
+    IValidator<UpdateVideoTypeModel> updateValidator,
+    IDistributedCache cache)
     : IVideoTypesService
 
 {
+    private const string AllVideoTypesCacheKey = "videotypes:all";
+    private static readonly TimeSpan AllVideoTypesCacheTime = TimeSpan.FromHours(1);
+
     public async Task<VideoTypeModel> CreateVideoTypeAsync(CreateVideoTypeModel createVideoTypeModel)
     {
         await ValidateAsync(createValidator, createVideoTypeModel);
@@ -32,6 +38,7 @@ public class VideoTypesService(
             videoTypeEntity = await unitOfWork.VideoTypes.CreateVideoTypeAsync(videoTypeEntity);
 
             await unitOfWork.CommitAsync();
+            await cache.RemoveAsync(AllVideoTypesCacheKey);
             return mapper.Map<VideoTypeModel>(videoTypeEntity);
         }
         catch
@@ -43,8 +50,22 @@ public class VideoTypesService(
 
     public async Task<IEnumerable<VideoTypeModel>> GetAllVideoTypesAsync()
     {
-        var videoTypes = await unitOfWork.VideoTypes.GetAllVideoTypesAsync();
-        return mapper.Map<IEnumerable<VideoTypeModel>>(videoTypes);
+        var cached = await cache.GetStringAsync(AllVideoTypesCacheKey);
+        if (cached is not null)
+        {
+            return JsonSerializer.Deserialize<List<VideoTypeModel>>(cached)!;
+        }
+        
+        var entities = await unitOfWork.VideoTypes.GetAllVideoTypesAsync();
+        var models = mapper.Map<List<VideoTypeModel>>(entities);
+        
+        var options = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = AllVideoTypesCacheTime
+        };
+        await cache.SetStringAsync(AllVideoTypesCacheKey, JsonSerializer.Serialize(models), options);
+        
+        return models;
     }
 
     public async Task<VideoTypeModel> GetVideoTypeByIdAsync(Guid videoTypeId)
@@ -77,8 +98,8 @@ public class VideoTypesService(
 
             mapper.Map(updateVideoTypeModel, videoType);
             unitOfWork.VideoTypes.UpdateVideoType(videoType);
-
             await unitOfWork.CommitAsync();
+            await cache.RemoveAsync(AllVideoTypesCacheKey);
             return mapper.Map<VideoTypeModel>(videoType);
         }
         catch
@@ -99,6 +120,7 @@ public class VideoTypesService(
 
             unitOfWork.VideoTypes.DeleteVideoType(videoType);
             await unitOfWork.CommitAsync();
+            await cache.RemoveAsync(AllVideoTypesCacheKey);
         }
         catch
         {

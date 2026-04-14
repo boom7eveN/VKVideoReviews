@@ -1,5 +1,7 @@
-﻿using AutoMapper;
+﻿using System.Text.Json;
+using AutoMapper;
 using FluentValidation;
+using Microsoft.Extensions.Caching.Distributed;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.Videos.Interfaces;
 using VKVideoReviews.BL.Services.Videos.Models;
@@ -12,8 +14,12 @@ public class VideosService(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateVideoModel> createValidator,
-    IValidator<UpdateVideoModel> updateValidator) : IVideosService
+    IValidator<UpdateVideoModel> updateValidator,
+    IDistributedCache cache) : IVideosService
 {
+    internal static string VideoCacheKey(Guid videoId) => $"video:{videoId}";
+    private static readonly TimeSpan VideoCacheTime = TimeSpan.FromMinutes(5);
+
     public async Task<VideoModel> CreateVideoAsync(CreateVideoModel createVideoModel)
     {
         await ValidateAsync(createValidator, createVideoModel);
@@ -48,9 +54,11 @@ public class VideosService(
                 });
             await unitOfWork.GenresVideos.AddGenresVideosRangeAsync(genresVideos);
             await unitOfWork.CommitAsync();
-            var videoWithRelations = await unitOfWork.Videos.GetVideoByIdWithGenresAndVideotypeAsync(
-                video.VideoId);
-            return mapper.Map<VideoModel>(videoWithRelations);
+            var videoWithRelations =
+                await unitOfWork.Videos.GetVideoByIdWithGenresAndVideotypeAsync(video.VideoId);
+            var result = mapper.Map<VideoModel>(videoWithRelations);
+            await CacheVideoAsync(result);
+            return result;
         }
         catch
         {
@@ -68,10 +76,22 @@ public class VideosService(
 
     public async Task<VideoModel> GetVideoByIdAsync(Guid videoId)
     {
-        var video = await unitOfWork.Videos.GetVideoByIdWithGenresAndVideotypeAsync(videoId);
+        var cacheKey = VideoCacheKey(videoId);
+        var cached = await cache.GetStringAsync(cacheKey);
+
+        if (cached is not null)
+        {
+            return JsonSerializer.Deserialize<VideoModel>(cached)!;
+        }
+
+        var video = await unitOfWork.Videos.GetVideoByIdWithGenresVideotypeAndReviewsAsync(videoId);
         if (video is null)
             throw new NotFoundException("Video", videoId);
-        return mapper.Map<VideoModel>(video);
+
+        var result = mapper.Map<VideoModel>(video);
+        await CacheVideoAsync(result);
+
+        return result;
     }
 
     public async Task<VideoModel> UpdateVideoAsync(Guid videoId, UpdateVideoModel updateVideoModel)
@@ -139,10 +159,12 @@ public class VideosService(
             unitOfWork.Videos.UpdateVideo(video);
             await unitOfWork.CommitAsync();
 
-            var result = await unitOfWork.Videos
-                .GetVideoByIdWithGenresAndVideotypeAsync(videoId);
+            var result = await unitOfWork.Videos.GetVideoByIdWithGenresVideotypeAndReviewsAsync(videoId);
+            var updatedModel = mapper.Map<VideoModel>(result);
 
-            return mapper.Map<VideoModel>(result);
+            await CacheVideoAsync(updatedModel);
+
+            return updatedModel;
         }
         catch
         {
@@ -161,6 +183,7 @@ public class VideosService(
                 throw new NotFoundException("Video", videoId);
             unitOfWork.Videos.DeleteVideo(video);
             await unitOfWork.CommitAsync();
+            await cache.RemoveAsync(VideoCacheKey(videoId));
         }
         catch
         {
@@ -168,6 +191,16 @@ public class VideosService(
             throw;
         }
     }
+
+    private async Task CacheVideoAsync(VideoModel video)
+    {
+        var options = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = VideoCacheTime
+        };
+        await cache.SetStringAsync(VideoCacheKey(video.VideoId), JsonSerializer.Serialize(video), options);
+    }
+
 
     private async Task ValidateAsync<T>(IValidator<T> validator, T model)
     {

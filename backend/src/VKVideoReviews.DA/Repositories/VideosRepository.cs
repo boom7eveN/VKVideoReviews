@@ -48,6 +48,17 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
             .FirstOrDefaultAsync(v => v.VideoId == videoId);
     }
 
+    public async Task<VideoEntity?> GetVideoByIdWithGenresVideotypeAndReviewsAsync(Guid videoId)
+    {
+        return await context.Videos
+            .AsNoTracking()
+            .Include(v => v.VideoType)
+            .Include(v => v.Reviews)
+            .Include(v => v.GenresVideos)
+            .ThenInclude(gv => gv.Genre)
+            .FirstOrDefaultAsync(v => v.VideoId == videoId);
+    }
+
     public async Task<IEnumerable<VideoEntity>> GetAllVideosWithGenresAndVideotypeAsync()
     {
         return await context.Videos

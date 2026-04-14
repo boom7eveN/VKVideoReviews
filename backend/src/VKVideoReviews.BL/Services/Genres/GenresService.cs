@@ -1,5 +1,7 @@
-﻿using AutoMapper;
+﻿using System.Text.Json;
+using AutoMapper;
 using FluentValidation;
+using Microsoft.Extensions.Caching.Distributed;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.Genres.Interfaces;
 using VKVideoReviews.BL.Services.Genres.Models;
@@ -12,9 +14,13 @@ public class GenresService(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateGenreModel> createValidator,
-    IValidator<UpdateGenreModel> updateValidator)
+    IValidator<UpdateGenreModel> updateValidator,
+    IDistributedCache cache)
     : IGenresService
 {
+    private const string AllGenresCacheKey = "genres:all";
+    private static readonly TimeSpan AllGenresCacheTime = TimeSpan.FromHours(1);
+
     public async Task<GenreModel> CreateGenreAsync(CreateGenreModel createGenreModel)
     {
         await ValidateAsync(createValidator, createGenreModel);
@@ -31,6 +37,7 @@ public class GenresService(
             genreEntity = await unitOfWork.Genres.CreateGenreAsync(genreEntity);
 
             await unitOfWork.CommitAsync();
+            await cache.RemoveAsync(AllGenresCacheKey);
             return mapper.Map<GenreModel>(genreEntity);
         }
         catch
@@ -42,8 +49,22 @@ public class GenresService(
 
     public async Task<IEnumerable<GenreModel>> GetAllGenresAsync()
     {
-        var genres = await unitOfWork.Genres.GetAllGenresAsync();
-        return mapper.Map<IEnumerable<GenreModel>>(genres);
+        var cached = await cache.GetStringAsync(AllGenresCacheKey);
+        if (cached is not null)
+        {
+            return JsonSerializer.Deserialize<List<GenreModel>>(cached)!;
+        }
+        
+        var entities = await unitOfWork.Genres.GetAllGenresAsync();
+        var models = mapper.Map<List<GenreModel>>(entities);
+        
+        var options = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = AllGenresCacheTime
+        };
+        await cache.SetStringAsync(AllGenresCacheKey, JsonSerializer.Serialize(models), options);
+        
+        return models;
     }
 
     public async Task<GenreModel> GetGenreByIdAsync(Guid genreId)
@@ -76,6 +97,7 @@ public class GenresService(
             unitOfWork.Genres.UpdateGenre(genre);
 
             await unitOfWork.CommitAsync();
+            await cache.RemoveAsync(AllGenresCacheKey);
             return mapper.Map<GenreModel>(genre);
         }
         catch
@@ -97,6 +119,7 @@ public class GenresService(
 
             unitOfWork.Genres.DeleteGenre(genre);
             await unitOfWork.CommitAsync();
+            await cache.RemoveAsync(AllGenresCacheKey);
         }
         catch
         {

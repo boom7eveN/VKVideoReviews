@@ -10,6 +10,7 @@ public interface IVideosRepository
     void DeleteVideo(VideoEntity videoEntity);
     void UpdateVideo(VideoEntity videoEntity);
     Task<VideoEntity?> GetVideoByIdWithGenresAndVideotypeAsync(Guid videoId);
+    Task<VideoEntity?> GetVideoByIdWithGenresVideotypeAndReviewsAsync(Guid videoId);
     Task<IEnumerable<VideoEntity>> GetAllVideosWithGenresAndVideotypeAsync();
     Task UpdateVideoRatingByIdAsync(Guid videoId);
     Task<VideoEntity?> GetVideoByIdLockForUpdateAsync(Guid videoId);
