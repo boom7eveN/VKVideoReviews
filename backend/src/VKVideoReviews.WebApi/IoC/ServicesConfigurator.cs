@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Distributed;
 using VKVideoReviews.BL.Clients;
 using VKVideoReviews.BL.Clients.Interfaces;
 using VKVideoReviews.BL.Services.AppAuth;
@@ -64,13 +64,13 @@ public static class ServicesConfigurator
         services.AddScoped<IVkAuthService>(sp =>
         {
             var vkIdClient = sp.GetRequiredService<IVkApiAuthClient>();
-            var cache = sp.GetRequiredService<IMemoryCache>();
+            var redis = sp.GetRequiredService<IDistributedCache>();
 
             return new VkAuthService(
                 appSettings.ClientId,
                 appSettings.RedirectUri,
                 vkIdClient,
-                cache
+                redis
             );
         });
 

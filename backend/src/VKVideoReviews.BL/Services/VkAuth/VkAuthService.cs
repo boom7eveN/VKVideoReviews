@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Distributed;
 using VKVideoReviews.BL.Clients.Interfaces;
 using VKVideoReviews.BL.Exceptions.VkAuthExceptions;
 using VKVideoReviews.BL.Integrations.Vk.Contracts.Requests;
@@ -10,7 +10,11 @@ using VKVideoReviews.BL.Services.VkAuth.Models;
 
 namespace VKVideoReviews.BL.Services.VkAuth;
 
-public class VkAuthService(string clientId, string redirectUri, IVkApiAuthClient vkApiAuthClient, IMemoryCache cache)
+public class VkAuthService(
+    string clientId,
+    string redirectUri,
+    IVkApiAuthClient vkApiAuthClient,
+    IDistributedCache cache)
     : IVkAuthService
 {
     private const string PkcePrefix = "vk_pkce_";
@@ -18,38 +22,59 @@ public class VkAuthService(string clientId, string redirectUri, IVkApiAuthClient
     private static readonly TimeSpan StateLifeTime = TimeSpan.FromMinutes(10);
     private static readonly TimeSpan PkceDataLifeTime = TimeSpan.FromMinutes(10);
 
+    private static readonly DistributedCacheEntryOptions StateCacheOptions = new()
+    {
+        AbsoluteExpirationRelativeToNow = StateLifeTime
+    };
+
+    private static readonly DistributedCacheEntryOptions PkceCacheOptions = new()
+    {
+        AbsoluteExpirationRelativeToNow = PkceDataLifeTime
+    };
+
     public string BuildAuthorizationUrl()
     {
         var pkceData = GeneratePkce();
         var state = GenerateState();
-        cache.Set($"{StatePrefix}{state}", state, StateLifeTime);
-        cache.Set($"{PkcePrefix}{state}", pkceData.CodeVerifier, PkceDataLifeTime);
+
+        var stateKey = $"{StatePrefix}{state}";
+        var pkceKey = $"{PkcePrefix}{state}";
+
+        cache.SetString(stateKey, state, StateCacheOptions);
+        cache.SetString(pkceKey, pkceData.CodeVerifier, PkceCacheOptions);
+
         return GetVkAuthorizationUrl(pkceData, state);
     }
 
     public async Task<VkTokensApiResponse> ExchangeCodeForTokenAsync(VkAuthCallbackModel vkAuthCallbackModel)
     {
-        var stateCacheKey = $"{StatePrefix}{vkAuthCallbackModel.State}";
-        if (!cache.TryGetValue(stateCacheKey, out string? savedState) || savedState == null)
+        var stateKey = $"{StatePrefix}{vkAuthCallbackModel.State}";
+        var savedState = await cache.GetStringAsync(stateKey);
+
+        if (string.IsNullOrEmpty(savedState))
             throw new StateValidationException();
 
-        cache.Remove(stateCacheKey);
+        await cache.RemoveAsync(stateKey);
 
-        var pkceCacheKey = $"{PkcePrefix}{vkAuthCallbackModel.State}";
-        if (!cache.TryGetValue(pkceCacheKey, out string? codeVerifier) || string.IsNullOrEmpty(codeVerifier))
+        var pkceKey = $"{PkcePrefix}{vkAuthCallbackModel.State}";
+        var codeVerifier = await cache.GetStringAsync(pkceKey);
+
+        if (string.IsNullOrEmpty(codeVerifier))
             throw new PkceValidationException();
 
-        cache.Remove(pkceCacheKey);
+        await cache.RemoveAsync(pkceKey);
 
         var tokens = await ExchangeCodeForTokenAsync(vkAuthCallbackModel, codeVerifier);
         return tokens;
     }
 
-    private async Task<VkTokensApiResponse> ExchangeCodeForTokenAsync(VkAuthCallbackModel vkAuthCallbackModel,
+    private async Task<VkTokensApiResponse> ExchangeCodeForTokenAsync(
+        VkAuthCallbackModel vkAuthCallbackModel,
         string codeVerifier)
     {
         var state = GenerateState();
-        cache.Set($"{StatePrefix}{state}", state, StateLifeTime);
+        var stateKey = $"{StatePrefix}{state}";
+        await cache.SetStringAsync(stateKey, state, StateCacheOptions);
 
         var vkTokens = await vkApiAuthClient.ExchangeCodeAsync(new VkTokenExchangeRequest
         {
@@ -60,8 +85,11 @@ public class VkAuthService(string clientId, string redirectUri, IVkApiAuthClient
             RedirectUri = redirectUri,
             ClientId = clientId
         });
-        var stateCacheKey = $"{StatePrefix}{vkTokens.State}";
-        if (!cache.TryGetValue(stateCacheKey, out string? savedState) || savedState == null)
+
+        var returnedStateKey = $"{StatePrefix}{vkTokens.State}";
+        var savedState = await cache.GetStringAsync(returnedStateKey);
+
+        if (string.IsNullOrEmpty(savedState))
             throw new StateValidationException();
 
         return vkTokens;
