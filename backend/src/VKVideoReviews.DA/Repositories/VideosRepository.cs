@@ -68,6 +68,35 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
             .ThenInclude(gv => gv.Genre).ToListAsync();
     }
 
+    public async Task<(IReadOnlyList<VideoEntity> Items, int TotalCount)> GetVideosPagedWithGenresAndVideotypeAsync(
+        int pageNumber,
+        int pageSize,
+        string? titlePart)
+    {
+        var query = context.Videos.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(titlePart))
+        {
+            var pattern = $"%{EscapeLikePattern(titlePart)}%";
+            query = query.Where(v => EF.Functions.ILike(v.Title, pattern, "\\"));
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(v => v.AverageRate)
+            .ThenBy(v => v.VideoId)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Include(v => v.VideoType)
+            .Include(v => v.GenresVideos)
+            .ThenInclude(gv => gv.Genre)
+            .AsSplitQuery()
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
     public async Task UpdateVideoRatingByIdAsync(Guid videoId)
     {
         await context.Database.ExecuteSqlRawAsync(@"
@@ -92,5 +121,13 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
         return await context.Videos
             .FromSqlRaw("SELECT * FROM \"Videos\" WHERE \"VideoId\" = {0} FOR UPDATE", videoId)
             .FirstOrDefaultAsync();
+    }
+
+    private static string EscapeLikePattern(string input)
+    {
+        return input
+            .Replace("\\", "\\\\")
+            .Replace("%", "\\%")
+            .Replace("_", "\\_");
     }
 }

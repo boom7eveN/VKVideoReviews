@@ -51,20 +51,17 @@ public class VideoTypesService(
     public async Task<IEnumerable<VideoTypeModel>> GetAllVideoTypesAsync()
     {
         var cached = await cache.GetStringAsync(AllVideoTypesCacheKey);
-        if (cached is not null)
-        {
-            return JsonSerializer.Deserialize<List<VideoTypeModel>>(cached)!;
-        }
-        
+        if (cached is not null) return JsonSerializer.Deserialize<List<VideoTypeModel>>(cached)!;
+
         var entities = await unitOfWork.VideoTypes.GetAllVideoTypesAsync();
         var models = mapper.Map<List<VideoTypeModel>>(entities);
-        
+
         var options = new DistributedCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = AllVideoTypesCacheTime
         };
         await cache.SetStringAsync(AllVideoTypesCacheKey, JsonSerializer.Serialize(models), options);
-        
+
         return models;
     }
 

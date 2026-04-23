@@ -45,6 +45,70 @@ public class ReviewsRepository(VkVideoReviewsDbContext context) : IReviewsReposi
             .ToListAsync();
     }
 
+    public async Task<(IReadOnlyList<ReviewEntity> Items, int TotalCount)> GetReviewsPagedWithUsersAndVideosAsync(
+        int pageNumber,
+        int pageSize)
+    {
+        var query = context.Reviews.AsNoTracking();
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(r => r.CreateDate)
+            .ThenBy(r => r.ReviewId)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Include(r => r.User)
+            .Include(r => r.Video)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
+    public async Task<(IReadOnlyList<ReviewEntity> Items, int TotalCount)> GetReviewsByVideoPagedWithUsersAsync(
+        Guid videoId,
+        int pageNumber,
+        int pageSize)
+    {
+        var query = context.Reviews
+            .AsNoTracking()
+            .Where(r => r.VideoId == videoId);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(r => r.CreateDate)
+            .ThenBy(r => r.ReviewId)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Include(r => r.User)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
+    public async Task<(IReadOnlyList<ReviewEntity> Items, int TotalCount)> GetReviewsByUserPagedWithVideosAsync(
+        Guid userId,
+        int pageNumber,
+        int pageSize)
+    {
+        var query = context.Reviews
+            .AsNoTracking()
+            .Where(r => r.UserId == userId);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(r => r.CreateDate)
+            .ThenBy(r => r.ReviewId)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Include(r => r.Video)
+            .ThenInclude(v => v.VideoType)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
     public void UpdateReview(ReviewEntity review)
     {
         context.Reviews.Update(review);

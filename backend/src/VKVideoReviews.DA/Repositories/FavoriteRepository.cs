@@ -38,6 +38,33 @@ public class FavoriteRepository(VkVideoReviewsDbContext context) : IFavoriteRepo
             .ToListAsync();
     }
 
+    public async Task<(IReadOnlyList<FavoriteEntity> Items, int TotalCount)> GetFavoritesByUserPagedWithVideoAsync(
+        Guid userId,
+        int pageNumber,
+        int pageSize)
+    {
+        var query = context.Favorite
+            .AsNoTracking()
+            .Where(f => f.UserId == userId);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(f => f.CreateDate)
+            .ThenBy(f => f.VideoId)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Include(f => f.Video)
+            .ThenInclude(v => v.VideoType)
+            .Include(f => f.Video)
+            .ThenInclude(v => v.GenresVideos)
+            .ThenInclude(gv => gv.Genre)
+            .AsSplitQuery()
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
     public void DeleteFavorite(FavoriteEntity favorite)
     {
         context.Favorite.Remove(favorite);

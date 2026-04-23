@@ -12,6 +12,12 @@ public interface IVideosRepository
     Task<VideoEntity?> GetVideoByIdWithGenresAndVideotypeAsync(Guid videoId);
     Task<VideoEntity?> GetVideoByIdWithGenresVideotypeAndReviewsAsync(Guid videoId);
     Task<IEnumerable<VideoEntity>> GetAllVideosWithGenresAndVideotypeAsync();
+
+    Task<(IReadOnlyList<VideoEntity> Items, int TotalCount)> GetVideosPagedWithGenresAndVideotypeAsync(
+        int pageNumber,
+        int pageSize,
+        string? titlePart);
+
     Task UpdateVideoRatingByIdAsync(Guid videoId);
     Task<VideoEntity?> GetVideoByIdLockForUpdateAsync(Guid videoId);
 }

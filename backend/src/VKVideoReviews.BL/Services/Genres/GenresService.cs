@@ -50,20 +50,17 @@ public class GenresService(
     public async Task<IEnumerable<GenreModel>> GetAllGenresAsync()
     {
         var cached = await cache.GetStringAsync(AllGenresCacheKey);
-        if (cached is not null)
-        {
-            return JsonSerializer.Deserialize<List<GenreModel>>(cached)!;
-        }
-        
+        if (cached is not null) return JsonSerializer.Deserialize<List<GenreModel>>(cached)!;
+
         var entities = await unitOfWork.Genres.GetAllGenresAsync();
         var models = mapper.Map<List<GenreModel>>(entities);
-        
+
         var options = new DistributedCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = AllGenresCacheTime
         };
         await cache.SetStringAsync(AllGenresCacheKey, JsonSerializer.Serialize(models), options);
-        
+
         return models;
     }
 

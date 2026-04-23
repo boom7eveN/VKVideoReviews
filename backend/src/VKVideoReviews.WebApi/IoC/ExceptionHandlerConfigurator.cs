@@ -53,9 +53,9 @@ public static class ExceptionHandlerConfigurator
                 {
                     var response = new
                     {
-                        Code = errorCode, 
-                        Message = message, 
-                        Errors = details, 
+                        Code = errorCode,
+                        Message = message,
+                        Errors = details,
                         Detail = exception.ToString()
                     };
                     await context.Response.WriteAsJsonAsync(response);
@@ -64,9 +64,9 @@ public static class ExceptionHandlerConfigurator
                 {
                     var response = new
                     {
-                        Code = errorCode, 
-                        Message = message, 
-                        Errors = details,
+                        Code = errorCode,
+                        Message = message,
+                        Errors = details
                     };
                     await context.Response.WriteAsJsonAsync(response);
                 }

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Distributed;
+using VKVideoReviews.BL.Common.Pagination;
+using VKVideoReviews.BL.Common.Paging;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.Reviews.Interfaces;
 using VKVideoReviews.BL.Services.Reviews.Models;
@@ -11,16 +13,17 @@ using VKVideoReviews.DA.UnitOfWork.Interfaces;
 namespace VKVideoReviews.BL.Services.Reviews;
 
 public class ReviewsService(
-    IUnitOfWork unitOfWork, 
+    IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateReviewModel> createValidator,
     IValidator<UpdateReviewModel> updateValidator,
+    IValidator<PageRequestModel> pageRequestValidator,
     IDistributedCache cache) : IReviewsService
 {
     public async Task<ReviewModel> CreateReviewAsync(Guid userId, Guid videoId, CreateReviewModel createReviewModel)
     {
         await ValidateAsync(createValidator, createReviewModel);
-        
+
         var review = mapper.Map<ReviewEntity>(createReviewModel);
         review.ReviewId = Guid.NewGuid();
         var currentTime = DateTime.UtcNow;
@@ -94,16 +97,48 @@ public class ReviewsService(
         return mapper.Map<ReviewModel>(review);
     }
 
-    public async Task<IEnumerable<ReviewModel>> GetAllReviewAsync()
+    public async Task<PagedListModel<ReviewModel>> GetAllReviewsPagedAsync(PageRequestModel pageRequest)
     {
-        var reviews = await unitOfWork.Reviews.GetAllReviewsWithUsersAndVideosAsync();
-        return mapper.Map<IEnumerable<ReviewModel>>(reviews);
+        await ValidateAsync(pageRequestValidator, pageRequest);
+
+        var (reviews, totalCount) = await unitOfWork.Reviews
+            .GetReviewsPagedWithUsersAndVideosAsync(pageRequest.PageNumber, pageRequest.PageSize);
+
+        var items = mapper.Map<List<ReviewModel>>(reviews);
+        return new PagedListModel<ReviewModel>(items, totalCount, pageRequest.PageNumber, pageRequest.PageSize);
+    }
+
+    public async Task<PagedListModel<ReviewModel>> GetReviewsByVideoPagedAsync(Guid videoId,
+        PageRequestModel pageRequest)
+    {
+        await ValidateAsync(pageRequestValidator, pageRequest);
+
+        var video = await unitOfWork.Videos.GetVideoByIdAsync(videoId);
+        if (video is null)
+            throw new NotFoundException("Video", videoId);
+
+        var (reviews, totalCount) = await unitOfWork.Reviews
+            .GetReviewsByVideoPagedWithUsersAsync(videoId, pageRequest.PageNumber, pageRequest.PageSize);
+
+        var items = mapper.Map<List<ReviewModel>>(reviews);
+        return new PagedListModel<ReviewModel>(items, totalCount, pageRequest.PageNumber, pageRequest.PageSize);
+    }
+
+    public async Task<PagedListModel<ReviewModel>> GetMyReviewsPagedAsync(Guid userId, PageRequestModel pageRequest)
+    {
+        await ValidateAsync(pageRequestValidator, pageRequest);
+
+        var (reviews, totalCount) = await unitOfWork.Reviews
+            .GetReviewsByUserPagedWithVideosAsync(userId, pageRequest.PageNumber, pageRequest.PageSize);
+
+        var items = mapper.Map<List<ReviewModel>>(reviews);
+        return new PagedListModel<ReviewModel>(items, totalCount, pageRequest.PageNumber, pageRequest.PageSize);
     }
 
     public async Task<ReviewModel> UpdateReviewAsync(Guid userId, Guid videoId, UpdateReviewModel updateReviewModel)
     {
         await ValidateAsync(updateValidator, updateReviewModel);
-        
+
         await using var transaction = await unitOfWork.BeginTransactionAsync();
         try
         {
@@ -128,7 +163,6 @@ public class ReviewsService(
             await cache.RemoveAsync(VideosService.VideoCacheKey(videoId));
             var updatedReview = await unitOfWork.Reviews.GetReviewByIdWithUserAndVideoAsync(review.ReviewId);
             return mapper.Map<ReviewModel>(updatedReview);
-            
         }
         catch
         {
@@ -136,11 +170,11 @@ public class ReviewsService(
             throw;
         }
     }
-    
+
     private static async Task ValidateAsync<T>(IValidator<T> validator, T model)
     {
         var validationResult = await validator.ValidateAsync(model);
-        
+
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors
@@ -149,7 +183,7 @@ public class ReviewsService(
                     g => g.Key,
                     g => g.Select(e => e.ErrorMessage).ToArray()
                 );
-            
+
             throw new ModelValidationException(errors);
         }
     }

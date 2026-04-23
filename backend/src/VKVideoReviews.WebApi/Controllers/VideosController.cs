@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VKVideoReviews.BL.Common.Pagination;
+using VKVideoReviews.BL.Common.Paging;
 using VKVideoReviews.BL.Services.Videos.Interfaces;
 using VKVideoReviews.BL.Services.Videos.Models;
 using VKVideoReviews.WebApi.Controllers.Requests.Videos;
+using VKVideoReviews.WebApi.Controllers.Responses.Pagination;
 using VKVideoReviews.WebApi.Controllers.Responses.Videos;
 
 namespace VKVideoReviews.WebApi.Controllers;
@@ -25,15 +28,17 @@ public class VideosController(IVideosService videosService, IMapper mapper)
 
     [HttpGet("")]
     [AllowAnonymous]
-    public async Task<ActionResult<VideosListResponse>> GetAllVideos()
+    public async Task<ActionResult<PagedResponse<VideoResponse>>> GetVideos(
+        [FromQuery] VideosPageRequest request)
     {
-        var videoModels = await videosService.GetAllVideosAsync();
-        return Ok(new VideosListResponse(mapper.Map<List<VideoResponse>>(videoModels)));
+        var filter = mapper.Map<VideosFilterModel>(request);
+        var pagedVideos = await videosService.GetVideosPagedAsync(filter);
+        return Ok(mapper.Map<PagedResponse<VideoResponse>>(pagedVideos));
     }
 
     [HttpGet("{videoId}")]
     [AllowAnonymous]
-    public async Task<ActionResult<VideosListResponse>> GetAllVideos(Guid videoId)
+    public async Task<ActionResult<VideosListResponse>> GetVideoById(Guid videoId)
     {
         var videoModel = await videosService.GetVideoByIdAsync(videoId);
         return Ok(new VideosListResponse([mapper.Map<VideoResponse>(videoModel)]));

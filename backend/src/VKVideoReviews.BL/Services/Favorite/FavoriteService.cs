@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using FluentValidation;
+using VKVideoReviews.BL.Common.Pagination;
+using VKVideoReviews.BL.Common.Paging;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.Favorite.Interfaces;
 using VKVideoReviews.BL.Services.Favorite.Models;
@@ -7,7 +10,10 @@ using VKVideoReviews.DA.UnitOfWork.Interfaces;
 
 namespace VKVideoReviews.BL.Services.Favorite;
 
-public class FavoriteService(IMapper mapper, IUnitOfWork unitOfWork) : IFavoriteService
+public class FavoriteService(
+    IMapper mapper,
+    IUnitOfWork unitOfWork,
+    IValidator<PageRequestModel> pageRequestValidator) : IFavoriteService
 {
     public async Task<FavoriteModel> CreateFavoriteAsync(Guid userId, CreateFavoriteModel createFavoriteModel)
     {
@@ -39,10 +45,25 @@ public class FavoriteService(IMapper mapper, IUnitOfWork unitOfWork) : IFavorite
         }
     }
 
-    public async Task<IEnumerable<FavoriteModel>> GetAllFavoriteAsync(Guid userId)
+    public async Task<PagedListModel<FavoriteModel>> GetMyFavoritePagedAsync(Guid userId, PageRequestModel pageRequest)
     {
-        var favorite = await unitOfWork.Favorite.GetAllFavoriteByUserIdWithVideoAsync(userId);
-        return mapper.Map<IEnumerable<FavoriteModel>>(favorite);
+        var validationResult = await pageRequestValidator.ValidateAsync(pageRequest);
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray()
+                );
+            throw new ModelValidationException(errors);
+        }
+
+        var (favorites, totalCount) = await unitOfWork.Favorite
+            .GetFavoritesByUserPagedWithVideoAsync(userId, pageRequest.PageNumber, pageRequest.PageSize);
+
+        var items = mapper.Map<List<FavoriteModel>>(favorites);
+        return new PagedListModel<FavoriteModel>(items, totalCount, pageRequest.PageNumber, pageRequest.PageSize);
     }
 
     public async Task DeleteFavoriteAsync(Guid userId, Guid videoId)

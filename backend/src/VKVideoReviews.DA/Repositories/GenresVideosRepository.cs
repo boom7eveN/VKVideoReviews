@@ -14,10 +14,8 @@ public class GenresVideosRepository(VkVideoReviewsDbContext context) : IGenresVi
 
     public async Task DeleteGenreVideoByVideoIdAsync(Guid videoId)
     {
-        var genresVideosEntities = await context.GenresVideosEntities
+        await context.GenresVideosEntities
             .Where(x => x.VideoId == videoId)
-            .ToListAsync();
-
-        context.GenresVideosEntities.RemoveRange(genresVideosEntities);
+            .ExecuteDeleteAsync();
     }
 }

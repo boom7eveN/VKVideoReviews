@@ -2,6 +2,8 @@
 using AutoMapper;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Distributed;
+using VKVideoReviews.BL.Common.Pagination;
+using VKVideoReviews.BL.Common.Paging;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.Videos.Interfaces;
 using VKVideoReviews.BL.Services.Videos.Models;
@@ -15,9 +17,9 @@ public class VideosService(
     IMapper mapper,
     IValidator<CreateVideoModel> createValidator,
     IValidator<UpdateVideoModel> updateValidator,
+    IValidator<VideosFilterModel> videosFilterValidator,
     IDistributedCache cache) : IVideosService
 {
-    internal static string VideoCacheKey(Guid videoId) => $"video:{videoId}";
     private static readonly TimeSpan VideoCacheTime = TimeSpan.FromMinutes(5);
 
     public async Task<VideoModel> CreateVideoAsync(CreateVideoModel createVideoModel)
@@ -67,11 +69,18 @@ public class VideosService(
         }
     }
 
-    public async Task<IEnumerable<VideoModel>> GetAllVideosAsync()
+    public async Task<PagedListModel<VideoModel>> GetVideosPagedAsync(VideosFilterModel filter)
     {
-        var videos =
-            await unitOfWork.Videos.GetAllVideosWithGenresAndVideotypeAsync();
-        return mapper.Map<IEnumerable<VideoModel>>(videos);
+        await ValidateAsync(videosFilterValidator, filter);
+
+        var (videos, totalCount) = await unitOfWork.Videos.GetVideosPagedWithGenresAndVideotypeAsync(
+            filter.PageNumber,
+            filter.PageSize,
+            filter.TitlePart);
+
+        var items = mapper.Map<List<VideoModel>>(videos);
+
+        return new PagedListModel<VideoModel>(items, totalCount, filter.PageNumber, filter.PageSize);
     }
 
     public async Task<VideoModel> GetVideoByIdAsync(Guid videoId)
@@ -79,10 +88,7 @@ public class VideosService(
         var cacheKey = VideoCacheKey(videoId);
         var cached = await cache.GetStringAsync(cacheKey);
 
-        if (cached is not null)
-        {
-            return JsonSerializer.Deserialize<VideoModel>(cached)!;
-        }
+        if (cached is not null) return JsonSerializer.Deserialize<VideoModel>(cached)!;
 
         var video = await unitOfWork.Videos.GetVideoByIdWithGenresVideotypeAndReviewsAsync(videoId);
         if (video is null)
@@ -190,6 +196,11 @@ public class VideosService(
             await unitOfWork.RollbackAsync();
             throw;
         }
+    }
+
+    internal static string VideoCacheKey(Guid videoId)
+    {
+        return $"video:{videoId}";
     }
 
     private async Task CacheVideoAsync(VideoModel video)
