@@ -2,6 +2,7 @@
 using System.Text;
 using AutoMapper;
 using VKVideoReviews.BL.Clients.Interfaces;
+using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Integrations.Vk.Contracts.Requests;
 using VKVideoReviews.BL.Integrations.Vk.Contracts.Responses;
 using VKVideoReviews.BL.Services.AppAuth.Interfaces;
@@ -149,6 +150,15 @@ public class AppAuthService(
             await unitOfWork.RollbackAsync();
             throw;
         }
+    }
+
+    public async Task<UserModel> GetUserByIdAsync(Guid userId)
+    {
+        var user = await unitOfWork.Users.GetUserByIdAsync(userId);
+        if (user is null)
+            throw new NotFoundException("User", userId);
+
+        return mapper.Map<UserModel>(user);
     }
 
     private static string CreateRefreshToken()

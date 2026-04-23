@@ -7,4 +7,5 @@ public interface IAppAuthService
 {
     Task<AuthTokensModel> SignInWithVkTokensAsync(VkTokensApiResponse vkTokens);
     Task<AuthTokensModel?> RefreshAsync(string refreshToken);
+    Task<UserModel> GetUserByIdAsync(Guid userId);
 }
