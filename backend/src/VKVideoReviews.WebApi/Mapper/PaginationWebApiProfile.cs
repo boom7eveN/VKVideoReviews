@@ -1,6 +1,5 @@
 using AutoMapper;
 using VKVideoReviews.BL.Common.Pagination;
-using VKVideoReviews.BL.Common.Paging;
 using VKVideoReviews.WebApi.Controllers.Requests.Pagination;
 using VKVideoReviews.WebApi.Controllers.Requests.Videos;
 using VKVideoReviews.WebApi.Controllers.Responses.Pagination;

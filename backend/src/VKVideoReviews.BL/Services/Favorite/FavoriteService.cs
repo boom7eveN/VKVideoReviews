@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using VKVideoReviews.BL.Common.Pagination;
-using VKVideoReviews.BL.Common.Paging;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.Favorite.Interfaces;
 using VKVideoReviews.BL.Services.Favorite.Models;

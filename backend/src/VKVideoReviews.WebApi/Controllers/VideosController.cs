@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VKVideoReviews.BL.Common.Pagination;
-using VKVideoReviews.BL.Common.Paging;
 using VKVideoReviews.BL.Services.Videos.Interfaces;
 using VKVideoReviews.BL.Services.Videos.Models;
 using VKVideoReviews.WebApi.Controllers.Requests.Videos;
