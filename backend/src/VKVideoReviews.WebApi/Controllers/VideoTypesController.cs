@@ -9,14 +9,13 @@ using VKVideoReviews.WebApi.Controllers.Responses.VideoType;
 namespace VKVideoReviews.WebApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/video-types")]
 public class VideoTypesController(
     IVideoTypesService videoTypesService,
     IMapper mapper)
     : ControllerBase
 {
     [HttpPost]
-    [Route("")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<VideoTypesListResponse>> CreateVideoType(
         [FromBody] CreateVideoTypeRequest createVideoTypeRequest)
@@ -26,7 +25,7 @@ public class VideoTypesController(
         return Ok(new VideoTypesListResponse([mapper.Map<VideoTypeResponse>(videoTypeModel)]));
     }
 
-    [HttpGet("")]
+    [HttpGet]
     [AllowAnonymous]
     public async Task<ActionResult<VideoTypesListResponse>> GetAllVideoTypes()
     {

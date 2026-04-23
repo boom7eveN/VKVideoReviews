@@ -7,7 +7,7 @@ using VKVideoReviews.WebApi.Controllers.Responses.AppAuth;
 namespace VKVideoReviews.WebApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/auth/tokens")]
 public class AppAuthController(IAppAuthService appAuthService, IMapper mapper) : ControllerBase
 {
     [HttpPost("refresh")]

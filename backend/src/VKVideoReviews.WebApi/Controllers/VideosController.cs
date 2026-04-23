@@ -11,12 +11,11 @@ using VKVideoReviews.WebApi.Controllers.Responses.Videos;
 namespace VKVideoReviews.WebApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/videos")]
 public class VideosController(IVideosService videosService, IMapper mapper)
     : ControllerBase
 {
     [HttpPost]
-    [Route("")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<VideosListResponse>> CreateVideo([FromBody] CreateVideoRequest createVideoRequest)
     {
@@ -25,7 +24,7 @@ public class VideosController(IVideosService videosService, IMapper mapper)
         return Ok(new VideosListResponse([mapper.Map<VideoResponse>(videoModel)]));
     }
 
-    [HttpGet("")]
+    [HttpGet]
     [AllowAnonymous]
     public async Task<ActionResult<PagedResponse<VideoResponse>>> GetVideos(
         [FromQuery] VideosPageRequest request)

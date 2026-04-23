@@ -13,7 +13,7 @@ using VKVideoReviews.WebApi.Controllers.Responses.Pagination;
 namespace VKVideoReviews.WebApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/users/me/favorites")]
 public class FavoriteController(
     IFavoriteService favoriteService,
     IMapper mapper) : ControllerBase
@@ -40,9 +40,8 @@ public class FavoriteController(
         return Ok(new FavoriteListResponse([mapper.Map<FavoriteResponse>(favoriteModel)]));
     }
 
-    [HttpDelete]
+    [HttpDelete("{videoId:guid}")]
     [Authorize(Roles = "User, Admin")]
-    [Route("{videoId}")]
     public async Task<IActionResult> DeleteMyFavorite(Guid videoId)
     {
         var userId = this.GetCurrentUserId();

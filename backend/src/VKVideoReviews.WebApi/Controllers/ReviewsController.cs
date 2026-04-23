@@ -13,13 +13,13 @@ using VKVideoReviews.WebApi.Controllers.Responses.Reviews;
 namespace VKVideoReviews.WebApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api")]
 public class ReviewsController(
     IReviewsService reviewsService,
     IMapper mapper)
     : ControllerBase
 {
-    [HttpGet("{reviewId}")]
+    [HttpGet("reviews/{reviewId:guid}")]
     [AllowAnonymous]
     public async Task<ActionResult<ReviewResponse>> GetReview(Guid reviewId)
     {
@@ -27,7 +27,7 @@ public class ReviewsController(
         return Ok(mapper.Map<ReviewResponse>(reviewModel));
     }
 
-    [HttpGet("")]
+    [HttpGet("reviews")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<PagedResponse<ReviewResponse>>> GetAllReviews(
         [FromQuery] PageRequest request)
@@ -37,7 +37,7 @@ public class ReviewsController(
         return Ok(mapper.Map<PagedResponse<ReviewResponse>>(pagedReviews));
     }
 
-    [HttpGet("videos/{videoId}")]
+    [HttpGet("videos/{videoId:guid}/reviews")]
     [AllowAnonymous]
     public async Task<ActionResult<PagedResponse<ReviewResponse>>> GetReviewsByVideo(
         Guid videoId,
@@ -48,7 +48,7 @@ public class ReviewsController(
         return Ok(mapper.Map<PagedResponse<ReviewResponse>>(pagedReviews));
     }
 
-    [HttpGet("my")]
+    [HttpGet("users/me/reviews")]
     [Authorize(Roles = "User, Admin")]
     public async Task<ActionResult<PagedResponse<ReviewResponse>>> GetMyReviews(
         [FromQuery] PageRequest request)
@@ -59,7 +59,7 @@ public class ReviewsController(
         return Ok(mapper.Map<PagedResponse<ReviewResponse>>(pagedReviews));
     }
 
-    [HttpPost("videos/{videoId}")]
+    [HttpPost("videos/{videoId:guid}/reviews")]
     [Authorize(Roles = "User, Admin")]
     public async Task<ActionResult<ReviewResponse>> CreateMyReview(
         Guid videoId,
@@ -73,7 +73,7 @@ public class ReviewsController(
         return Ok(mapper.Map<ReviewResponse>(reviewModel));
     }
 
-    [HttpDelete("videos/{videoId}")]
+    [HttpDelete("videos/{videoId:guid}/reviews/me")]
     [Authorize(Roles = "User, Admin")]
     public async Task<IActionResult> DeleteMyReview(Guid videoId)
     {
@@ -84,7 +84,7 @@ public class ReviewsController(
         return NoContent();
     }
 
-    [HttpPut("videos/{videoId}")]
+    [HttpPut("videos/{videoId:guid}/reviews/me")]
     [Authorize(Roles = "User, Admin")]
     public async Task<ActionResult<ReviewResponse>> UpdateMyReview(
         Guid videoId,

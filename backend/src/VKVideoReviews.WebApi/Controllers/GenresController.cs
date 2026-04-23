@@ -10,12 +10,11 @@ using VKVideoReviews.WebApi.Controllers.Responses.Genres;
 namespace VKVideoReviews.WebApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/genres")]
 public class GenresController(IGenresService genresService, IMapper mapper)
     : ControllerBase
 {
     [HttpPost]
-    [Route("")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<GenresListResponse>> CreateGenre(
         [FromBody] CreateGenreRequest createGenreRequest)
@@ -25,7 +24,7 @@ public class GenresController(IGenresService genresService, IMapper mapper)
         return Ok(new GenresListResponse([mapper.Map<GenreResponse>(genreModel)]));
     }
 
-    [HttpGet("")]
+    [HttpGet]
     [AllowAnonymous]
     public async Task<ActionResult<GenresListResponse>> GetAllGenres()
     {
