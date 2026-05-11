@@ -134,15 +134,20 @@ export function ProfilePage() {
             {favoritesQuery.data && favoritesQuery.data.items.length > 0 && (
               <div className="grid grid-videos">
                 {favoritesQuery.data.items.map((f) => (
-                  <div key={f.video.videoId} style={{ position: "relative" }}>
+                  <div
+                    key={f.video.videoId}
+                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                  >
                     <VideoCard video={f.video} />
                     <button
                       className="btn btn-sm btn-danger"
-                      style={{ position: "absolute", top: 10, left: 10, zIndex: 1 }}
-                      onClick={() => removeFavorite.mutate(f.video.videoId)}
+                      onClick={() => {
+                        if (confirm(`Убрать «${f.video.title}» из избранного?`))
+                          removeFavorite.mutate(f.video.videoId);
+                      }}
                       disabled={removeFavorite.isPending}
                     >
-                      Убрать
+                      ♥ Убрать из избранного
                     </button>
                   </div>
                 ))}

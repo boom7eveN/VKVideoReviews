@@ -29,6 +29,15 @@ public class FavoriteController(
         return Ok(mapper.Map<PagedResponse<FavoriteResponse>>(pagedFavorite));
     }
 
+    [HttpGet("{videoId:guid}")]
+    [Authorize(Roles = "User, Admin")]
+    public async Task<ActionResult<FavoriteListResponse>> GetMyFavorite(Guid videoId)
+    {
+        var userId = this.GetCurrentUserId();
+        var favoriteModel = await favoriteService.GetFavoriteAsync(userId, videoId);
+        return Ok(new FavoriteListResponse([mapper.Map<FavoriteResponse>(favoriteModel)]));
+    }
+
     [HttpPost]
     [Authorize(Roles = "User, Admin")]
     public async Task<ActionResult<FavoriteListResponse>> CreateMyFavorite(

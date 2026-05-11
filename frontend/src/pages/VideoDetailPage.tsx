@@ -34,12 +34,34 @@ export function VideoDetailPage() {
 
   const myReviewInList = reviewsQuery.data?.items.find((r) => r.user.userId === user?.userId);
 
+  const favoriteStatusQuery = useQuery({
+    queryKey: ["favorite-status", id],
+    queryFn: () => favoritesApi.isFavorite(id),
+    enabled: !!id && isAuthenticated,
+  });
+
   const addFavorite = useMutation({
     mutationFn: () => favoritesApi.add(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["favorites"] });
+      queryClient.invalidateQueries({ queryKey: ["favorite-status", id] });
     },
   });
+
+  const removeFavorite = useMutation({
+    mutationFn: () => favoritesApi.remove(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
+      queryClient.invalidateQueries({ queryKey: ["favorite-status", id] });
+    },
+  });
+
+  const isFavorited = favoriteStatusQuery.data === true;
+  const favoritePending = addFavorite.isPending || removeFavorite.isPending;
+  const favoriteError =
+    (addFavorite.error instanceof HttpError && addFavorite.error) ||
+    (removeFavorite.error instanceof HttpError && removeFavorite.error) ||
+    null;
 
   if (videoQuery.isLoading) return <Loader />;
   if (videoQuery.isError || !videoQuery.data)
@@ -133,19 +155,30 @@ export function VideoDetailPage() {
                 Смотреть в VK Видео ↗
               </a>
             )}
-            {isAuthenticated && (
-              <button
-                className="btn"
-                onClick={() => addFavorite.mutate()}
-                disabled={addFavorite.isPending}
-              >
-                {addFavorite.isSuccess ? "✓ В избранном" : "+ В избранное"}
-              </button>
+            {isAuthenticated && !favoriteStatusQuery.isLoading && (
+              isFavorited ? (
+                <button
+                  className="btn btn-danger"
+                  onClick={() => removeFavorite.mutate()}
+                  disabled={favoritePending}
+                  title="Убрать из избранного"
+                >
+                  ♥ В избранном · Убрать
+                </button>
+              ) : (
+                <button
+                  className="btn"
+                  onClick={() => addFavorite.mutate()}
+                  disabled={favoritePending}
+                >
+                  + В избранное
+                </button>
+              )
             )}
           </div>
-          {addFavorite.isError && addFavorite.error instanceof HttpError && (
+          {favoriteError && (
             <div className="muted" style={{ fontSize: 13 }}>
-              {addFavorite.error.payload?.message ?? "Не удалось добавить"}
+              {favoriteError.payload?.message ?? "Не удалось обновить избранное"}
             </div>
           )}
         </div>

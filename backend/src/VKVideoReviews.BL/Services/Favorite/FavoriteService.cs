@@ -65,6 +65,14 @@ public class FavoriteService(
         return new PagedListModel<FavoriteModel>(items, totalCount, pageRequest.PageNumber, pageRequest.PageSize);
     }
 
+    public async Task<FavoriteModel> GetFavoriteAsync(Guid userId, Guid videoId)
+    {
+        var favorite = await unitOfWork.Favorite.GetFavoriteWithVideoAsync(userId, videoId);
+        if (favorite is null)
+            throw new NotFoundException("Favorite");
+        return mapper.Map<FavoriteModel>(favorite);
+    }
+
     public async Task DeleteFavoriteAsync(Guid userId, Guid videoId)
     {
         await using var transaction = await unitOfWork.BeginTransactionAsync();

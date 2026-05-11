@@ -126,8 +126,7 @@ public class VideosService(
             if (updateVideoModel.StartYear.HasValue)
                 video.StartYear = updateVideoModel.StartYear.Value;
 
-            if (updateVideoModel.EndYear != null)
-                video.EndYear = updateVideoModel.EndYear;
+            video.EndYear = updateVideoModel.EndYear;
 
             if (updateVideoModel.VideoTypeId.HasValue)
             {
