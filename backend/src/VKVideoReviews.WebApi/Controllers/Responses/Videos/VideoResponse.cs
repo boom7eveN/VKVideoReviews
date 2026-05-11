@@ -1,5 +1,4 @@
 ﻿using VKVideoReviews.WebApi.Controllers.Responses.Genres;
-using VKVideoReviews.WebApi.Controllers.Responses.Reviews;
 using VKVideoReviews.WebApi.Controllers.Responses.VideoType;
 
 namespace VKVideoReviews.WebApi.Controllers.Responses.Videos;
@@ -17,5 +16,4 @@ public class VideoResponse
     public int TotalReviews { get; set; } = 0;
     public VideoTypeResponse VideoType { get; set; }
     public List<GenreResponse> Genres { get; set; } = new();
-    public List<ReviewResponse> Reviews { get; set; } = new();
 }

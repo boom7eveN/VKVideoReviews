@@ -2,6 +2,7 @@
 using AutoMapper;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Distributed;
+using VKVideoReviews.BL.Common.Caching;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.Genres.Interfaces;
 using VKVideoReviews.BL.Services.Genres.Models;
@@ -84,7 +85,8 @@ public class GenresService(
             if (genre is null)
                 throw new NotFoundException("Genre", genreId);
 
-            if (!string.Equals(genre.Title, updateGenreModel.Title, StringComparison.OrdinalIgnoreCase))
+            var titleChanged = !string.Equals(genre.Title, updateGenreModel.Title, StringComparison.OrdinalIgnoreCase);
+            if (titleChanged)
             {
                 var existing = await unitOfWork.Genres.GetGenreByTitleAsync(updateGenreModel.Title);
                 if (existing is not null && existing.GenreId != genreId) throw new AlreadyExistsException("Genre");
@@ -95,6 +97,10 @@ public class GenresService(
 
             await unitOfWork.CommitAsync();
             await cache.RemoveAsync(AllGenresCacheKey);
+
+            if (titleChanged)
+                await InvalidateRelatedVideosCacheAsync(genreId);
+
             return mapper.Map<GenreModel>(genre);
         }
         catch
@@ -114,15 +120,27 @@ public class GenresService(
             if (genre is null)
                 throw new NotFoundException("Genre", genreId);
 
+            var affectedVideoIds = await unitOfWork.GenresVideos.GetVideoIdsByGenreIdAsync(genreId);
+
             unitOfWork.Genres.DeleteGenre(genre);
             await unitOfWork.CommitAsync();
             await cache.RemoveAsync(AllGenresCacheKey);
+
+            foreach (var videoId in affectedVideoIds)
+                await cache.RemoveAsync(VideoCacheKeys.Video(videoId));
         }
         catch
         {
             await unitOfWork.RollbackAsync();
             throw;
         }
+    }
+
+    private async Task InvalidateRelatedVideosCacheAsync(Guid genreId)
+    {
+        var videoIds = await unitOfWork.GenresVideos.GetVideoIdsByGenreIdAsync(genreId);
+        foreach (var videoId in videoIds)
+            await cache.RemoveAsync(VideoCacheKeys.Video(videoId));
     }
 
     private static async Task ValidateAsync<T>(IValidator<T> validator, T model)

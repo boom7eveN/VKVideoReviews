@@ -14,6 +14,7 @@
 - Serilog
 - Swagger
 - JWT
+- Typescript + React 18
 
 ## Быстрый старт (Docker)
 
@@ -44,8 +45,8 @@ docker compose up -d --build
 
 После запуска:
 
-- API: `http://localhost:80`
-- Swagger: `http://localhost:80/swagger`
+- Frontend: `http://localhost`
+- Swagger: `http://localhost/swagger`
 - PostgreSQL: `localhost:5432`
 - Redis: `localhost:6379`
 

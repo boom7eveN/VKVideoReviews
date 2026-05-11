@@ -84,7 +84,8 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
         var totalCount = await query.CountAsync();
 
         var items = await query
-            .OrderByDescending(v => v.AverageRate)
+            .OrderByDescending(v => v.CreatedAt)
+            .ThenByDescending(v => v.AverageRate)
             .ThenBy(v => v.VideoId)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
@@ -121,6 +122,15 @@ public class VideosRepository(VkVideoReviewsDbContext context) : IVideosReposito
         return await context.Videos
             .FromSqlRaw("SELECT * FROM \"Videos\" WHERE \"VideoId\" = {0} FOR UPDATE", videoId)
             .FirstOrDefaultAsync();
+    }
+
+    public async Task<IReadOnlyList<Guid>> GetVideoIdsByVideoTypeIdAsync(Guid videoTypeId)
+    {
+        return await context.Videos
+            .AsNoTracking()
+            .Where(v => v.VideoTypeId == videoTypeId)
+            .Select(v => v.VideoId)
+            .ToListAsync();
     }
 
     private static string EscapeLikePattern(string input)

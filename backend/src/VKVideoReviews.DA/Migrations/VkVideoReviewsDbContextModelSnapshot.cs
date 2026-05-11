@@ -246,6 +246,11 @@ namespace VKVideoReviews.DA.Migrations
                         .HasColumnType("double precision")
                         .HasDefaultValue(0.0);
 
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -277,6 +282,8 @@ namespace VKVideoReviews.DA.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("VideoId");
+
+                    b.HasIndex("CreatedAt");
 
                     b.HasIndex("VideoTypeId");
 

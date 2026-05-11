@@ -28,6 +28,8 @@ public static class MapperConfigurator
 
             config.AddProfile<FavoriteBLProfile>();
             config.AddProfile<FavoriteWebApiProfile>();
+
+            config.AddProfile<PaginationWebApiProfile>();
         });
     }
 }

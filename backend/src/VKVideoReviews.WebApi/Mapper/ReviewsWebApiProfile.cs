@@ -12,5 +12,6 @@ public class ReviewsWebApiProfile : Profile
         CreateMap<CreateReviewRequest, CreateReviewModel>();
         CreateMap<UpdateReviewRequest, UpdateReviewModel>();
         CreateMap<ReviewModel, ReviewResponse>();
+        CreateMap<ReviewModel, ReviewSummaryResponse>();
     }
 }

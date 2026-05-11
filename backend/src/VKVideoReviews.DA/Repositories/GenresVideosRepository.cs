@@ -18,4 +18,13 @@ public class GenresVideosRepository(VkVideoReviewsDbContext context) : IGenresVi
             .Where(x => x.VideoId == videoId)
             .ExecuteDeleteAsync();
     }
+
+    public async Task<IReadOnlyList<Guid>> GetVideoIdsByGenreIdAsync(Guid genreId)
+    {
+        return await context.GenresVideosEntities
+            .AsNoTracking()
+            .Where(gv => gv.GenreId == genreId)
+            .Select(gv => gv.VideoId)
+            .ToListAsync();
+    }
 }

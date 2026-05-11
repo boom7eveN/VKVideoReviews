@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Distributed;
+using VKVideoReviews.BL.Common.Caching;
 using VKVideoReviews.BL.Common.Pagination;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.Reviews.Interfaces;
 using VKVideoReviews.BL.Services.Reviews.Models;
-using VKVideoReviews.BL.Services.Videos;
 using VKVideoReviews.DA.Entities;
 using VKVideoReviews.DA.UnitOfWork.Interfaces;
 
@@ -49,7 +49,7 @@ public class ReviewsService(
             await unitOfWork.Videos.UpdateVideoRatingByIdAsync(videoId);
 
             await transaction.CommitAsync();
-            await cache.RemoveAsync(VideosService.VideoCacheKey(videoId));
+            await cache.RemoveAsync(VideoCacheKeys.Video(videoId));
             var createdReview = await unitOfWork.Reviews.GetReviewByIdWithUserAndVideoAsync(review.ReviewId);
             return mapper.Map<ReviewModel>(createdReview);
         }
@@ -79,7 +79,7 @@ public class ReviewsService(
             await unitOfWork.Videos.UpdateVideoRatingByIdAsync(videoId);
 
             await transaction.CommitAsync();
-            await cache.RemoveAsync(VideosService.VideoCacheKey(videoId));
+            await cache.RemoveAsync(VideoCacheKeys.Video(videoId));
         }
         catch
         {
@@ -159,7 +159,7 @@ public class ReviewsService(
             await unitOfWork.Videos.UpdateVideoRatingByIdAsync(videoId);
 
             await transaction.CommitAsync();
-            await cache.RemoveAsync(VideosService.VideoCacheKey(videoId));
+            await cache.RemoveAsync(VideoCacheKeys.Video(videoId));
             var updatedReview = await unitOfWork.Reviews.GetReviewByIdWithUserAndVideoAsync(review.ReviewId);
             return mapper.Map<ReviewModel>(updatedReview);
         }

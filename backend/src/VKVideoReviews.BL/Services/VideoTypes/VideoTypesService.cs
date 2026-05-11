@@ -2,6 +2,7 @@
 using AutoMapper;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Distributed;
+using VKVideoReviews.BL.Common.Caching;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.VideoTypes.Interfaces;
 using VKVideoReviews.BL.Services.VideoTypes.Models;
@@ -86,7 +87,8 @@ public class VideoTypesService(
             if (videoType is null)
                 throw new NotFoundException("VideoType", videoTypeId);
 
-            if (!string.Equals(videoType.Title, updateVideoTypeModel.Title, StringComparison.OrdinalIgnoreCase))
+            var titleChanged = !string.Equals(videoType.Title, updateVideoTypeModel.Title, StringComparison.OrdinalIgnoreCase);
+            if (titleChanged)
             {
                 var existing = await unitOfWork.VideoTypes.GetVideoTypeByTitleAsync(updateVideoTypeModel.Title);
                 if (existing is not null && existing.VideoTypeId != videoTypeId)
@@ -97,6 +99,10 @@ public class VideoTypesService(
             unitOfWork.VideoTypes.UpdateVideoType(videoType);
             await unitOfWork.CommitAsync();
             await cache.RemoveAsync(AllVideoTypesCacheKey);
+
+            if (titleChanged)
+                await InvalidateRelatedVideosCacheAsync(videoTypeId);
+
             return mapper.Map<VideoTypeModel>(videoType);
         }
         catch
@@ -115,15 +121,27 @@ public class VideoTypesService(
             if (videoType is null)
                 throw new NotFoundException("VideoType", videoTypeId);
 
+            var affectedVideoIds = await unitOfWork.Videos.GetVideoIdsByVideoTypeIdAsync(videoTypeId);
+
             unitOfWork.VideoTypes.DeleteVideoType(videoType);
             await unitOfWork.CommitAsync();
             await cache.RemoveAsync(AllVideoTypesCacheKey);
+
+            foreach (var videoId in affectedVideoIds)
+                await cache.RemoveAsync(VideoCacheKeys.Video(videoId));
         }
         catch
         {
             await unitOfWork.RollbackAsync();
             throw;
         }
+    }
+
+    private async Task InvalidateRelatedVideosCacheAsync(Guid videoTypeId)
+    {
+        var videoIds = await unitOfWork.Videos.GetVideoIdsByVideoTypeIdAsync(videoTypeId);
+        foreach (var videoId in videoIds)
+            await cache.RemoveAsync(VideoCacheKeys.Video(videoId));
     }
 
     private static async Task ValidateAsync<T>(IValidator<T> validator, T model)

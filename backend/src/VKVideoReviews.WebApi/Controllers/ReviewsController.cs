@@ -39,13 +39,13 @@ public class ReviewsController(
 
     [HttpGet("videos/{videoId:guid}/reviews")]
     [AllowAnonymous]
-    public async Task<ActionResult<PagedResponse<ReviewResponse>>> GetReviewsByVideo(
+    public async Task<ActionResult<PagedResponse<ReviewSummaryResponse>>> GetReviewsByVideo(
         Guid videoId,
         [FromQuery] PageRequest request)
     {
         var pageRequest = mapper.Map<PageRequestModel>(request);
         var pagedReviews = await reviewsService.GetReviewsByVideoPagedAsync(videoId, pageRequest);
-        return Ok(mapper.Map<PagedResponse<ReviewResponse>>(pagedReviews));
+        return Ok(mapper.Map<PagedResponse<ReviewSummaryResponse>>(pagedReviews));
     }
 
     [HttpGet("users/me/reviews")]
@@ -61,7 +61,7 @@ public class ReviewsController(
 
     [HttpPost("videos/{videoId:guid}/reviews")]
     [Authorize(Roles = "User, Admin")]
-    public async Task<ActionResult<ReviewResponse>> CreateMyReview(
+    public async Task<ActionResult<ReviewSummaryResponse>> CreateMyReview(
         Guid videoId,
         [FromBody] CreateReviewRequest createReviewRequest)
     {
@@ -70,7 +70,7 @@ public class ReviewsController(
         var createReviewModel = mapper.Map<CreateReviewModel>(createReviewRequest);
         var reviewModel = await reviewsService.CreateReviewAsync(userId, videoId, createReviewModel);
 
-        return Ok(mapper.Map<ReviewResponse>(reviewModel));
+        return Ok(mapper.Map<ReviewSummaryResponse>(reviewModel));
     }
 
     [HttpDelete("videos/{videoId:guid}/reviews/me")]
@@ -86,7 +86,7 @@ public class ReviewsController(
 
     [HttpPut("videos/{videoId:guid}/reviews/me")]
     [Authorize(Roles = "User, Admin")]
-    public async Task<ActionResult<ReviewResponse>> UpdateMyReview(
+    public async Task<ActionResult<ReviewSummaryResponse>> UpdateMyReview(
         Guid videoId,
         [FromBody] UpdateReviewRequest updateReviewRequest)
     {
@@ -95,6 +95,6 @@ public class ReviewsController(
         var updateReviewModel = mapper.Map<UpdateReviewModel>(updateReviewRequest);
         var reviewModel = await reviewsService.UpdateReviewAsync(userId, videoId, updateReviewModel);
 
-        return Ok(mapper.Map<ReviewResponse>(reviewModel));
+        return Ok(mapper.Map<ReviewSummaryResponse>(reviewModel));
     }
 }

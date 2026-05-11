@@ -27,6 +27,7 @@ MapperConfigurator.ConfigureServices(builder.Services);
 ServicesConfigurator.ConfigureServices(builder.Services, settings);
 JwtAuthenticationConfigurator.ConfigureServices(builder.Services, settings);
 DbContextConfigurator.ConfigureService(builder.Services, settings);
+CorsConfigurator.ConfigureServices(builder.Services, settings);
 
 var app = builder.Build();
 SerilogConfigurator.ConfigureApplication(app);
@@ -34,6 +35,7 @@ ExceptionHandlerConfigurator.ConfigureApplication(app);
 SwaggerConfigurator.ConfigureApplication(app);
 DbContextConfigurator.ConfigureApplication(app);
 
+CorsConfigurator.ConfigureApplication(app);
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

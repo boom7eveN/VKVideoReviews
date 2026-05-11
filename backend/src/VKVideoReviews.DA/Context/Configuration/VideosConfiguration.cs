@@ -16,6 +16,12 @@ public static class VideosConfiguration
 
             entity.Property(v => v.TotalReviews)
                 .HasDefaultValue(0);
+
+            entity.Property(v => v.CreatedAt)
+                .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
+
+            entity.HasIndex(v => v.CreatedAt);
+
             entity.HasOne(v => v.VideoType)
                 .WithMany(vt => vt.Videos)
                 .HasForeignKey(v => v.VideoTypeId)

@@ -56,6 +56,7 @@ public static class ServicesConfigurator
 
 
         services.AddSingleton(appSettings.JwtAuthSettings);
+        services.AddSingleton(appSettings);
 
         services.AddHttpClient<IVkApiAuthClient, VkApiAuthClient>(client =>
         {

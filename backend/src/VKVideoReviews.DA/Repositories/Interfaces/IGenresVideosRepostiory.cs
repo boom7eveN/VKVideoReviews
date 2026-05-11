@@ -6,4 +6,5 @@ public interface IGenresVideosRepository
 {
     Task AddGenresVideosRangeAsync(IEnumerable<GenresVideosEntity> genresVideos);
     Task DeleteGenreVideoByVideoIdAsync(Guid videoId);
+    Task<IReadOnlyList<Guid>> GetVideoIdsByGenreIdAsync(Guid genreId);
 }

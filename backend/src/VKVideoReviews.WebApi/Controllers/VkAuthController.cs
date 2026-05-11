@@ -4,7 +4,7 @@ using VKVideoReviews.BL.Services.AppAuth.Interfaces;
 using VKVideoReviews.BL.Services.VkAuth.Interfaces;
 using VKVideoReviews.BL.Services.VkAuth.Models;
 using VKVideoReviews.WebApi.Controllers.Requests.VkAuth;
-using VKVideoReviews.WebApi.Controllers.Responses.AppAuth;
+using VKVideoReviews.WebApi.Settings;
 
 namespace VKVideoReviews.WebApi.Controllers;
 
@@ -13,7 +13,8 @@ namespace VKVideoReviews.WebApi.Controllers;
 public class VkAuthController(
     IAppAuthService appAuthService,
     IVkAuthService vkAuthService,
-    IMapper mapper) : ControllerBase
+    IMapper mapper,
+    AppSettings appSettings) : ControllerBase
 {
     [HttpGet("login")]
     public IActionResult Login()
@@ -24,9 +25,25 @@ public class VkAuthController(
     [HttpGet("callback")]
     public async Task<IActionResult> Callback([FromQuery] VkAuthCallbackRequest vkAuthCallbackRequest)
     {
-        var vkAuthCallbackModel = mapper.Map<VkAuthCallbackModel>(vkAuthCallbackRequest);
-        var vkTokens = await vkAuthService.ExchangeCodeForTokenAsync(vkAuthCallbackModel);
-        var authTokensModel = await appAuthService.SignInWithVkTokensAsync(vkTokens);
-        return Ok(mapper.Map<AuthTokensResponse>(authTokensModel));
+        var frontendBaseUrl = appSettings.FrontendBaseUrl.TrimEnd('/');
+
+        try
+        {
+            var vkAuthCallbackModel = mapper.Map<VkAuthCallbackModel>(vkAuthCallbackRequest);
+            var vkTokens = await vkAuthService.ExchangeCodeForTokenAsync(vkAuthCallbackModel);
+            var authTokens = await appAuthService.SignInWithVkTokensAsync(vkTokens);
+
+            var query =
+                $"status=ok" +
+                $"&accessToken={Uri.EscapeDataString(authTokens.AccessToken)}" +
+                $"&refreshToken={Uri.EscapeDataString(authTokens.RefreshToken)}" +
+                $"&expiresIn={authTokens.ExpiresInSeconds}";
+
+            return Redirect($"{frontendBaseUrl}/auth/callback?{query}");
+        }
+        catch
+        {
+            return Redirect($"{frontendBaseUrl}/auth/callback?status=error");
+        }
     }
 }

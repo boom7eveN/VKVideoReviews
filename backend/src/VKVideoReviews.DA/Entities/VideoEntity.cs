@@ -14,6 +14,7 @@ public class VideoEntity
     public int? EndYear { get; set; }
     public double AverageRate { get; set; } = 0.0;
     public int TotalReviews { get; set; } = 0;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public Guid VideoTypeId { get; set; }
     public VideoTypeEntity VideoType { get; set; }

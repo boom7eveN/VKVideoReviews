@@ -20,4 +20,5 @@ public interface IVideosRepository
 
     Task UpdateVideoRatingByIdAsync(Guid videoId);
     Task<VideoEntity?> GetVideoByIdLockForUpdateAsync(Guid videoId);
+    Task<IReadOnlyList<Guid>> GetVideoIdsByVideoTypeIdAsync(Guid videoTypeId);
 }

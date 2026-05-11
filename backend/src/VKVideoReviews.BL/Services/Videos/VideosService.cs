@@ -2,6 +2,7 @@
 using AutoMapper;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Distributed;
+using VKVideoReviews.BL.Common.Caching;
 using VKVideoReviews.BL.Common.Pagination;
 using VKVideoReviews.BL.Exceptions.BusinessLogicExceptions;
 using VKVideoReviews.BL.Services.Videos.Interfaces;
@@ -84,7 +85,7 @@ public class VideosService(
 
     public async Task<VideoModel> GetVideoByIdAsync(Guid videoId)
     {
-        var cacheKey = VideoCacheKey(videoId);
+        var cacheKey = VideoCacheKeys.Video(videoId);
         var cached = await cache.GetStringAsync(cacheKey);
 
         if (cached is not null) return JsonSerializer.Deserialize<VideoModel>(cached)!;
@@ -188,7 +189,7 @@ public class VideosService(
                 throw new NotFoundException("Video", videoId);
             unitOfWork.Videos.DeleteVideo(video);
             await unitOfWork.CommitAsync();
-            await cache.RemoveAsync(VideoCacheKey(videoId));
+            await cache.RemoveAsync(VideoCacheKeys.Video(videoId));
         }
         catch
         {
@@ -197,18 +198,13 @@ public class VideosService(
         }
     }
 
-    internal static string VideoCacheKey(Guid videoId)
-    {
-        return $"video:{videoId}";
-    }
-
     private async Task CacheVideoAsync(VideoModel video)
     {
         var options = new DistributedCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = VideoCacheTime
         };
-        await cache.SetStringAsync(VideoCacheKey(video.VideoId), JsonSerializer.Serialize(video), options);
+        await cache.SetStringAsync(VideoCacheKeys.Video(video.VideoId), JsonSerializer.Serialize(video), options);
     }
 
 

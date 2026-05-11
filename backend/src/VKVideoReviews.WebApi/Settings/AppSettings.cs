@@ -21,4 +21,7 @@ public class AppSettings
 
     public string RedisConnectionString { get; set; }
     public string RedisInstanceName { get; set; }
+
+    public string FrontendBaseUrl { get; set; } = string.Empty;
+    public string[] CorsAllowedOrigins { get; set; } = [];
 }
